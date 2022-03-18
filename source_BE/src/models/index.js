@@ -1,0 +1,11 @@
+module.exports.Token = require('./token.model');
+module.exports.User = require('./user.model');
+module.exports.Code = require('./code.model');
+module.exports.Image = require('./image.model');
+module.exports.Friend = require('./friend.model');
+module.exports.WaitingFriend = require('./friend.model');
+module.exports.BlackFriend = require('./friend.model');
+module.exports.Accept = require('./accept.model');
+module.exports.Conservation = require('./conservation.model');
+module.exports.Message = require('./message.model');
+module.exports.Admin = require('./admin.model');
