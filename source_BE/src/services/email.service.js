@@ -49,9 +49,23 @@ const sendVerificationEmail = async (to, code) => {
   await sendEmail(to, subject, text);
 };
 
+/**
+ * Send verification email code
+ * @param {string} to
+ * @param {string} token
+ * @returns {Promise}
+ */
+const sendResetPassword = async (to, resetPass) => {
+  const subject = 'Your Reset Password';
+  // replace this url with the link to the email verification page of your front-end app
+  const text = `<h3 style="color: #1000b5">Dear user, welcome to MM App ! </h3><br/>This is your reset Password:  <span style=" font-weight: bold; text-decoration: underline; font-size: 25px; color: #f70000">${resetPass}</span></h3> <br/> <h4 style="color: #f70000">Warning: Do not sharing for anybody !</h4> `;
+  await sendEmail(to, subject, text);
+};
+
 module.exports = {
   transport,
   sendEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,
+  sendResetPassword,
 };

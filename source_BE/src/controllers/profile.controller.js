@@ -18,7 +18,6 @@ const changeProfile = catchAsync(async (req, res) => {
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  console.log('ok');
   await profileService.resetPassword(req.user, req.body.oldPassword, req.body.password);
   res.status(httpStatus.OK).send('Your password is updated');
 });

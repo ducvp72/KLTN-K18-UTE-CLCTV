@@ -27,7 +27,6 @@ const updateProfile = async (user, userN) => {
   )
     .then((updateUser) => {
       userRes = updateUser;
-      console.log(userRes);
     })
     .catch((err) => {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);

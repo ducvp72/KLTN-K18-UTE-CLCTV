@@ -27,6 +27,14 @@ const getAge = (dateString) => {
   return age;
 };
 
+const phone = (numbSring, helpers) => {
+  const regexPhoneNumber = /^((\+)84|0)[1-9](\d{2}){4}$/;
+  if (!numbSring.match(regexPhoneNumber)) {
+    return helpers.message('Phone not Invalid !');
+  }
+  return numbSring;
+};
+
 const birthday = (value, helper) => {
   if (getAge(value) < 13) {
     return helper.message('Age must be greater than  or equal to 13');
@@ -38,4 +46,5 @@ module.exports = {
   objectId,
   password,
   birthday,
+  phone,
 };
