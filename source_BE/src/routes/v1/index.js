@@ -5,6 +5,7 @@ const docsRoute = require('./docs.route');
 const profileRoute = require('./profile.route');
 const friendRoute = require('./friend.route');
 const adminRoute = require('./admin.route');
+const sortRoute = require('./sort.route');
 
 const config = require('../../config/config');
 
@@ -31,6 +32,10 @@ const defaultRoutes = [
   {
     path: '/friend',
     route: friendRoute,
+  },
+  {
+    path: '/sort',
+    route: sortRoute,
   },
 ];
 

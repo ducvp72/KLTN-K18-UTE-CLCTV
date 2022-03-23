@@ -17,18 +17,33 @@ const createUser = catchAsync(async (req, res) => {
 });
 
 const getUsers = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['name', 'role']);
-  const options = pick(req.query, ['sortBy', 'limit', 'page']);
+  const filter = pick(req.query, ['name', 'email', 'role']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const result = await userService.queryUsers(filter, options);
+  res.send(result);
+});
+
+const getUsersClient = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['name', 'email']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
   const result = await userService.queryUsers(filter, options);
   res.send(result);
 });
 
 const getUser = catchAsync(async (req, res) => {
+  let userN;
   const user = await userService.getUserById(req.params.userId);
+
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  res.send(user);
+
+  // eslint-disable-next-line prefer-const
+  userN = JSON.parse(JSON.stringify(user));
+  delete userN.isBanned;
+  delete userN.role;
+  delete userN.isActivated;
+  res.send(userN);
 });
 
 const updateUser = catchAsync(async (req, res) => {
@@ -48,4 +63,5 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
+  getUsersClient,
 };

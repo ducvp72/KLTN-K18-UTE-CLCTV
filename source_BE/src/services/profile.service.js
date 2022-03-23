@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const { userService } = require('.');
-const { User } = require('../models');
+const { User, Search } = require('../models');
+const changeName = require('../utils/chaneName');
 const ApiError = require('../utils/ApiError');
 
 const findProfileById = async (id) => {
@@ -15,7 +16,12 @@ const findProfileById = async (id) => {
 
 const updateProfile = async (user, userN) => {
   let userRes;
-
+  const check = await Search.findOne({ user });
+  const fullname = await changeName(userN.fullname);
+  if (!check) {
+    await Search.create({ fullname, user });
+  }
+  await Search.findOneAndUpdate({ user }, { fullname });
   await User.findByIdAndUpdate(
     user.id,
     {
@@ -37,7 +43,7 @@ const updateProfile = async (user, userN) => {
 
 const resetPassword = async (user, oldPassword, newPassword) => {
   const userR = await userService.getUserById(user._id);
-  console.log(userR);
+
   if (!userR || !(await userR.isPasswordMatch(oldPassword))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Incorrect password');
   }

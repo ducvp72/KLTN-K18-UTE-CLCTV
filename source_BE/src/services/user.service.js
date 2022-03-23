@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
-const { User } = require('../models');
+const { User, Search } = require('../models');
+const changeName = require('../utils/chaneName');
 const ApiError = require('../utils/ApiError');
 
 const getUserAll = async () => {
@@ -15,7 +16,10 @@ const createUser = async (userBody) => {
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  return User.create(userBody);
+  const user = await User.create(userBody);
+  const name = await changeName(user.fullname);
+  await Search.create({ fullname: name, user });
+  return user;
 };
 
 /**
@@ -29,6 +33,18 @@ const createUser = async (userBody) => {
  */
 const queryUsers = async (filter, options) => {
   const users = await User.paginate(filter, options);
+  return users;
+};
+
+const queryUsersClient = async (filter, options) => {
+  let { fullname } = filter;
+  if (fullname === '') fullname = ' ';
+
+  if (fullname) {
+    const find = await changeName(filter.fullname);
+    filter.fullname = { $regex: find || ' ', $options: 'i' };
+  }
+  const users = await Search.paginateClient(filter, options);
   return users;
 };
 
@@ -87,6 +103,7 @@ module.exports = {
   getUserAll,
   createUser,
   queryUsers,
+  queryUsersClient,
   getUserById,
   getUserByEmail,
   updateUserById,

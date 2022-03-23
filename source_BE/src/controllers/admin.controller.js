@@ -71,6 +71,13 @@ const deleteUser = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send('User was deleted');
 });
 
+const getUsers = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['fullname', 'email', 'role']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page']);
+  const rs = await userService.queryUsers(filter, options);
+  res.send(rs);
+});
+
 module.exports = {
   registerAdmin,
   login,
@@ -82,4 +89,5 @@ module.exports = {
   getUserForAdmin,
   banUser,
   deleteUser,
+  getUsers,
 };

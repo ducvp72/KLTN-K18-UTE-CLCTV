@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { toJSON, paginate } = require('./plugins');
+const { toJSON, paginate, paginateClient } = require('./plugins');
 const { roleTypes, genderTypes } = require('../config/myConfig');
 
 const userSchema = new mongoose.Schema(
@@ -37,7 +37,8 @@ const userSchema = new mongoose.Schema(
 );
 // add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
-userSchema.plugin(paginate);
+// userSchema.plugin(paginate);
+userSchema.plugin(paginateClient);
 
 /**
  * Check if email is taken

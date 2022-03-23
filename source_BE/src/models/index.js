@@ -9,3 +9,4 @@ module.exports.Accept = require('./accept.model');
 module.exports.Conservation = require('./conservation.model');
 module.exports.Message = require('./message.model');
 module.exports.Admin = require('./admin.model');
+module.exports.Search = require('./search.model');

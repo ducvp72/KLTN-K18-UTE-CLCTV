@@ -84,6 +84,17 @@ const deleteAdmin = {
   }),
 };
 
+const sortListUser = {
+  query: Joi.object().keys({
+    fullname: Joi.string(),
+    email: Joi.string(),
+    role: Joi.string(),
+    sortBy: Joi.string(),
+    limit: Joi.number().integer(),
+    page: Joi.number().integer(),
+  }),
+};
+
 module.exports = {
   createAdmin,
   getAdmins,
@@ -97,4 +108,5 @@ module.exports = {
   defaultPasswordUser,
   getUserForAdmin,
   getUserId,
+  sortListUser,
 };
