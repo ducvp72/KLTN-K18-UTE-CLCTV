@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const { userService } = require('.');
 const { User, Search } = require('../models');
-const changeName = require('../utils/chaneName');
+const changeName = require('../utils/sort');
 const ApiError = require('../utils/ApiError');
 
 const findProfileById = async (id) => {

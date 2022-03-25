@@ -5,6 +5,7 @@ const adminValidation = require('../../validations/admin.valiadation');
 const adminController = require('../../controllers/admin.controller');
 const authController = require('../../controllers/auth.controller');
 const userController = require('../../controllers/user.controller');
+const sortController = require('../../controllers/sort.controller');
 
 const auth = require('../../middlewares/auth');
 
@@ -45,6 +46,6 @@ router.post('/ban-user-forAdmin', auth('manageUsers'), validate(adminValidation.
 
 router.post('/delete-user-forAdmin', auth('manageUsers'), validate(adminValidation.getUserId), adminController.deleteUser);
 
-router.get('/getUsers', auth('manageUsers'), validate(adminValidation.sortListUser), userController.getUsers);
+router.get('/getUsers', auth('manageUsers'), validate(adminValidation.sortListUser), sortController.getUsersForAdmin);
 
 module.exports = router;

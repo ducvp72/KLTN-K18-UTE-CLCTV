@@ -53,6 +53,7 @@ const paginate = (schema) => {
     docsPromise = docsPromise.exec();
 
     return Promise.all([countPromise, docsPromise]).then((values) => {
+      console.log('admin');
       const [totalResults, results] = values;
       const totalPages = Math.ceil(totalResults / limit);
       const result = {

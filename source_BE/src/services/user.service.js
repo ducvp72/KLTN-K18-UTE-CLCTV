@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const { User, Search } = require('../models');
-const changeName = require('../utils/chaneName');
+const changeName = require('../utils/sort');
 const ApiError = require('../utils/ApiError');
 
 const getUserAll = async () => {
@@ -32,6 +32,19 @@ const createUser = async (userBody) => {
  * @returns {Promise<QueryResult>}
  */
 const queryUsers = async (filter, options) => {
+  const { fullname, email } = filter;
+
+  if (email) {
+    // eslint-disable-next-line no-param-reassign
+    filter.email = { $regex: email.trim() || '', $options: 'i' };
+  }
+
+  if (fullname) {
+    const find = await changeName(filter.fullname);
+    // eslint-disable-next-line no-param-reassign
+    filter.fullname = { $regex: find || '', $options: 'i' };
+  }
+
   const users = await User.paginate(filter, options);
   return users;
 };

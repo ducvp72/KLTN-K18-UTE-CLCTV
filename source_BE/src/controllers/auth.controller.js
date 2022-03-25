@@ -3,7 +3,7 @@ const Verifier = require('email-verifier');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService, codeService } = require('../services');
 
-const checkValidEmail = catchAsync((req, res) => {
+const checkValidEmail = catchAsync(async (req, res) => {
   const verifier = new Verifier('at_FPj6893CCr6sOWxmHpqXEVBQ8qTgg');
   verifier.verify(req.body.email, (err, data) => {
     if (err) throw err;
@@ -13,10 +13,34 @@ const checkValidEmail = catchAsync((req, res) => {
 
 const register = catchAsync(async (req, res) => {
   // eslint-disable-next-line no-console
-  const user = await userService.createUser(req.body);
-  const tokens = await tokenService.generateAuthTokens(user);
-  res.status(httpStatus.CREATED).send({ user, tokens });
+  const verifier = new Verifier('at_FPj6893CCr6sOWxmHpqXEVBQ8qTgg');
+  verifier.verify(req.body.email, async (err, data) => {
+    if (err) throw err;
+    console.log('check', data.smtpCheck);
+    // setTimeout(async () => {
+    if (data.smtpCheck === 'true') {
+      try {
+        const user = await userService.createUser(req.body);
+        const tokens = await tokenService.generateAuthTokens(user);
+        res.status(httpStatus.CREATED).send({ user, tokens });
+        // eslint-disable-next-line no-shadow
+      } catch (err) {
+        console.log(err);
+        res.status(httpStatus.BAD_REQUEST).send('Email already taken !');
+      }
+    }
+    if (data.smtpCheck === 'false') {
+      res.status(httpStatus.NOT_FOUND).send('Email not exists');
+    }
+  });
 });
+
+// const register = catchAsync(async (req, res) => {
+//   // eslint-disable-next-line no-console
+//   const user = await userService.createUser(req.body);
+//   const tokens = await tokenService.generateAuthTokens(user);
+//   res.status(httpStatus.CREATED).send({ user, tokens });
+// });
 
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;

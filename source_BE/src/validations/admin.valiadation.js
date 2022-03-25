@@ -86,8 +86,8 @@ const deleteAdmin = {
 
 const sortListUser = {
   query: Joi.object().keys({
-    fullname: Joi.string(),
-    email: Joi.string(),
+    fullname: Joi.string().allow(null).allow(''),
+    email: Joi.string().allow(null).allow(''),
     role: Joi.string(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
