@@ -25,6 +25,7 @@ const register = catchAsync(async (req, res) => {
         res.status(httpStatus.CREATED).send({ user, tokens });
         // eslint-disable-next-line no-shadow
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log(err);
         res.status(httpStatus.BAD_REQUEST).send('Email already taken !');
       }

@@ -3,10 +3,18 @@ const { toJSON, paginate } = require('./plugins');
 
 const friendSchema = mongoose.Schema(
   {
-    friends: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: 'User',
-    },
+    friends: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'User',
+      },
+    ],
+    blackfriends: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'User',
+      },
+    ],
 
     user: { type: mongoose.SchemaTypes.ObjectId, ref: 'User' },
   },
