@@ -15,6 +15,19 @@ const password = (value, helpers) => {
   return value;
 };
 
+const subname = (value, helpers) => {
+  if (value.length < 5) {
+    return helpers.message('subname must be at least 5 characters');
+  }
+  if (!value.match(/^[a-z0-9]+[a-z0-9.]+[a-z0-9]+$/)) {
+    return helpers.message(
+      'subname must be lowcase include `.`  and start with [a-z] ex: subname1.example ([a-z][a-z or 0-9].[a-z or 0-9])'
+    );
+  }
+
+  return value;
+};
+
 const getAge = (dateString) => {
   const today = new Date();
   const birthDate = new Date(dateString);
@@ -28,6 +41,7 @@ const getAge = (dateString) => {
 };
 
 const phone = (numbSring, helpers) => {
+  // eslint-disable-next-line security/detect-unsafe-regex
   const regexPhoneNumber = /^((\+)84|0)[1-9](\d{2}){4}$/;
   if (!numbSring.match(regexPhoneNumber)) {
     return helpers.message('Phone not Invalid !');
@@ -47,4 +61,5 @@ module.exports = {
   password,
   birthday,
   phone,
+  subname,
 };

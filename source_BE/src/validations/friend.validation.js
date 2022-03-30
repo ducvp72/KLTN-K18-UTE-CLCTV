@@ -7,6 +7,17 @@ const friend = {
   }),
 };
 
+const getListFriend = {
+  query: Joi.object().keys({
+    type: Joi.string().valid('white', 'black'),
+    // sortBy: Joi.string(),
+    // populate: Joi.string(),
+    limit: Joi.number().integer(),
+    // page: Joi.number().integer(),
+  }),
+};
+
 module.exports = {
   friend,
+  getListFriend,
 };

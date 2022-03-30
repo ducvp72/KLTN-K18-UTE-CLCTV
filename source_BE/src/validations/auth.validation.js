@@ -1,11 +1,12 @@
 const Joi = require('joi').extend(require('@joi/date')).extend(require('joi-phone-number'));
 const { genderTypes } = require('../config/myConfig');
-const { birthday, password, objectId } = require('./custom.validation');
+const { birthday, password, objectId, subname } = require('./custom.validation');
 
 const register = {
   body: Joi.object().keys({
     fullname: Joi.string().required().min(5).max(30),
     birth: Joi.date().format('DD/MM/YYYY').raw().required().custom(birthday),
+    subname: Joi.string().required().min(5).max(18).custom(subname),
     gender: Joi.string().required().valid(genderTypes.FEMALE, genderTypes.MALE, genderTypes.OTHER),
     email: Joi.string().required().email(),
     phone: Joi.string().phoneNumber({ defaultCountry: 'VN', format: 'international' }),

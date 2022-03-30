@@ -1,8 +1,8 @@
 const httpStatus = require('http-status');
-const { forEach } = require('lodash');
-const { User, Friend, WaitingFriend, BlackFriend } = require('../models');
+const { User, Friend, WaitingFriend } = require('../models');
 const ApiError = require('../utils/ApiError');
 const userService = require('./user.service');
+const paginateArr = require('../utils/ArrayPagination');
 
 const checkUserValid = (user, friendId) => {
   const check = userService.getUserById(friendId);
@@ -206,7 +206,9 @@ const unblockFriend = async (user, friendId) => {
 
 const unFriend = async (user, friendId) => {
   checkUserValid(user.id, friendId);
-
+  if (!(await checkFriend(user.id, friendId))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User is not your friend !');
+  }
   try {
     const userCheck = await Friend.findOne({
       user: user.id,
@@ -226,6 +228,26 @@ const unFriend = async (user, friendId) => {
   }
 };
 
+const queryListFriend = async (userId, options) => {
+  let lst = [];
+  console.log('Find', options.type);
+  const find = await Friend.findOne({ user: userId }).populate({ path: 'friends', select: '-role -type' });
+
+  console.log(find);
+  if (!find) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'invalid User !');
+  }
+  if (options.type === 'white') {
+    console.log('whiteLst', find.friends);
+    lst = find.friends;
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('blackLst', find.blackfriends);
+    lst = find.blackfriends;
+  }
+  await paginateArr(lst, options);
+};
+
 module.exports = {
   addFriend,
   isWaiting,
@@ -236,4 +258,5 @@ module.exports = {
   unFriend,
   checkFriend,
   isBlockedFriend,
+  queryListFriend,
 };

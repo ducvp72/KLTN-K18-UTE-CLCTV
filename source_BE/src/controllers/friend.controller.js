@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { friendService } = require('../services');
+const pick = require('../utils/pick');
 
 const checkFriend = catchAsync(async (req, res) => {
   const check = await friendService.checkFriend(req.user.id, req.body.friendId);
@@ -58,6 +59,13 @@ const unblockFriend = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(friend);
 });
 
+const getListFriend = catchAsync(async (req, res) => {
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate', 'type']);
+  console.log('options', options);
+  await friendService.queryListFriend(req.user.id, options);
+  res.status(httpStatus.OK).send();
+});
+
 module.exports = {
   addFriend,
   unFriend,
@@ -68,4 +76,5 @@ module.exports = {
   checkFriend,
   checkWaiting,
   checkisBlockedFriend,
+  getListFriend,
 };

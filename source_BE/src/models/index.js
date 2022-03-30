@@ -4,7 +4,6 @@ module.exports.Code = require('./code.model');
 module.exports.Image = require('./image.model');
 module.exports.Friend = require('./friend.model');
 module.exports.WaitingFriend = require('./waitingfriend.model');
-module.exports.BlackFriend = require('./blackfriend.model');
 module.exports.Conservation = require('./conservation.model');
 module.exports.Message = require('./message.model');
 module.exports.Admin = require('./admin.model');

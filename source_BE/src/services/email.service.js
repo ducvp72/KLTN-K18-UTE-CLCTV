@@ -47,7 +47,7 @@ const sendVerificationEmail = async (to, code) => {
   console.log('Check gui mail ne');
   const subject = 'Email Verification';
   // replace this url with the link to the email verification page of your front-end app
-  const text = `<h3 style="color: #1000b5">Dear user, welcome to MM App ! </h3><br/>This is your verification code:  <span style=" font-weight: bold; text-decoration: underline; font-size: 25px; color: #f70000">${code}</span></h3> <br/> <h4 style="color: #f70000">Warning: Do not sharing for anybody !</h4> `;
+  const text = `<h3 style="color: #1000b5">Dear user, welcome to MM App ! </h3><br/>This is your verification code:  <span style=" font-weight: bold; text-decoration: underline; font-size: 25px; color: #f70000">${code}</span></h3> <br/> <h4 style="color: #f70000">Warning: Do not share for anybody !</h4> `;
   const check = await sendEmail(to, subject, text);
   console.log('Check gui mail', check);
 };
@@ -61,7 +61,7 @@ const sendVerificationEmail = async (to, code) => {
 const sendResetPassword = async (to, resetPass) => {
   const subject = 'Your Reset Password';
   // replace this url with the link to the email verification page of your front-end app
-  const text = `<h3 style="color: #1000b5">Dear user, welcome to MM App ! </h3><br/>This is your reset Password:  <span style=" font-weight: bold; text-decoration: underline; font-size: 25px; color: #f70000">${resetPass}</span></h3> <br/> <h4 style="color: #f70000">Warning: Do not sharing for anybody !</h4> `;
+  const text = `<h3 style="color: #1000b5">Dear user, welcome to MM App ! </h3><br/>This is your reset Password:  <span style=" font-weight: bold; text-decoration: underline; font-size: 25px; color: #f70000">${resetPass}</span></h3> <br/> <h4 style="color: #f70000">Warning: Do not share for anybody !</h4> `;
   await sendEmail(to, subject, text);
 };
 

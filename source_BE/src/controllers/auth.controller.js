@@ -16,22 +16,24 @@ const register = catchAsync(async (req, res) => {
   const verifier = new Verifier('at_FPj6893CCr6sOWxmHpqXEVBQ8qTgg');
   verifier.verify(req.body.email, async (err, data) => {
     if (err) throw err;
-    console.log('check', data.smtpCheck);
-    // setTimeout(async () => {
+    let x;
     if (data.smtpCheck === 'true') {
       try {
         const user = await userService.createUser(req.body);
+        x = user;
         const tokens = await tokenService.generateAuthTokens(user);
+        const verifyCode = await codeService.generateVerifyCode(user);
+        await emailService.sendVerificationEmail(user.email, verifyCode);
         res.status(httpStatus.CREATED).send({ user, tokens });
         // eslint-disable-next-line no-shadow
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.log(err);
-        res.status(httpStatus.BAD_REQUEST).send('Email already taken !');
+        if (x === 0) res.status(httpStatus.BAD_REQUEST).send('Subname already taken !');
+        else res.status(httpStatus.BAD_REQUEST).send('Email already taken !');
       }
     }
     if (data.smtpCheck === 'false') {
-      res.status(httpStatus.NOT_FOUND).send('Email not exists');
+      res.status(httpStatus.NOT_FOUND).send('Email not exists !');
     }
   });
 });

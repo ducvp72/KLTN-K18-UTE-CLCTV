@@ -16,5 +16,6 @@ router.post('/unblock-friend', auth(), validate(friendValidation.friend), friend
 router.get('/check-isFriend', auth(), validate(friendValidation.friend), friendController.checkFriend);
 router.get('/check-isWaiting', auth(), validate(friendValidation.friend), friendController.checkWaiting);
 router.get('/check-isBlockedFriend', auth(), validate(friendValidation.friend), friendController.checkisBlockedFriend);
+router.get('/getListFriend', auth(), validate(friendValidation.getListFriend), friendController.getListFriend);
 
 module.exports = router;

@@ -14,7 +14,12 @@ const getUserAll = async () => {
  */
 const createUser = async (userBody) => {
   if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    // throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken !');
+    return 1;
+  }
+  if (await User.isSubNameTaken(userBody.subname)) {
+    // throw new ApiError(httpStatus.BAD_REQUEST, 'Subname already taken !');
+    return 0;
   }
   const user = await User.create(userBody);
   const name = await changeName(user.fullname);
