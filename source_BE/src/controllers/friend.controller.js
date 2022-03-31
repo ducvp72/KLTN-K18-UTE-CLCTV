@@ -45,25 +45,27 @@ const acceptFriend = catchAsync(async (req, res) => {
 });
 
 const cancleFriend = catchAsync(async (req, res) => {
-  const check = await friendService.cancle(req.user, req.body.friendId);
-  res.status(httpStatus.OK).send(check);
+  await friendService.cancle(req.user, req.body.friendId);
+  res.status(httpStatus.OK).send();
 });
 
 const blockFriend = catchAsync(async (req, res) => {
   const friend = await friendService.blockFriend(req.user, req.body.friendId);
-  res.status(httpStatus.OK).send(friend);
-});
-
-const unblockFriend = catchAsync(async (req, res) => {
-  const friend = await friendService.unblockFriend(req.user, req.body.friendId);
-  res.status(httpStatus.OK).send(friend);
+  console.log('Friend', friend);
+  if (friend === 0) {
+    res.status(httpStatus.OK).send('Your friend was unblocked !');
+    return;
+  }
+  res.status(httpStatus.OK).send('Your friend was blocked !');
 });
 
 const getListFriend = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate', 'type']);
+  const filter = pick(req.query, ['fullname', 'subname', 'typeFriend']);
+
   console.log('options', options);
-  await friendService.queryListFriend(req.user.id, options);
-  res.status(httpStatus.OK).send();
+  const rs = await friendService.queryListFriend(req.user.id, filter, options);
+  res.status(httpStatus.OK).send(rs);
 });
 
 module.exports = {
@@ -72,7 +74,6 @@ module.exports = {
   acceptFriend,
   cancleFriend,
   blockFriend,
-  unblockFriend,
   checkFriend,
   checkWaiting,
   checkisBlockedFriend,

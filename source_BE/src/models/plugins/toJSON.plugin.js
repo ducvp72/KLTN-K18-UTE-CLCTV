@@ -36,7 +36,7 @@ const toJSON = (schema) => {
       delete ret.updatedAt;
       //Xoa path
       ret.avatar = ret.avatar.path;
-      delete ret.avatar.path;
+      // delete ret.avatar.path;
       delete ret.avatar.filename;
       //
       if (transform) {

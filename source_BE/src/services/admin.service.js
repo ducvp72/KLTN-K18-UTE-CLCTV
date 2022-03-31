@@ -100,6 +100,7 @@ const resetUserPassword = async (email, user) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Just for Admin');
   }
   const userR = await userService.getUserByEmail(email);
+  console.log(userR);
   if (!userR) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Incorrect email');
   }
@@ -109,6 +110,7 @@ const resetUserPassword = async (email, user) => {
     await emailService.sendResetPassword(email, '123456@User');
     return userR;
   } catch (error) {
+    console.log(error);
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
   }
 };

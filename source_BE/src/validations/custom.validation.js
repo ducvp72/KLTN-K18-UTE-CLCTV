@@ -21,7 +21,7 @@ const subname = (value, helpers) => {
   }
   if (!value.match(/^[a-z0-9]+[a-z0-9.]+[a-z0-9]+$/)) {
     return helpers.message(
-      'subname must be lowcase include `.`  and start with [a-z] ex: subname1.example ([a-z][a-z or 0-9].[a-z or 0-9])'
+      'subname must be lowcase include `.`, start with [a-z] and in ENG format ex: subname1.example ([a-z][a-z or 0-9].[a-z or 0-9])'
     );
   }
 

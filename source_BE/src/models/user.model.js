@@ -49,7 +49,6 @@ userSchema.plugin(paginateClient);
  */
 userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
   const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
-  console.log(user);
   return !!user;
 };
 

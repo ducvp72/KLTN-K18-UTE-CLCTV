@@ -2,7 +2,6 @@ const httpStatus = require('http-status');
 const { User, Friend, WaitingFriend } = require('../models');
 const ApiError = require('../utils/ApiError');
 const userService = require('./user.service');
-const paginateArr = require('../utils/ArrayPagination');
 
 const checkUserValid = (user, friendId) => {
   const check = userService.getUserById(friendId);
@@ -21,41 +20,19 @@ const isWaiting = async (userId, friendId) => {
   return checkWaitingFriend;
 };
 
-const deleteWaiting = async (userId) => {
-  console.log('deleteWaiting', userId);
-  const check = await WaitingFriend.findOne({ user: userId });
-  if (check.waitingFriends.length === 0) {
-    await check.remove();
-  }
-};
-
 const firstWaiting = async (userId, friendId) => {
-  console.log('firstWaiting', userId, '/n', friendId);
-  const check = await WaitingFriend.findOne({ user: userId });
-  if (check) {
-    console.log('check-firstWaiting');
-    await check.waitingFriends.push(friendId);
-    await check.save();
-  } else {
-    console.log('check-firstWaiting2');
-    await WaitingFriend.create({
-      waitingFriends: friendId,
-      user: userId,
-    });
-  }
+  await WaitingFriend.create({
+    waitingFriends: friendId,
+    user: userId,
+  });
 };
 const checkFriend = async (userId, friendId) => {
   console.log('checkFriend', userId, '/n', friendId);
   let find = false;
   checkUserValid(userId, friendId);
-  const checkWaitingFriend = await Friend.findOne({ user: userId });
+  const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
   if (checkWaitingFriend) {
-    checkWaitingFriend.friends.forEach((i) => {
-      const ii = JSON.stringify(i);
-      if (ii === `"${friendId}"`) {
-        find = true;
-      }
-    });
+    find = true;
   }
   return find;
 };
@@ -74,48 +51,29 @@ const addFriend = async (userId, friendId) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User in your waiting request !');
   }
   await firstWaiting(userId, friendId);
-  //Add UserWaiting
-  // await WaitingFriend.create({
-  //   waitingFriends: friendId,
-  //   user: userId,
-  // });
 };
 const firstAddFriend = async (userId, friendId) => {
   console.log('firstAddFriend', userId, '/n', friendId);
+  await Friend.create({
+    friends: friendId,
+    user: userId,
+  });
 
-  const check = await Friend.findOne({ user: userId });
-  if (check) {
-    console.log('firstAddFriend2');
-    check.friends.push(friendId);
-    await check.save();
-  } else {
-    await Friend.create({
-      friends: friendId,
-      user: userId,
-    });
-  }
+  await Friend.create({
+    friends: userId,
+    user: friendId,
+  });
 };
 
 const cancle = async (user, friendId) => {
   checkUserValid(user.id, friendId);
   const check = await isWaiting(user.id, friendId);
+
   if (!check) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not find User!');
   }
   try {
-    const userCheck = await WaitingFriend.findOne({
-      user: user.id,
-    });
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < userCheck.waitingFriends.length; i++) {
-      if (JSON.stringify(userCheck.waitingFriends[i]) === `"${friendId}"`) {
-        userCheck.waitingFriends.splice(i, 1);
-        // eslint-disable-next-line no-plusplus
-        i--;
-      }
-    }
-    await userCheck.save();
-    deleteWaiting(user.id);
+    await check.remove();
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err);
@@ -130,17 +88,14 @@ const accept = async (user, friendId) => {
   }
   checkUserValid(user.id, friendId);
 
-  if ((await checkFriend(user.id, friendId)) === true) {
+  const checkFr = await checkFriend(user.id, friendId);
+  console.log('checkFr', checkFr);
+  if (checkFr) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User is your Friend !');
   }
-  // await WaitingFriend.findOneAndRemove({
-  //   waitingFriends: friendId,
-  //   user: user.id,
-  // });
   cancle(user, friendId);
   //addFriend of User
   try {
-    await firstAddFriend(friendId, user.id);
     await firstAddFriend(user.id, friendId);
   } catch (err) {
     console.log(err);
@@ -149,59 +104,42 @@ const accept = async (user, friendId) => {
 
 const isBlockedFriend = async (userId, friendId) => {
   checkUserValid(userId, friendId);
-
   const userCheck = await Friend.findOne({
     user: userId,
+    friends: friendId,
   });
-  console.log('isBlockedFriend', userCheck.blackfriends);
-  // eslint-disable-next-line no-plusplus
-  if (userCheck) {
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < userCheck.blackfriends.length; i++) {
-      if (JSON.stringify(userCheck.blackfriends[i]) === `"${friendId}"`) {
-        // eslint-disable-next-line no-plusplus
-        console.log('isBlockedFriend2', userCheck.blackfriends[i]);
-        return true;
-      }
-    }
+  if (!userCheck) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Invaid User');
   }
-  return false;
+  return userCheck.isBlocked;
 };
 
 const blockFriend = async (user, friendId) => {
+  let userRes;
   const check = await isBlockedFriend(user.id, friendId);
   if (check) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Can not blocked once again !');
+    console.log(1);
+    await Friend.findOneAndUpdate({ user: user.id, friends: friendId }, { isBlocked: false })
+      .then((res) => {
+        console.log('res', res);
+        userRes = 0;
+      })
+      .catch((err) => {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
+      });
+  } else {
+    console.log(2);
+    await Friend.findOneAndUpdate({ user: user.id, friends: friendId }, { isBlocked: true })
+      .then((res) => {
+        console.log('res', res);
+        userRes = 1;
+      })
+      .catch((err) => {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
+      });
   }
-  console.log('blockFriend', check);
-  const userCheck = await Friend.findOne({
-    user: user.id,
-  });
-  await userCheck.blackfriends.push(friendId);
-  await userCheck.save();
-};
 
-const unblockFriend = async (user, friendId) => {
-  if (!isBlockedFriend(user.id, friendId)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User was not blocked !');
-  }
-  try {
-    const userCheck = await Friend.findOne({
-      user: user.id,
-    });
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < userCheck.blackfriends.length; i++) {
-      if (JSON.stringify(userCheck.blackfriends[i]) === `"${friendId}"`) {
-        userCheck.blackfriends.splice(i, 1);
-        // eslint-disable-next-line no-plusplus
-        i--;
-      }
-    }
-    await userCheck.save();
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err);
-  }
+  return userRes;
 };
 
 const unFriend = async (user, friendId) => {
@@ -210,30 +148,28 @@ const unFriend = async (user, friendId) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User is not your friend !');
   }
   try {
-    const userCheck = await Friend.findOne({
+    await Friend.findOneAndRemove({
       user: user.id,
+      friends: friendId,
     });
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < userCheck.friends.length; i++) {
-      if (JSON.stringify(userCheck.friends[i]) === `"${friendId}"`) {
-        userCheck.friends.splice(i, 1);
-        // eslint-disable-next-line no-plusplus
-        i--;
-      }
-    }
-    await userCheck.save();
+
+    await Friend.findOneAndRemove({
+      user: friendId,
+      friends: user.id,
+    });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err);
   }
 };
 
-const queryListFriend = async (userId, options) => {
+const queryListFriend = async (userId, filter, options) => {
+  filter.user = userId;
   let lst = [];
   console.log('Find', options.type);
-  const find = await Friend.findOne({ user: userId }).populate({ path: 'friends', select: '-role -type' });
+  const find = await Friend.findOne({ user: userId }).populate({ path: 'friends', select: '-isActivated -role -isBanned' });
+  console.log('Find2', find);
 
-  console.log(find);
   if (!find) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'invalid User !');
   }
@@ -245,14 +181,22 @@ const queryListFriend = async (userId, options) => {
     console.log('blackLst', find.blackfriends);
     lst = find.blackfriends;
   }
-  await paginateArr(lst, options);
+
+  // if (friends.fullname === '') fullname = ' ';
+
+  // if (fullname) {
+  //   const find = await changeName(filter.fullname);
+  //   filter.friend.fullname = { $regex: find || ' ', $options: 'i' };
+  // }
+  // await  Friend.paginate(filter,options)
+
+  return find.friends;
 };
 
 module.exports = {
   addFriend,
   isWaiting,
   blockFriend,
-  unblockFriend,
   accept,
   cancle,
   unFriend,
