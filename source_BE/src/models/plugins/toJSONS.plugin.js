@@ -31,14 +31,8 @@ const toJSON = (schema) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
-      delete ret.password;
-      delete ret.createdAt;
       delete ret.updatedAt;
-      //Xoa path
-      ret.avatar = ret.avatar.path;
-      delete ret.avatar.path;
-      delete ret.avatar.filename;
-      //
+      delete ret.createdAt;
       if (transform) {
         return transform(doc, ret, options);
       }

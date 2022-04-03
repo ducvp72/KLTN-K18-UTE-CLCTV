@@ -26,10 +26,21 @@ const firstWaiting = async (userId, friendId) => {
     user: userId,
   });
 };
+
 const checkFriend = async (userId, friendId) => {
   console.log('checkFriend', userId, '/n', friendId);
   let find = false;
   checkUserValid(userId, friendId);
+  const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
+  if (checkWaitingFriend) {
+    find = true;
+  }
+  return find;
+};
+
+const isFriend = async (userId, friendId) => {
+  console.log('checkFriend', userId, '/n', friendId);
+  let find = false;
   const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
   if (checkWaitingFriend) {
     find = true;
@@ -165,32 +176,24 @@ const unFriend = async (user, friendId) => {
 
 const queryListFriend = async (userId, filter, options) => {
   filter.user = userId;
-  let lst = [];
-  console.log('Find', options.type);
-  const find = await Friend.findOne({ user: userId }).populate({ path: 'friends', select: '-isActivated -role -isBanned' });
-  console.log('Find2', find);
 
+  const find = await Friend.find({ user: userId }).populate({
+    path: 'friends',
+    select: '-isActivated -role -isBanned',
+  });
   if (!find) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'invalid User !');
   }
-  if (options.type === 'white') {
-    console.log('whiteLst', find.friends);
-    lst = find.friends;
-  } else {
-    // eslint-disable-next-line no-console
-    console.log('blackLst', find.blackfriends);
-    lst = find.blackfriends;
+
+  if (friends.fullname === '') fullname = ' ';
+
+  if (fullname) {
+    const find = await changeName(filter.fullname);
+    filter.friend.fullname = { $regex: find || ' ', $options: 'i' };
   }
+  await Friend.paginate(filter, options);
 
-  // if (friends.fullname === '') fullname = ' ';
-
-  // if (fullname) {
-  //   const find = await changeName(filter.fullname);
-  //   filter.friend.fullname = { $regex: find || ' ', $options: 'i' };
-  // }
-  // await  Friend.paginate(filter,options)
-
-  return find.friends;
+  return find;
 };
 
 module.exports = {
@@ -203,4 +206,5 @@ module.exports = {
   checkFriend,
   isBlockedFriend,
   queryListFriend,
+  isFriend,
 };

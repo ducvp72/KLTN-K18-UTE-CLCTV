@@ -31,13 +31,22 @@ const paginate = (schema) => {
     } else {
       sort = 'createdAt';
     }
+    const { key } = filter;
+    const value = { $regex: key, $options: 'i' };
 
     const limit = options.limit && parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 10;
     const page = options.page && parseInt(options.page, 10) > 0 ? parseInt(options.page, 10) : 1;
     const skip = (page - 1) * limit;
 
-    const countPromise = this.countDocuments(filter).exec();
-    let docsPromise = this.find(filter).sort(sort).skip(skip).limit(limit);
+    const countPromise = this.countDocuments({
+      $or: [{ email: value }, { fullname: value }, { subname: value }],
+    }).exec();
+    let docsPromise = this.find({
+      $or: [{ email: value }, { fullname: value }, { subname: value }],
+    })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
 
     if (options.populate) {
       options.populate.split(',').forEach((populateOption) => {
@@ -63,10 +72,15 @@ const paginate = (schema) => {
       const users = [];
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
-        const userN = JSON.parse(JSON.stringify(i.user));
-        delete userN.isActivated;
-        delete userN.role;
-        delete userN.isBanned;
+        const userN = JSON.parse(JSON.stringify(i));
+        // if (userN == null) {
+        //   //stotalResults;
+        //   // continue;
+        // }
+
+        delete userN.user.isActivated;
+        delete userN.user.role;
+        delete userN.user.isBanned;
 
         users.push(userN);
       }

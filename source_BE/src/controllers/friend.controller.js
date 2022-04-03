@@ -61,10 +61,9 @@ const blockFriend = catchAsync(async (req, res) => {
 
 const getListFriend = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate', 'type']);
-  const filter = pick(req.query, ['fullname', 'subname', 'typeFriend']);
-
-  console.log('options', options);
+  const filter = pick(req.query, ['fullname', 'subname', 'email', 'typeFriend']);
   const rs = await friendService.queryListFriend(req.user.id, filter, options);
+  // console.log('rs pro', rs);
   res.status(httpStatus.OK).send(rs);
 });
 

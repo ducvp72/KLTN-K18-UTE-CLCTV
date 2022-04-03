@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { User, Search } = require('../models');
+const { User, Search, Friend } = require('../models');
 const changeName = require('../utils/sort');
 const ApiError = require('../utils/ApiError');
 
@@ -23,7 +23,7 @@ const createUser = async (userBody) => {
   }
   const user = await User.create(userBody);
   const name = await changeName(user.fullname);
-  await Search.create({ fullname: name, user });
+  await Search.create({ fullname: name, user, subname: userBody.subname, email: userBody.email });
   return user;
 };
 
@@ -54,16 +54,43 @@ const queryUsers = async (filter, options) => {
   return users;
 };
 
-const queryUsersClient = async (filter, options) => {
-  let { fullname } = filter;
-  if (fullname === '') fullname = ' ';
+const isFriendN = async (userId, friendId) => {
+  console.log('checkFriend', userId, '/n', friendId);
+  let find = false;
+  const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
+  const checkWaitingFriend2 = await Friend.findOne({ user: userId, friends: friendId });
 
-  if (fullname) {
-    const find = await changeName(filter.fullname);
-    filter.fullname = { $regex: find || ' ', $options: 'i' };
+  console.log('find', checkWaitingFriend2);
+  if (checkWaitingFriend) {
+    find = true;
+    console.log('find2');
+  }
+  return find;
+};
+
+const queryUsersClient = async (user, filter, options) => {
+  console.log('filter', filter);
+  console.log('options', options);
+
+  if (filter.key) {
+    // eslint-disable-next-line no-param-reassign
+    filter.key = await changeName(filter.key);
   }
   const users = await Search.paginateClient(filter, options);
-  return users;
+  const results = [];
+  const { page, limit, totalPages, totalResults } = users;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of users.results) {
+    const newUser = {};
+    const { fullname, subname } = item;
+    const userId = item.user.id;
+    const realName = item.user.fullname;
+    const avatar = item.user.avatar;
+    const isFriend = await isFriendN(user.id, userId);
+    console.log(isFriend);
+    results.push(Object.assign(newUser, { userId, fullname, realName, subname, avatar, isFriend }));
+  }
+  return { results, page, limit, totalPages, totalResults };
 };
 
 /**
