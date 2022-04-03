@@ -85,10 +85,12 @@ const queryUsersClient = async (user, filter, options) => {
     const { fullname, subname } = item;
     const userId = item.user.id;
     const realName = item.user.fullname;
+    const email = item.user.email;
     const avatar = item.user.avatar;
+    // eslint-disable-next-line no-await-in-loop
     const isFriend = await isFriendN(user.id, userId);
     console.log(isFriend);
-    results.push(Object.assign(newUser, { userId, fullname, realName, subname, avatar, isFriend }));
+    results.push(Object.assign(newUser, { userId, fullname, realName, subname, avatar, email, isFriend }));
   }
   return { results, page, limit, totalPages, totalResults };
 };

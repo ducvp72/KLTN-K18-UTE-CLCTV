@@ -63,6 +63,7 @@ const paginate = (schema) => {
 
     return Promise.all([countPromise, docsPromise]).then((values) => {
       console.log('client');
+      // eslint-disable-next-line prefer-const
       let [totalResults, results] = values;
 
       // JSON.parse(JSON.stringify(user));
@@ -73,10 +74,6 @@ const paginate = (schema) => {
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
         const userN = JSON.parse(JSON.stringify(i));
-        // if (userN == null) {
-        //   //stotalResults;
-        //   // continue;
-        // }
 
         delete userN.user.isActivated;
         delete userN.user.role;
