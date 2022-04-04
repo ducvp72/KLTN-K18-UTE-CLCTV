@@ -15,13 +15,13 @@ const password = (value, helpers) => {
   return value;
 };
 
-const subname = (value, helpers) => {
+const username = (value, helpers) => {
   if (value.length < 5) {
-    return helpers.message('subname must be at least 5 characters');
+    return helpers.message('username must be at least 5 characters');
   }
   if (!value.match(/^[a-z0-9]+[a-z0-9.]+[a-z0-9]+$/)) {
     return helpers.message(
-      'subname must be lowcase include `.`, start with [a-z] and in ENG format ex: subname1.example ([a-z][a-z or 0-9].[a-z or 0-9])'
+      'username must be lowcase include `.`, start with [a-z] and in ENG format ex: username1.example ([a-z][a-z or 0-9].[a-z or 0-9])'
     );
   }
 
@@ -61,5 +61,5 @@ module.exports = {
   password,
   birthday,
   phone,
-  subname,
+  username,
 };

@@ -6,7 +6,7 @@ const { roleTypes, genderTypes } = require('../config/myConfig');
 const userSchema = new mongoose.Schema(
   {
     fullname: { required: true, type: String },
-    subname: { required: true, type: String },
+    username: { required: true, type: String },
     birth: { required: true, type: String },
     gender: {
       required: true,
@@ -52,8 +52,8 @@ userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
   return !!user;
 };
 
-userSchema.statics.isSubNameTaken = async function (subname, excludeUserId) {
-  const user = await this.findOne({ subname, _id: { $ne: excludeUserId } });
+userSchema.statics.isusernameTaken = async function (username, excludeUserId) {
+  const user = await this.findOne({ username, _id: { $ne: excludeUserId } });
   return !!user;
 };
 

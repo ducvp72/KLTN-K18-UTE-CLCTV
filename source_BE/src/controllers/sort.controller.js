@@ -12,7 +12,7 @@ const getUsersForAdmin = catchAsync(async (req, res) => {
 });
 
 const getUsersForClient = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['fullname', 'email', 'subname', 'key']);
+  const filter = pick(req.query, ['fullname', 'email', 'username', 'key']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
   const result = await userService.queryUsersClient(req.user, filter, options);
   res.send(result);

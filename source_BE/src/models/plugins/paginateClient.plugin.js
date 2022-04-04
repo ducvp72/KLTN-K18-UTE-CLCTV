@@ -18,7 +18,8 @@ const paginate = (schema) => {
    * @returns {Promise<QueryResult>}
    */
   // eslint-disable-next-line no-param-reassign
-  schema.statics.paginateClient = async function (filter, options) {
+  schema.statics.paginateClient = async function (user, filter, options) {
+    // eslint-disable-next-line no-param-reassign
     options.populate = 'user';
     let sort = '';
     if (options.sortBy) {
@@ -39,10 +40,10 @@ const paginate = (schema) => {
     const skip = (page - 1) * limit;
 
     const countPromise = this.countDocuments({
-      $or: [{ email: value }, { fullname: value }, { subname: value }],
+      $or: [{ email: value }, { subname: value }, { username: value }],
     }).exec();
     let docsPromise = this.find({
-      $or: [{ email: value }, { fullname: value }, { subname: value }],
+      $or: [{ email: value }, { subname: value }, { username: value }],
     })
       .sort(sort)
       .skip(skip)
@@ -62,7 +63,6 @@ const paginate = (schema) => {
     docsPromise = docsPromise.exec();
 
     return Promise.all([countPromise, docsPromise]).then((values) => {
-      console.log('client');
       // eslint-disable-next-line prefer-const
       let [totalResults, results] = values;
 
@@ -73,12 +73,16 @@ const paginate = (schema) => {
       const users = [];
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
+        if (i.user.id === user.id) {
+          // eslint-disable-next-line no-plusplus
+          totalResults--;
+          // eslint-disable-next-line no-continue
+          continue;
+        }
         const userN = JSON.parse(JSON.stringify(i));
-
         delete userN.user.isActivated;
         delete userN.user.role;
         delete userN.user.isBanned;
-
         users.push(userN);
       }
       results = users;

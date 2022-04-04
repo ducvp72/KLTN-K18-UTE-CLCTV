@@ -19,9 +19,9 @@ const updateProfile = async (user, userN) => {
   const check = await Search.findOne({ user });
   const fullname = await changeName(userN.fullname);
   if (!check) {
-    await Search.create({ fullname, user });
+    await Search.create({ subname: fullname, user });
   }
-  await Search.findOneAndUpdate({ user }, { fullname });
+  await Search.findOneAndUpdate({ user }, { subname: fullname });
   await User.findByIdAndUpdate(
     user.id,
     {

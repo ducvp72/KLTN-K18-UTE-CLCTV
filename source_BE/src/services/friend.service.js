@@ -16,14 +16,14 @@ const checkUserValid = (user, friendId) => {
 };
 const isWaiting = async (userId, friendId) => {
   checkUserValid(userId, friendId);
-  const checkWaitingFriend = await WaitingFriend.findOne({ user: userId, waitingFriends: friendId });
+  const checkWaitingFriend = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
   return checkWaitingFriend;
 };
 
 const firstWaiting = async (userId, friendId) => {
   await WaitingFriend.create({
-    waitingFriends: friendId,
-    user: userId,
+    waitingFriends: userId,
+    user: friendId,
   });
 };
 
@@ -39,12 +39,28 @@ const checkFriend = async (userId, friendId) => {
 };
 
 const isFriend = async (userId, friendId) => {
-  console.log('checkFriend', userId, '/n', friendId);
-  let find = false;
-  const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
-  if (checkWaitingFriend) {
-    find = true;
-  }
+  // console.log('checkFriend', userId, '/n', friendId);
+  // let find = false;
+  // const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
+  // if (checkWaitingFriend) {
+  //   find = true;
+  // }
+  // return find;
+  // console.log('checkFriend', userId, '/n', friendId);
+  let find = 0;
+  const checkFriends = await Friend.findOne({ user: userId, friends: friendId });
+  const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, friends: userId });
+  const checkWaitingMine = await WaitingFriend.findOne({ user: userId, friends: friendId });
+  if (checkFriends) {
+    //Bạn hay chưa với nó
+    find = 1;
+  } else if (checkWaitingOther) {
+    //Mình có trong danh sách chờ kết bạn của nó không
+    find = 2;
+  } else if (checkWaitingMine) {
+    //Nó có trong danh sách chờ kết bạn của mình không
+    find = 3;
+  } else find = 0;
   return find;
 };
 
@@ -78,8 +94,7 @@ const firstAddFriend = async (userId, friendId) => {
 
 const cancle = async (user, friendId) => {
   checkUserValid(user.id, friendId);
-  const check = await isWaiting(user.id, friendId);
-
+  const check = await isWaiting(friendId, user.id);
   if (!check) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not find User!');
   }
@@ -103,13 +118,14 @@ const accept = async (user, friendId) => {
   console.log('checkFr', checkFr);
   if (checkFr) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User is your Friend !');
-  }
-  cancle(user, friendId);
-  //addFriend of User
-  try {
-    await firstAddFriend(user.id, friendId);
-  } catch (err) {
-    console.log(err);
+  } else {
+    await cancle(user, friendId);
+    //addFriend of User
+    try {
+      await firstAddFriend(user.id, friendId);
+    } catch (err) {
+      console.log(err);
+    }
   }
 };
 

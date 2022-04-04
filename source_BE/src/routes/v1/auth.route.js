@@ -7,6 +7,7 @@ const auth = require('../../middlewares/auth');
 
 const router = express.Router();
 
+router.post('/cloneUser', authController.cloneUser);
 router.post('/register', validate(authValidation.register), authController.register);
 router.post('/login', validate(authValidation.login), authController.login);
 router.post('/logout', validate(authValidation.logout), authController.logout);

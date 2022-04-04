@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { User, Search, Friend } = require('../models');
+const { User, Search, Friend, WaitingFriend } = require('../models');
 const changeName = require('../utils/sort');
 const ApiError = require('../utils/ApiError');
 
@@ -17,13 +17,14 @@ const createUser = async (userBody) => {
     // throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken !');
     return 1;
   }
-  if (await User.isSubNameTaken(userBody.subname)) {
-    // throw new ApiError(httpStatus.BAD_REQUEST, 'Subname already taken !');
+  if (await User.isusernameTaken(userBody.username)) {
+    // throw new ApiError(httpStatus.BAD_REQUEST, 'username already taken !');
     return 0;
   }
   const user = await User.create(userBody);
+  console.log('user', user);
   const name = await changeName(user.fullname);
-  await Search.create({ fullname: name, user, subname: userBody.subname, email: userBody.email });
+  await Search.create({ user, subname: name, username: userBody.username, email: userBody.email });
   return user;
 };
 
@@ -55,16 +56,21 @@ const queryUsers = async (filter, options) => {
 };
 
 const isFriendN = async (userId, friendId) => {
-  console.log('checkFriend', userId, '/n', friendId);
-  let find = false;
-  const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
-  const checkWaitingFriend2 = await Friend.findOne({ user: userId, friends: friendId });
-
-  console.log('find', checkWaitingFriend2);
-  if (checkWaitingFriend) {
-    find = true;
-    console.log('find2');
-  }
+  // console.log('checkFriend', userId, '/n', friendId);
+  let find = 0;
+  const checkFriend = await Friend.findOne({ user: userId, friends: friendId });
+  const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, friends: userId });
+  const checkWaitingMine = await WaitingFriend.findOne({ user: userId, friends: friendId });
+  if (checkFriend) {
+    //Bạn hay chưa với nó
+    find = 1;
+  } else if (checkWaitingOther) {
+    //Mình có trong danh sách chờ kết bạn của nó không
+    find = 2;
+  } else if (checkWaitingMine) {
+    //Nó có trong danh sách chờ kết bạn của mình không
+    find = 3;
+  } else find = 0;
   return find;
 };
 
@@ -76,21 +82,21 @@ const queryUsersClient = async (user, filter, options) => {
     // eslint-disable-next-line no-param-reassign
     filter.key = await changeName(filter.key);
   }
-  const users = await Search.paginateClient(filter, options);
+  const users = await Search.paginateClient(user, filter, options);
   const results = [];
   const { page, limit, totalPages, totalResults } = users;
   // eslint-disable-next-line no-restricted-syntax
   for (const item of users.results) {
     const newUser = {};
-    const { fullname, subname } = item;
     const userId = item.user.id;
-    const realName = item.user.fullname;
+    const username = item.username;
+    const fullname = item.user.fullname;
     const email = item.user.email;
     const avatar = item.user.avatar;
     // eslint-disable-next-line no-await-in-loop
     const isFriend = await isFriendN(user.id, userId);
-    console.log(isFriend);
-    results.push(Object.assign(newUser, { userId, fullname, realName, subname, avatar, email, isFriend }));
+    // console.log(isFriend);
+    results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
   }
   return { results, page, limit, totalPages, totalResults };
 };

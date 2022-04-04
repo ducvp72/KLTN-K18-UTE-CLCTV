@@ -3,9 +3,9 @@ const { toJSONM, paginateClient } = require('./plugins');
 
 const searchSchema = new mongoose.Schema(
   {
-    fullname: { required: true, type: String },
-    email: { required: true, type: String },
     subname: { required: true, type: String },
+    email: { required: true, type: String },
+    username: { required: true, type: String },
     user: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'User',

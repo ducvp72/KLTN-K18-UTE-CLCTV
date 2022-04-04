@@ -4,12 +4,9 @@ const { friendService } = require('../services');
 const pick = require('../utils/pick');
 
 const checkFriend = catchAsync(async (req, res) => {
-  const check = await friendService.checkFriend(req.user.id, req.body.friendId);
-  if (check) {
-    res.status(httpStatus.OK).send('User is your friend ');
-    return;
-  }
-  res.status(httpStatus.NOT_FOUND).send('User is not your friend');
+  const check = await friendService.isFriend(req.user.id, req.body.friendId);
+
+  res.status(httpStatus.OK).send(`${check}`);
 });
 
 const checkWaiting = catchAsync(async (req, res) => {
@@ -61,7 +58,7 @@ const blockFriend = catchAsync(async (req, res) => {
 
 const getListFriend = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate', 'type']);
-  const filter = pick(req.query, ['fullname', 'subname', 'email', 'typeFriend']);
+  const filter = pick(req.query, ['fullname', 'username', 'email', 'typeFriend']);
   const rs = await friendService.queryListFriend(req.user.id, filter, options);
   // console.log('rs pro', rs);
   res.status(httpStatus.OK).send(rs);

@@ -28,7 +28,7 @@ const register = catchAsync(async (req, res) => {
         // eslint-disable-next-line no-shadow
       } catch (err) {
         // eslint-disable-next-line no-console
-        if (x === 0) res.status(httpStatus.BAD_REQUEST).send('Subname already taken !');
+        if (x === 0) res.status(httpStatus.BAD_REQUEST).send('username already taken !');
         else res.status(httpStatus.BAD_REQUEST).send('Email already taken !');
       }
     }
@@ -38,12 +38,36 @@ const register = catchAsync(async (req, res) => {
   });
 });
 
-// const register = catchAsync(async (req, res) => {
-//   // eslint-disable-next-line no-console
-//   const user = await userService.createUser(req.body);
-//   const tokens = await tokenService.generateAuthTokens(user);
-//   res.status(httpStatus.CREATED).send({ user, tokens });
-// });
+const randomDate = (start, end) => {
+  // eslint-disable-next-line one-var
+  let d = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())),
+    month = '' + (d.getMonth() + 1),
+    day = '' + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+
+  return [day, month, year].join('/');
+};
+
+const cloneUser = catchAsync(async (req, res) => {
+  const genderArr = ['male', 'female', 'other'];
+  const randome = Math.floor(Math.random() * 1000);
+  const userClone = {
+    fullname: `fullname${randome}`,
+    birth: randomDate(new Date(2022, 0, 1), new Date()),
+    isActivated: true,
+    // eslint-disable-next-line no-bitwise
+    gender: genderArr[(Math.random() * genderArr.length) | 0],
+    username: `username${randome}`,
+    email: `user${randome}@gmail.com`,
+    password: '123456@User',
+  };
+  const user = await userService.createUser(userClone);
+  const tokens = await tokenService.generateAuthTokens(user);
+  res.status(httpStatus.CREATED).send({ user, tokens });
+});
 
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
@@ -110,6 +134,7 @@ const checkVerifyEmailByEmail = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  cloneUser,
   register,
   login,
   logout,

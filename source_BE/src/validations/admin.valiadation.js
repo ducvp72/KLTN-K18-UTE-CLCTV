@@ -89,7 +89,7 @@ const sortListUser = {
     key: Joi.string().allow(null).allow(''),
     fullname: Joi.string().allow(null).allow(''),
     email: Joi.string().allow(null).allow(''),
-    subname: Joi.string().allow(null).allow(''),
+    username: Joi.string().allow(null).allow(''),
     role: Joi.string(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
