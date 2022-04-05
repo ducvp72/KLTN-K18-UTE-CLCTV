@@ -74,27 +74,32 @@ const isFriendN = async (userId, friendId) => {
   return find;
 };
 
-const queryUsersClient = async (user, filter, options) => {
+const queryUsersClient = async (userR, filter, options) => {
   console.log('filter', filter);
-  console.log('options', options);
-
+  const find = await Search.findOne({ user: userR.id }).populate({ path: 'user' });
   if (filter.key) {
     // eslint-disable-next-line no-param-reassign
     filter.key = await changeName(filter.key);
   }
-  const users = await Search.paginateClient(user, filter, options);
+  const users = await Search.paginateClient(find, filter, options);
   const results = [];
   const { page, limit, totalPages, totalResults } = users;
+  // eslint-disable-next-line no-restricted-syntax
+  // totalResults = totalResults - 1;
   // eslint-disable-next-line no-restricted-syntax
   for (const item of users.results) {
     const newUser = {};
     const userId = item.user.id;
+    // eslint-disable-next-line prefer-destructuring
     const username = item.username;
+    // eslint-disable-next-line prefer-destructuring
     const fullname = item.user.fullname;
+    // eslint-disable-next-line prefer-destructuring
     const email = item.user.email;
+    // eslint-disable-next-line prefer-destructuring
     const avatar = item.user.avatar;
     // eslint-disable-next-line no-await-in-loop
-    const isFriend = await isFriendN(user.id, userId);
+    const isFriend = await isFriendN(userR.id, userId);
     // console.log(isFriend);
     results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
   }

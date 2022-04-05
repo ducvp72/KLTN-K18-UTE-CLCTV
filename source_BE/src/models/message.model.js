@@ -6,7 +6,7 @@ const { Schema } = mongoose;
 
 const messageSchema = new Schema(
   {
-    conversationId: {
+    groupId: {
       type: Schema.Types.ObjectId,
       ref: 'Conversation',
       required: true,

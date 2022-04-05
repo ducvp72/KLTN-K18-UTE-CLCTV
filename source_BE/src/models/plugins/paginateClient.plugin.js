@@ -18,7 +18,7 @@ const paginate = (schema) => {
    * @returns {Promise<QueryResult>}
    */
   // eslint-disable-next-line no-param-reassign
-  schema.statics.paginateClient = async function (user, filter, options) {
+  schema.statics.paginateClient = async function (userR, filter, options) {
     // eslint-disable-next-line no-param-reassign
     options.populate = 'user';
     let sort = '';
@@ -32,8 +32,17 @@ const paginate = (schema) => {
     } else {
       sort = 'createdAt';
     }
+
+    // console.log('user', userR);
     const { key } = filter;
-    const value = { $regex: key, $options: 'i' };
+    // const valueE = { $regex: key, $ne: userR.user.email || '', $options: 'i' };
+    // const valueS = { $regex: key, $ne: userR.subname || '', $options: 'i' };
+    // const valueU = { $regex: key, $ne: userR.user.username || '', $options: 'i' };
+    const value = {
+      $regex: key,
+      $nin: [userR.user.email || '', userR.subname || '', userR.user.username || ''],
+      $options: 'i',
+    };
 
     const limit = options.limit && parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 10;
     const page = options.page && parseInt(options.page, 10) > 0 ? parseInt(options.page, 10) : 1;
@@ -73,12 +82,6 @@ const paginate = (schema) => {
       const users = [];
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
-        if (i.user.id === user.id) {
-          // eslint-disable-next-line no-plusplus
-          totalResults--;
-          // eslint-disable-next-line no-continue
-          continue;
-        }
         const userN = JSON.parse(JSON.stringify(i));
         delete userN.user.isActivated;
         delete userN.user.role;
@@ -86,7 +89,6 @@ const paginate = (schema) => {
         users.push(userN);
       }
       results = users;
-
       const totalPages = Math.ceil(totalResults / limit);
       const result = {
         results,
