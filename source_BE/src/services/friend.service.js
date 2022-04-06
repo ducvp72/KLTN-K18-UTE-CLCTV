@@ -3,7 +3,7 @@ const { User, Friend, WaitingFriend } = require('../models');
 const ApiError = require('../utils/ApiError');
 const userService = require('./user.service');
 
-const checkUserValid = (user, friendId) => {
+const checkUserValid = async (user, friendId) => {
   const check = userService.getUserById(friendId);
   const checkUser = userService.getUserById(user.id);
 
@@ -15,7 +15,7 @@ const checkUserValid = (user, friendId) => {
   }
 };
 const isWaiting = async (userId, friendId) => {
-  checkUserValid(userId, friendId);
+  await checkUserValid(userId, friendId);
   const checkWaitingFriend = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
   return checkWaitingFriend;
 };
@@ -30,7 +30,7 @@ const firstWaiting = async (userId, friendId) => {
 const checkFriend = async (userId, friendId) => {
   console.log('checkFriend', userId, '/n', friendId);
   let find = false;
-  checkUserValid(userId, friendId);
+  await checkUserValid(userId, friendId);
   const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
   if (checkWaitingFriend) {
     find = true;
@@ -93,7 +93,7 @@ const firstAddFriend = async (userId, friendId) => {
 };
 
 const cancle = async (user, friendId) => {
-  checkUserValid(user.id, friendId);
+  await checkUserValid(user.id, friendId);
   const check = await isWaiting(friendId, user.id);
   if (!check) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not find User!');
@@ -112,7 +112,7 @@ const accept = async (user, friendId) => {
   if (user.id === friendId) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Can not add yourself !');
   }
-  checkUserValid(user.id, friendId);
+  await checkUserValid(user.id, friendId);
 
   const checkFr = await checkFriend(user.id, friendId);
   console.log('checkFr', checkFr);
@@ -130,7 +130,7 @@ const accept = async (user, friendId) => {
 };
 
 const isBlockedFriend = async (userId, friendId) => {
-  checkUserValid(userId, friendId);
+  await checkUserValid(userId, friendId);
   const userCheck = await Friend.findOne({
     user: userId,
     friends: friendId,
@@ -170,7 +170,7 @@ const blockFriend = async (user, friendId) => {
 };
 
 const unFriend = async (user, friendId) => {
-  checkUserValid(user.id, friendId);
+  await checkUserValid(user.id, friendId);
   if (!(await checkFriend(user.id, friendId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User is not your friend !');
   }

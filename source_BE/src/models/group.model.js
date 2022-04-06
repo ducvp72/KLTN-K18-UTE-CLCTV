@@ -1,8 +1,17 @@
 const mongoose = require('mongoose');
-const { toJSON, paginate } = require('./plugins');
+const { toJSONG, paginate } = require('./plugins');
 
 const groupSchema = mongoose.Schema(
   {
+    subName: {
+      type: String,
+      required: true,
+    },
+    isChangeName: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     groupName: {
       type: String,
       required: true,
@@ -17,11 +26,6 @@ const groupSchema = mongoose.Schema(
       required: true,
       enum: ['personal', 'pubic'],
     },
-    member: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: 'User',
-      required: true,
-    },
   },
   {
     timestamps: true,
@@ -29,7 +33,7 @@ const groupSchema = mongoose.Schema(
 );
 
 // add plugin that converts mongoose to json
-groupSchema.plugin(toJSON);
+groupSchema.plugin(toJSONG);
 groupSchema.plugin(paginate);
 
 /**

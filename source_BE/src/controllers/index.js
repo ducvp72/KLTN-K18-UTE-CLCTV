@@ -4,3 +4,4 @@ module.exports.profileController = require('./profile.controller');
 module.exports.friendController = require('./profile.controller');
 module.exports.adminController = require('./admin.controller');
 module.exports.sortController = require('./sort.controller');
+module.exports.groupController = require('./group.controller');

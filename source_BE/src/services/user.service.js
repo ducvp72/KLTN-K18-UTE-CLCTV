@@ -22,7 +22,6 @@ const createUser = async (userBody) => {
     return 0;
   }
   const user = await User.create(userBody);
-  console.log('user', user);
   const name = await changeName(user.fullname);
   await Search.create({ user, subname: name, username: userBody.username, email: userBody.email });
   return user;

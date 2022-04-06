@@ -1,3 +1,13 @@
+const objectIdArr = (value, helpers) => {
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < value.length; i++) {
+    if (!value[i].match(/^[0-9a-fA-F]{24}$/)) {
+      return helpers.message('"{{#label}}" must be a valid mongo id');
+    }
+  }
+  return value;
+};
+
 const objectId = (value, helpers) => {
   if (!value.match(/^[0-9a-fA-F]{24}$/)) {
     return helpers.message('"{{#label}}" must be a valid mongo id');
@@ -62,4 +72,5 @@ module.exports = {
   birthday,
   phone,
   username,
+  objectIdArr,
 };
