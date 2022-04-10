@@ -10,44 +10,102 @@ const createChat = catchAsync(async (req, res) => {
 });
 
 const createGroup = catchAsync(async (req, res) => {
-  const result = await groupService.createGroup(req.user);
+  const result = await groupService.createGroup(req.user, req.body);
   res.status(httpStatus.CREATED).send(result);
 });
-
-const getGroup = catchAsync(async (req, res) => {});
 
 const getGroupById = catchAsync(async (req, res) => {
   const rs = await groupService.getGroupInfo(req.body.groupId);
   res.status(httpStatus.OK).send(rs);
 });
 
-const checkMember = catchAsync(async (req, res) => {});
+const getUsersToAdd = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['key', 'groupId']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const result = await groupService.getUserToAdd(req.user, filter, options);
+  res.send(result);
+});
 
 const changeNameGroup = catchAsync(async (req, res) => {
   const result = await groupService.changeNameGroup(req.user, req.body);
   res.status(httpStatus.OK).send(result);
 });
 
-const deleteGroup = catchAsync(async (req, res) => {});
-
-const searchMember = catchAsync(async (req, res) => {});
-
-const addMember = catchAsync(async (req, res) => {
-  const result = await groupService.addMember(req.user, req.body);
-  res.send(result);
+const deleteNameGroup = catchAsync(async (req, res) => {
+  const result = await groupService.deleteNameGroup(req.user, req.body);
+  res.status(httpStatus.OK).send(result);
 });
 
-const deleteMember = catchAsync(async (req, res) => {});
+const deleteGroup = catchAsync(async (req, res) => {
+  await groupService.deleteGroup(req.user, req.body);
+  res.status(httpStatus.OK).send();
+});
 
-const setAdminGroup = catchAsync(async (req, res) => {});
+const searchMember = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['key', 'groupId']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const rs = await groupService.getGroup(req.user, filter, options);
+  res.status(httpStatus.CREATED).send(rs);
+});
 
-const joinGroup = catchAsync(async (req, res) => {});
+const checkMember = catchAsync(async (req, res) => {
+  const rs = await groupService.checkMember(req.body);
+  res.status(httpStatus.OK).send(rs);
+});
 
-const leaveGroup = catchAsync(async (req, res) => {});
+const getGroup = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['key']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const rs = await groupService.getGroup(req.user, filter, options);
+  res.status(httpStatus.CREATED).send(rs);
+});
 
-const acceptRequest = catchAsync(async (req, res) => {});
+const addMember = catchAsync(async (req, res) => {
+  await groupService.addMember(req.user, req.body);
+  res.status(httpStatus.CREATED).send();
+});
 
-const cancleRequest = catchAsync(async (req, res) => {});
+const deleteMember = catchAsync(async (req, res) => {
+  await groupService.deleteMember(req.user, req.body);
+  res.status(httpStatus.OK).send();
+});
+
+const setAdminGroup = catchAsync(async (req, res) => {
+  await groupService.setAdminGroup(req.user, req.body);
+  res.status(httpStatus.OK).send();
+});
+
+const joinGroup = catchAsync(async (req, res) => {
+  await groupService.joinGroup(req.user, req.body);
+  res.status(httpStatus.OK).send();
+});
+
+const leaveGroup = catchAsync(async (req, res) => {
+  await groupService.leaveGroup(req.user, req.body);
+  res.status(httpStatus.OK).send();
+});
+
+const acceptRequest = catchAsync(async (req, res) => {
+  await groupService.acceptRequest(req.user, req.body);
+  res.status(httpStatus.OK).send();
+});
+
+const cancleRequest = catchAsync(async (req, res) => {
+  await groupService.cancleRequest(req.user, req.body);
+  res.status(httpStatus.OK).send();
+});
+
+const getListToAccept = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['key', 'userId', 'groupId']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const rs = await groupService.getListToAccept(req.user, filter, options);
+  res.status(httpStatus.OK).send(rs);
+});
+
+const getGroupLink = catchAsync(async (req, res) => {
+  const rs = await groupService.getGroupLink(req.user.id, req.params.groupId);
+  res.status(httpStatus.OK).send(rs);
+});
 
 module.exports = {
   checkMember,
@@ -65,4 +123,8 @@ module.exports = {
   acceptRequest,
   cancleRequest,
   createChat,
+  getUsersToAdd,
+  deleteNameGroup,
+  getListToAccept,
+  getGroupLink,
 };

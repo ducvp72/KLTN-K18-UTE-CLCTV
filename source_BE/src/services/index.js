@@ -8,3 +8,4 @@ module.exports.mediaService = require('./media.service');
 module.exports.friendService = require('./friend.service');
 module.exports.adminService = require('./admin.service');
 module.exports.groupService = require('./group.service');
+module.exports.messageService = require('./message.service');

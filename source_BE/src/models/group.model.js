@@ -24,7 +24,7 @@ const groupSchema = mongoose.Schema(
     groupType: {
       type: String,
       required: true,
-      enum: ['personal', 'pubic'],
+      enum: ['personal', 'public'],
     },
   },
   {

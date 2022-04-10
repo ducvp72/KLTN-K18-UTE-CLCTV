@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { toJSONM, paginateClient } = require('./plugins');
+const { toJSONM, paginateClient, paginateUserGroup, paginateWaitingGroup } = require('./plugins');
 
 const searchSchema = new mongoose.Schema(
   {
@@ -17,6 +17,8 @@ const searchSchema = new mongoose.Schema(
 // add plugin that converts mongoose to json
 searchSchema.plugin(toJSONM);
 searchSchema.plugin(paginateClient);
+searchSchema.plugin(paginateUserGroup);
+searchSchema.plugin(paginateWaitingGroup);
 
 /**
  * @typedef Search

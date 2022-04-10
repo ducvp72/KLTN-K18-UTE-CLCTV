@@ -58,8 +58,8 @@ const isFriendN = async (userId, friendId) => {
   // console.log('checkFriend', userId, '/n', friendId);
   let find = 0;
   const checkFriend = await Friend.findOne({ user: userId, friends: friendId });
-  const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, friends: userId });
-  const checkWaitingMine = await WaitingFriend.findOne({ user: userId, friends: friendId });
+  const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
+  const checkWaitingMine = await WaitingFriend.findOne({ user: userId, waitingFriends: friendId });
   if (checkFriend) {
     //Bạn hay chưa với nó
     find = 1;
