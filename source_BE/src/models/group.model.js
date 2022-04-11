@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { toJSONG, paginate } = require('./plugins');
+const { toJSONG, paginateGroup } = require('./plugins');
 
 const groupSchema = mongoose.Schema(
   {
@@ -34,7 +34,7 @@ const groupSchema = mongoose.Schema(
 
 // add plugin that converts mongoose to json
 groupSchema.plugin(toJSONG);
-groupSchema.plugin(paginate);
+groupSchema.plugin(paginateGroup);
 
 /**
  * @typedef Token

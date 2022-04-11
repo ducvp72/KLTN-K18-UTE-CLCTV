@@ -44,7 +44,7 @@ const deleteGroup = catchAsync(async (req, res) => {
 const searchMember = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['key', 'groupId']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-  const rs = await groupService.getGroup(req.user, filter, options);
+  const rs = await groupService.searchMember(req.user, filter, options);
   res.status(httpStatus.CREATED).send(rs);
 });
 
@@ -53,11 +53,11 @@ const checkMember = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(rs);
 });
 
-const getGroup = catchAsync(async (req, res) => {
+const getMyGroup = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['key']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-  const rs = await groupService.getGroup(req.user, filter, options);
-  res.status(httpStatus.CREATED).send(rs);
+  const rs = await groupService.getMyGroup(req.user, filter, options);
+  res.status(httpStatus.OK).send(rs);
 });
 
 const addMember = catchAsync(async (req, res) => {
@@ -77,7 +77,7 @@ const setAdminGroup = catchAsync(async (req, res) => {
 
 const joinGroup = catchAsync(async (req, res) => {
   await groupService.joinGroup(req.user, req.body);
-  res.status(httpStatus.OK).send();
+  res.status(httpStatus.CREATED).send();
 });
 
 const leaveGroup = catchAsync(async (req, res) => {
@@ -96,7 +96,7 @@ const cancleRequest = catchAsync(async (req, res) => {
 });
 
 const getListToAccept = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['key', 'userId', 'groupId']);
+  const filter = pick(req.query, ['key', 'groupId']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
   const rs = await groupService.getListToAccept(req.user, filter, options);
   res.status(httpStatus.OK).send(rs);
@@ -110,7 +110,7 @@ const getGroupLink = catchAsync(async (req, res) => {
 module.exports = {
   checkMember,
   getGroupById,
-  getGroup,
+  getMyGroup,
   searchMember,
   createGroup,
   changeNameGroup,

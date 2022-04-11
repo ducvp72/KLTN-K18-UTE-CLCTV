@@ -1,14 +1,9 @@
 const mongoose = require('mongoose');
-const { toJSON, paginate } = require('./plugins');
+const { toJSON, paginateWaitingGroup } = require('./plugins');
 
 const waitingGroupSchema = mongoose.Schema(
   {
     waitingMembers: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    admin: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'User',
       required: true,
@@ -22,7 +17,7 @@ const waitingGroupSchema = mongoose.Schema(
 
 // add plugin that converts mongoose to json
 waitingGroupSchema.plugin(toJSON);
-waitingGroupSchema.plugin(paginate);
+waitingGroupSchema.plugin(paginateWaitingGroup);
 
 /**
  * @typedef Member

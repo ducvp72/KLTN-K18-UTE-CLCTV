@@ -18,9 +18,8 @@ const paginate = (schema) => {
    * @returns {Promise<QueryResult>}
    */
   // eslint-disable-next-line no-param-reassign
-  schema.statics.paginateWaitingGroup = async function (userArray, filter, options) {
+  schema.statics.paginateGroup = async function (groupArray, filter, options) {
     // eslint-disable-next-line no-param-reassign
-    options.populate = 'user';
     let sort = '';
     if (options.sortBy) {
       const sortingCriteria = [];
@@ -32,12 +31,7 @@ const paginate = (schema) => {
     } else {
       sort = 'createdAt';
     }
-
-    // console.log('user', userR);
     const { key } = filter;
-    // const valueE = { $regex: key, $ne: userR.user.email || '', $options: 'i' };
-    // const valueS = { $regex: key, $ne: userR.subname || '', $options: 'i' };
-    // const valueU = { $regex: key, $ne: userR.user.username || '', $options: 'i' };
     const value = {
       $regex: key,
       $options: 'i',
@@ -48,16 +42,16 @@ const paginate = (schema) => {
     const skip = (page - 1) * limit;
 
     const countPromise = this.countDocuments({
-      user: {
-        $in: userArray,
+      _id: {
+        $in: groupArray,
       },
-      $or: [{ email: value }, { subname: value }, { username: value }],
+      subName: value,
     }).exec();
     let docsPromise = this.find({
-      user: {
-        $in: userArray,
+      _id: {
+        $in: groupArray,
       },
-      $or: [{ email: value }, { subname: value }, { username: value }],
+      subName: value,
     })
       .sort(sort)
       .skip(skip)
@@ -84,16 +78,9 @@ const paginate = (schema) => {
       // eslint-disable-next-line no-restricted-syntax
 
       // eslint-disable-next-line no-restricted-syntax
-      const users = [];
+
       // eslint-disable-next-line no-restricted-syntax
-      for (const i of results) {
-        const userN = JSON.parse(JSON.stringify(i));
-        delete userN.user.isActivated;
-        delete userN.user.role;
-        delete userN.user.isBanned;
-        users.push(i);
-      }
-      results = users;
+
       const totalPages = Math.ceil(totalResults / limit);
       const result = {
         results,

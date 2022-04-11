@@ -3,7 +3,6 @@ const { objectId, objectIdArr } = require('./custom.validation');
 
 const waitingMember = {
   body: Joi.object().keys({
-    waitingMembers: Joi.array().custom(objectIdArr).required(),
     groupId: Joi.string().custom(objectId).required(),
   }),
 };
@@ -23,7 +22,7 @@ const addMember = {
 
 const createGroup = {
   body: Joi.object().keys({
-    groupName: Joi.string().required().min(5).max(100),
+    // groupName: Joi.string().required().min(5).max(100),
     memberId: Joi.array().custom(objectIdArr),
   }),
 };
@@ -56,8 +55,7 @@ const getGroupByID = {
 
 const getListGroup = {
   query: Joi.object().keys({
-    type: Joi.string().valid('white', 'black'),
-    sortBy: Joi.string(),
+    key: Joi.string().allow(null).allow(''),
     populate: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
@@ -82,7 +80,6 @@ const getUserToAdd = {
 
 const getListWaiting = {
   query: Joi.object().keys({
-    userId: Joi.string().custom(objectId),
     groupId: Joi.string().custom(objectId),
     key: Joi.string().allow(null).allow(''),
     sortBy: Joi.string(),

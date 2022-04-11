@@ -18,7 +18,7 @@ const paginate = (schema) => {
    * @returns {Promise<QueryResult>}
    */
   // eslint-disable-next-line no-param-reassign
-  schema.statics.paginateWaitingGroup = async function (userArray, filter, options) {
+  schema.statics.paginateMember = async function (groupArray, filter, options) {
     // eslint-disable-next-line no-param-reassign
     options.populate = 'user';
     let sort = '';
@@ -49,13 +49,13 @@ const paginate = (schema) => {
 
     const countPromise = this.countDocuments({
       user: {
-        $in: userArray,
+        $in: groupArray,
       },
       $or: [{ email: value }, { subname: value }, { username: value }],
     }).exec();
     let docsPromise = this.find({
       user: {
-        $in: userArray,
+        $in: groupArray,
       },
       $or: [{ email: value }, { subname: value }, { username: value }],
     })

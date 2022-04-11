@@ -1,17 +1,18 @@
 const httpStatus = require('http-status');
+const moment = require('moment');
 const { User, Search, Friend, WaitingFriend, Group, UserGroup, WaitingGroup } = require('../models');
 const ApiError = require('../utils/ApiError');
 
 const changeName = require('../utils/sort');
 const { userService, friendService } = require('../services');
 
-const autoUpdateNameGroup = async (groupId) => {
-  const findMembers = await UserGroup.find({ groupId }).populate('member');
+const autoUpdateNameGroup = async (groupId, userId) => {
+  let group;
+  const findMembers = await UserGroup.find({ groupId, member: { $nin: userId } }).populate('member');
   // eslint-disable-next-line prefer-const
   let nameMember = [];
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < findMembers.length; i++) {
-    console.log(findMembers[i]);
     nameMember.push(findMembers[i].member.fullname);
   }
   console.log(nameMember);
@@ -34,14 +35,19 @@ const autoUpdateNameGroup = async (groupId) => {
   )
     .then((res) => {
       console.log('New', res);
+      group = res;
     })
     .catch((err) => {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
     });
+  return group;
 };
 
 const getGroupById = async (adminId, groupId) => {
-  const find = await Group.findOne({ admin: adminId, _id: groupId });
+  const find = await Group.findOne({ admin: adminId, _id: groupId }).populate({
+    path: 'admin',
+    select: 'fullname username avatar gender birth -_id',
+  });
   if (!find) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not find Group Or You not admin group');
   }
@@ -49,7 +55,11 @@ const getGroupById = async (adminId, groupId) => {
 };
 
 const getGroupInfo = async (groupId) => {
-  const find = await Group.findById(groupId);
+  console.log('ok ddd');
+  const find = await Group.findById(groupId).populate({
+    path: 'admin',
+    select: 'fullname username avatar gender birth -_id',
+  });
   const countMem = await UserGroup.find({ groupId });
   if (!find) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not find Group');
@@ -224,20 +234,22 @@ const addMember = async (user, groupR) => {
 };
 
 const createGroup = async (user, groupR) => {
+  groupR.memberId.push(user.id);
   console.log(groupR);
   let group;
-  if (!groupR) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Please add your group name !');
-  }
+  // if (!groupR) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Please add your group name !');
+  // }
+
   await Group.create({
-    isChangeName: true,
-    groupName: groupR.groupName,
-    subName: await changeName(groupR.groupName),
+    isChangeName: false,
+    groupName: 'df',
+    subName: 'df',
     admin: user.id,
     groupType: 'public',
   })
     .then(async (res) => {
-      group = res;
+      // group = res;
       // eslint-disable-next-line no-plusplus
       if (groupR.memberId && groupR.memberId.length > 0) {
         // eslint-disable-next-line prefer-const
@@ -249,6 +261,7 @@ const createGroup = async (user, groupR) => {
         }
         //Them user vao group
         await UserGroup.insertMany(arrUser);
+        group = await autoUpdateNameGroup(res._id, user.id);
       }
     })
     .catch((err) => {
@@ -286,7 +299,7 @@ const deleteMember = async (user, GroupR) => {
   }
   await UserGroup.deleteMany({ member: GroupR.memberId });
   if (group.isChangeName === false) {
-    await autoUpdateNameGroup(GroupR.groupId);
+    await autoUpdateNameGroup(GroupR.groupId, user.id);
   }
 };
 
@@ -323,9 +336,8 @@ const setAdminGroup = async (user, groupR) => {
 const joinGroup = async (user, groupR) => {
   try {
     await WaitingGroup.create({
-      waitingMembers: groupR.waitingMembers,
+      waitingMembers: user.id,
       groupId: groupR.groupId,
-      admin: user.id,
     });
   } catch (err) {
     console.log(err);
@@ -345,7 +357,7 @@ const acceptRequest = async (user, groupR) => {
     })
       .then((res) => {
         console.log(res);
-        autoUpdateNameGroup(groupR.groupId);
+        autoUpdateNameGroup(groupR.groupId, user.id);
       })
       .catch((error) => {
         console.log(error);
@@ -367,10 +379,16 @@ const cancleRequest = async (user, groupR) => {
   }
 };
 
-const getGroup = async (user, groupR) => {
-  const find = Group.find({ member: user.Id }).populate({ path: 'member admin' });
-  const group = groupR;
-  return find;
+const getMyGroup = async (user, filter, options) => {
+  console.log(filter, options, user.id);
+  // const find = await UserGroup.find({ member: user.id }).populate([
+  //   { path: 'groupId', model: 'Group', select: 'isChangeName subName groupName groupType' },
+  //   { path: 'admin', model: 'User', select: 'avatar birth fullname username email gender' },
+  // ]);
+  const find = await UserGroup.find({ member: user.id });
+  const myGroup = find.map((item) => item.groupId);
+  const rs = await Group.paginateGroup(myGroup, filter, options);
+  return rs;
 };
 
 const checkMember = async (groupR) => {
@@ -386,12 +404,38 @@ const deleteGroup = async (user, groupR) => {
   }
 };
 
-const searchMember = async (user, groupR) => {};
+const searchMember = async (userR, filter, options) => {
+  const checkIn = await UserGroup.find({ groupId: filter.groupId, member: { $nin: userR.id } });
+  const members = checkIn.map((m) => m.member);
+  const users = await Search.paginateMember(members, filter, options);
+  const results = [];
+  const { page, limit, totalPages, totalResults } = users;
+  // eslint-disable-next-line no-restricted-syntax
+  // totalResults = totalResults - 1;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of users.results) {
+    const newUser = {};
+    const userId = item.user.id;
+    // eslint-disable-next-line prefer-destructuring
+    const username = item.username;
+    // eslint-disable-next-line prefer-destructuring
+    const fullname = item.user.fullname;
+    // eslint-disable-next-line prefer-destructuring
+    const email = item.user.email;
+    // eslint-disable-next-line prefer-destructuring
+    const avatar = item.user.avatar;
+    // eslint-disable-next-line no-await-in-loop
+    const isFriend = await friendService.isFriend(userR.id, userId);
+    // console.log(isFriend);
+    results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
+  }
+  return { results, page, limit, totalPages, totalResults };
+};
 
 const getListToAccept = async (userR, filter, options) => {
-  const checkIn = await WaitingGroup.find({ admin: filter.userId });
+  const checkIn = await WaitingGroup.find({ groupId: filter.groupId });
   const members = checkIn.map((m) => m.waitingMembers);
-  const users = await Search.paginateUserGroup(members, filter, options);
+  const users = await Search.paginateWaitingGroup(members, filter, options);
   const results = [];
   const { page, limit, totalPages, totalResults } = users;
   // eslint-disable-next-line no-restricted-syntax
@@ -417,34 +461,38 @@ const getListToAccept = async (userR, filter, options) => {
 };
 
 const getGroupLink = async (memberId, groupId) => {
+  console.log('memberId', memberId);
+  console.log('groupId', groupId);
   let check = 0;
   let objGroup;
-  await UserGroup.findOne({ memberId, groupId })
+  await UserGroup.findOne({ member: memberId, groupId })
     .then(async (res) => {
-      console.log(res);
       const find = await WaitingGroup.findOne({ groupId, member: memberId });
+      console.log('find', res);
       if (find) {
-        //was in  group
-        check = 1;
-      }
-      if (res) {
         //Waiting to join group
         check = 2;
       }
+      if (res) {
+        //was in  group
+        check = 1;
+      }
       const groupInfo = await Group.findById(groupId).populate({
         path: 'admin',
-        select: 'fullname username avatar gender birth',
+        select: 'fullname username avatar gender birth -_id',
       });
       const countMem = await UserGroup.find({ groupId });
       objGroup = groupInfo.toObject();
       objGroup.countMember = countMem.length;
       objGroup.isInGroup = check;
+      objGroup.createdAt = moment(objGroup.createdAt).format('DD/MM/YYYY');
       delete objGroup.__v;
-      return objGroup;
+      delete objGroup.updatedAt;
     })
     .catch((err) => {
-      console.log(err);
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
     });
+  return objGroup;
 };
 
 module.exports = {
@@ -452,7 +500,7 @@ module.exports = {
   checkMember,
   getUserToAdd,
   getGroupById,
-  getGroup,
+  getMyGroup,
   searchMember,
   createGroup,
   changeNameGroup,
