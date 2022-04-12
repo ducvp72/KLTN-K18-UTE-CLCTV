@@ -308,7 +308,7 @@ const deleteMember = async (user, GroupR) => {
   if (JSON.stringify(group.admin) !== `"${user.id}"`) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You must be admin of group !');
   }
-  await UserGroup.deleteMany({ member: GroupR.memberId });
+  await UserGroup.deleteMany({ groupId: GroupR.groupId, member: { $in: GroupR.memberId } });
   if (group.isChangeName === false) {
     await autoUpdateNameGroup(GroupR.groupId, user.id);
   }
