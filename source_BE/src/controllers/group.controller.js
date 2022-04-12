@@ -87,7 +87,7 @@ const leaveGroup = catchAsync(async (req, res) => {
 
 const acceptRequest = catchAsync(async (req, res) => {
   await groupService.acceptRequest(req.user, req.body);
-  res.status(httpStatus.OK).send();
+  res.status(httpStatus.CREATED).send();
 });
 
 const cancleRequest = catchAsync(async (req, res) => {

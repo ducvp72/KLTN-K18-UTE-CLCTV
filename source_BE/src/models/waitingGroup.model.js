@@ -3,7 +3,7 @@ const { toJSON, paginateWaitingGroup } = require('./plugins');
 
 const waitingGroupSchema = mongoose.Schema(
   {
-    waitingMembers: {
+    member: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'User',
       required: true,

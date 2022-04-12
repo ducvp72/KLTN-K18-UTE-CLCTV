@@ -6,6 +6,17 @@ const ApiError = require('../utils/ApiError');
 const changeName = require('../utils/sort');
 const { userService, friendService } = require('../services');
 
+const checkMember = async (groupR) => {
+  console.log(groupR);
+  const checkMem = await UserGroup.findOne({ groupId: groupR.groupId, member: groupR.userId }).populate([
+    { path: 'groupId', model: 'Group', select: 'groupName subName groupType' },
+    { path: 'member', model: 'User', select: 'avatar fullname username ' },
+    { path: 'admin', model: 'User', select: 'avatar fullname username ' },
+  ]);
+
+  return checkMem;
+};
+
 const autoUpdateNameGroup = async (groupId, userId) => {
   let group;
   const findMembers = await UserGroup.find({ groupId, member: { $nin: userId } }).populate('member');
@@ -306,10 +317,7 @@ const deleteMember = async (user, GroupR) => {
 const checkAdminGroup = async (adminId, groupId) => {
   const find = await Group.findOne({ admin: adminId, _id: groupId });
   if (!find) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Can not find Group Or You not admin group');
-  }
-  if (find.groupType === 'public' && JSON.stringify(find.admin) !== `"${adminId}"`) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Only Admin can set Admin for each other !');
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not admin group');
   }
 };
 
@@ -318,14 +326,26 @@ const setAdminGroup = async (user, groupR) => {
   await Group.findByIdAndUpdate(
     groupR.groupId,
     {
-      admin: groupR.memberId,
+      admin: groupR.userId,
     },
     {
       new: true,
       useFindAndModify: false,
     }
   )
-    .then((res) => {
+    .then(async (res) => {
+      const options = { multi: true, upsert: true };
+      // eslint-disable-next-line no-unused-expressions
+      await UserGroup.updateMany(
+        {
+          groupId: groupR.groupId,
+        },
+        { admin: groupR.userId },
+        options
+      );
+      if (groupR.groupId === false) {
+        await autoUpdateNameGroup(groupR.groupId, groupR.userId);
+      }
       console.log(res);
     })
     .catch((err) => {
@@ -334,9 +354,13 @@ const setAdminGroup = async (user, groupR) => {
 };
 
 const joinGroup = async (user, groupR) => {
+  const value = { groupId: groupR.groupId, userId: user.id };
+  if (await checkMember(value)) {
+    throw new ApiError(httpStatus.BAD_GATEWAY, 'You was in group');
+  }
   try {
     await WaitingGroup.create({
-      waitingMembers: user.id,
+      member: user.id,
       groupId: groupR.groupId,
     });
   } catch (err) {
@@ -345,34 +369,26 @@ const joinGroup = async (user, groupR) => {
 };
 
 const acceptRequest = async (user, groupR) => {
+  await checkAdminGroup(user.id, groupR.groupId);
+  console.log('arr', groupR);
   try {
-    await UserGroup.create({
-      member: groupR.waitingMembers,
-      admin: user.Id,
+    await addMember(user, groupR);
+    await WaitingGroup.deleteMany({
       groupId: groupR.groupId,
+      member: { $in: groupR.memberId },
     });
-    await WaitingGroup.findOneAndDelete({
-      waitingMembers: groupR.waitingMembers,
-      groupId: groupR.groupId,
-    })
-      .then((res) => {
-        console.log(res);
-        autoUpdateNameGroup(groupR.groupId, user.id);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    // autoUpdateNameGroup(groupR.groupId, user.id);
   } catch (err) {
     console.log(err);
   }
 };
 
 const cancleRequest = async (user, groupR) => {
+  await checkAdminGroup(user.id, groupR.groupId);
   try {
-    await WaitingGroup.findOneAndDelete({
-      waitingMembers: groupR.waitingMembers,
+    await WaitingGroup.deleteMany({
       groupId: groupR.groupId,
-      admin: user.id,
+      member: { $in: groupR.memberId },
     });
   } catch (err) {
     console.log(err);
@@ -391,14 +407,33 @@ const getMyGroup = async (user, filter, options) => {
   return rs;
 };
 
-const checkMember = async (groupR) => {
-  const checkMem = await UserGroup.findOne({ groupId: groupR.groupId, member: groupR.waitingMembers });
-  return checkMem;
-};
-
 const deleteGroup = async (user, groupR) => {
+  const find = await Group.find({ admin: user.id, _id: { $in: groupR.groupId } }).populate('admin');
+  // const checkMem = await UserGroup.find({ member: user.id, groupId: { $in: groupR.groupId } });
+  // console.log('find', find);
+  // console.log('checkMem', checkMem);
+
+  if (find.length > 0) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'You are admin in one or more group please set admin for another member before leave group!'
+    );
+  }
   try {
-    await UserGroup.deleteMany({ member: groupR.memberId, groupId: { $in: groupR.groupId } });
+    await UserGroup.deleteMany({ member: user.id, groupId: { $in: groupR.groupId } });
+    const groupS = await Group.find({ _id: { $in: groupR.groupId } });
+    console.log('groups', groupS);
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < groupS.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      // console.log('groups', groupS[i]._id);
+      // console.log('admin', groupS[i].admin);
+      // eslint-disable-next-line no-await-in-loop
+      if (groupS[i].isChangeName === false) {
+        // eslint-disable-next-line no-await-in-loop
+        await autoUpdateNameGroup(groupS[i]._id, groupS[i].admin);
+      }
+    }
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
   }

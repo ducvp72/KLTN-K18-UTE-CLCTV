@@ -14,17 +14,17 @@ router.get('/getGroupById', auth(), validate(groupValidation.getGroupByID), grou
 router.post('/createGroup', auth(), validate(groupValidation.createGroup), groupController.createGroup);
 router.post('/changeNameGroup', auth(), validate(groupValidation.changeNameGroup), groupController.changeNameGroup);
 router.delete('/deleteNameGroup', auth(), validate(groupValidation.deleteNameGroup), groupController.deleteNameGroup);
-router.delete('/deleteGroup', auth(), validate(groupValidation.getGroupByID), groupController.deleteGroup);
+router.delete('/deleteGroup', auth(), validate(groupValidation.deleteGroup), groupController.deleteGroup);
 router.post('/addMember', auth(), validate(groupValidation.addMember), groupController.addMember);
 router.delete('/leaveGroup', auth(), validate(groupValidation.getGroupByID), groupController.leaveGroup);
 router.delete('/deleteMember', auth(), validate(groupValidation.addMember), groupController.deleteMember);
 router.get('/getWaitingGroupList', auth(), validate(groupValidation.getListWaiting), groupController.getListToAccept);
-router.post('/checkMember', auth(), validate(groupValidation.groupMember), groupController.checkMember);
+router.get('/checkMember', validate(groupValidation.groupMember), groupController.checkMember);
 router.get('/searchMember', auth(), validate(groupValidation.getUserToAdd), groupController.searchMember);
-router.get('/setAdminGroup', auth(), validate(), groupController.setAdminGroup);
+router.post('/setAdminGroup', auth(), validate(groupValidation.groupMember), groupController.setAdminGroup);
 router.post('/joinGroup', auth(), validate(groupValidation.waitingMember), groupController.joinGroup);
-router.get('/acceptRequest', auth(), validate(groupValidation.waitingMember), groupController.acceptRequest);
-router.delete('/cancleRequest', auth(), validate(groupValidation.waitingMember), groupController.cancleRequest);
+router.post('/acceptRequest', auth(), validate(groupValidation.addMember), groupController.acceptRequest);
+router.delete('/cancleRequest', auth(), validate(groupValidation.addMember), groupController.cancleRequest);
 router.get('/:groupId', auth(), validate(groupValidation.getGroupToJoin), groupController.getGroupLink);
 
 module.exports = router;
