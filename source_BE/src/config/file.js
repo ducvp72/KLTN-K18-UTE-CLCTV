@@ -8,7 +8,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'myGallary',
     format: async (req, file) => {
-      const mem = file.mimetype.split('/')[1];
+      const mem = file.originalname.split('.').pop();
       return mem;
     }, // supports promises as well
     resource_type: 'auto',
@@ -20,14 +20,16 @@ const parser = multer({
   // limit the size to 5mb for any files coming in
   limits: { fileSize: 50000000 },
   // filer out invalid filetypes
-  fileFilter: function (req, file, cb) {
-    checkImageType(file, cb);
-  },
+  // eslint-disable-next-line object-shorthand
+  // fileFilter: function (req, file, cb) {
+  //   // eslint-disable-next-line no-use-before-define
+  //   // checkImageType(file, cb);
+  // },
 });
 
 function checkImageType(file, cb) {
   // define a regex that includes the file types we accept
-  const filetypes = /jpeg|jpg|png|gif/;
+  const filetypes = /jpeg|jpg|png|gif|mp4/;
   //check the file extention
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   // more importantly, check the mimetype

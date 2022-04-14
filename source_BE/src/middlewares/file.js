@@ -15,7 +15,7 @@ const uploadFile = (req, res, next) => {
       // An unknown error occurred when uploading.
       return res.sendStatus(err);
     }
-    if (!req.file) return res.status(httpStatus[400]).send('File not valid');
+    if (!req.file) return res.status(httpStatus.BAD_REQUEST).send('File not valid');
 
     // all good, proceed
     next();

@@ -1,107 +1,46 @@
 const Joi = require('joi');
 const { objectId, objectIdArr } = require('./custom.validation');
 
-const waitingMember = {
-  body: Joi.object().keys({
-    waitingMembers: Joi.array().custom(objectIdArr).required(),
-    groupId: Joi.string().custom(objectId).required(),
-  }),
-};
-
-const member = {
-  body: Joi.object().keys({
-    memberId: Joi.array().custom(objectIdArr).required(),
-  }),
-};
-
-const addMember = {
+const sendText = {
   body: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
-    memberId: Joi.array().custom(objectIdArr).required(),
+    content: Joi.string().required(),
   }),
 };
 
-const createGroup = {
-  body: Joi.object().keys({
-    groupName: Joi.string().required().min(5).max(100),
-    memberId: Joi.array().custom(objectIdArr),
-  }),
-};
-
-const changeNameGroup = {
-  body: Joi.object().keys({
-    groupId: Joi.string().custom(objectId).required(),
-    groupName: Joi.string().required().min(5).max(100),
-  }),
-};
-
-const deleteNameGroup = {
-  body: Joi.object().keys({
-    groupId: Joi.string().custom(objectId).required(),
-  }),
-};
-
-const groupMember = {
-  body: Joi.object().keys({
-    userId: Joi.string().custom(objectId).required(),
-    groupId: Joi.string().custom(objectId).required(),
-  }),
-};
-
-const getGroupByID = {
-  body: Joi.object().keys({
-    groupId: Joi.string().custom(objectId).required(),
-  }),
-};
-
-const getListGroup = {
-  query: Joi.object().keys({
-    type: Joi.string().valid('white', 'black'),
-    sortBy: Joi.string(),
-    populate: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
-  }),
-};
-
-const getGroupToJoin = {
+const getFileById = {
   params: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
   }),
 };
 
-const getUserToAdd = {
-  query: Joi.object().keys({
+const groupId = {
+  body: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
-    key: Joi.string().allow(null).allow(''),
-    sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
   }),
 };
 
-const getListWaiting = {
+const getFile = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
   query: Joi.object().keys({
-    userId: Joi.string().custom(objectId),
-    groupId: Joi.string().custom(objectId),
-    key: Joi.string().allow(null).allow(''),
+    w: Joi.number().integer(),
+    h: Joi.number().integer(),
+  }),
+};
+const getMessagesFromConversation = {
+  params: Joi.object().keys({
+    groupId: Joi.string().custom(objectId).required(),
+  }),
+  query: Joi.object().keys({
+    owner: Joi.string().custom(objectId),
     sortBy: Joi.string(),
+    populate: Joi.string(),
+    typeMessage: Joi.string().valid('DOWNLOAD', 'VIDEO', 'AUDIO', 'IMAGE', 'MEDIA'),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
   }),
 };
 
-module.exports = {
-  getListWaiting,
-  createGroup,
-  getUserToAdd,
-  member,
-  addMember,
-  waitingMember,
-  getGroupByID,
-  groupMember,
-  getListGroup,
-  changeNameGroup,
-  deleteNameGroup,
-  getGroupToJoin,
-};
+module.exports = { groupId, sendText, getFileById, getFile, getMessagesFromConversation };

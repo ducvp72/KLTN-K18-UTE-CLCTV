@@ -7,6 +7,7 @@ const fileTypes = {
   LIKE: 'LIKE',
   LOVE: 'LOVE',
   DOWNLOAD: 'DOWNLOAD',
+  READ: 'READ',
 };
 
 const files = Object.keys(fileTypes);

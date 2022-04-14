@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const cloudinary = require('cloudinary').v2;
-const { User, Image } = require('../models');
+const { User, Message } = require('../models');
 const ApiError = require('../utils/ApiError');
 
 // const uploadImage = async (file, user) => {
@@ -30,6 +30,21 @@ const ApiError = require('../utils/ApiError');
 //   }
 // };
 
+const upLoadFile = async (sender, file, typeMessage, groupId) => {
+  let fileR;
+  console.log(groupId);
+  console.log(sender);
+  console.log(typeMessage);
+
+  try {
+    fileR = await Message.create(
+      { groupId, sender, typeMessage, content: file.path },
+      { new: true, useFindAndModify: false }
+    );
+  } catch (error) {}
+  return fileR;
+};
+
 const uploadImage = async (file, user) => {
   let changeAvatarUser;
   try {
@@ -54,5 +69,6 @@ const uploadImage = async (file, user) => {
 
 module.exports = {
   // changeAvatar,
+  upLoadFile,
   uploadImage,
 };
