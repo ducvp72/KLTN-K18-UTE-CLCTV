@@ -22,30 +22,31 @@ const sendMess = catchAsync(async (req, res) => {
 
 const sendFile = catchAsync(async (req, res) => {
   console.log(req.file);
-  let type;
-  const fileType = req.file.originalname.split('.').pop();
-  console.log('type', fileType);
-  switch (fileType) {
-    case 'docx' || 'xlsx' || 'pdf' || 'pptx':
-      type = fileTypes.READ;
-      break;
-    case 'rar' || 'zip':
-      type = fileTypes.DOWNLOAD;
-      break;
-    case 'jpeg' || 'png' || 'gif' || 'jpg':
-      type = fileTypes.IMAGE;
-      break;
-    case 'mp3' || 'wav' || 'wma':
-      type = fileTypes.AUDIO;
-      break;
-    case 'mp4':
-      type = fileTypes.VIDEO;
-      break;
-    default:
-      break;
-  }
+  let typeMessage;
+  const type = req.file.originalname.split('.').pop().toLowerCase();
+  const getMine = req.file.mimetype.split('/')[0];
+  console.log('type', type);
+  console.log('getMine', getMine);
 
-  const kq = await mediaService.upLoadFile(req.user.id, req.file, type, req.body.groupId);
+  if (getMine === 'image' || getMine === 'video' || getMine === 'audio') {
+    if (type === 'jpeg' || type === 'png' || type === 'gif' || type === 'jpg') {
+      typeMessage = fileTypes.IMAGE;
+    }
+    if (type === 'mp3' || type === 'wav' || type === 'wma' || type === 'm4a') {
+      typeMessage = fileTypes.AUDIO;
+    }
+    if (type === 'mp4') typeMessage = fileTypes.VIDEO;
+  } else {
+    if (type === 'docx' || type === 'xlsx' || type === 'pdf' || type === 'pptx') {
+      typeMessage = fileTypes.READ;
+    }
+    if (type === 'rar' || type === 'zip' || type === 'rar4' || type === 'txt') {
+      typeMessage = fileTypes.DOWNLOAD;
+    }
+  }
+  console.log('getypeMessagetMine', typeMessage);
+
+  const kq = await mediaService.upLoadFile(req.user.id, req.file, typeMessage, req.body.groupId);
   await messageService.autoUpdateDate(req.body.groupId);
   res.status(httpStatus.CREATED).send(kq);
 });

@@ -32,9 +32,9 @@ const ApiError = require('../utils/ApiError');
 
 const upLoadFile = async (sender, file, typeMessage, groupId) => {
   let fileR;
-  console.log(groupId);
-  console.log(sender);
-  console.log(typeMessage);
+  // console.log(groupId);
+  // console.log(sender);
+  // console.log(typeMessage);
 
   try {
     fileR = await Message.create(
