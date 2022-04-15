@@ -39,6 +39,12 @@ const toJSON = (schema) => {
       delete ret.sender.isBanned;
       delete ret.sender.birth;
       delete ret.sender.subname;
+      ret.user = ret.sender;
+      ret.user._id = ret.sender.id;
+      ret.user.name = ret.sender.fullname;
+      delete ret.sender;
+      delete ret.user.id;
+      delete ret.user.fullname;
       delete ret.groupId;
       delete ret.typeMessage;
       // delete ret.createdAt;
