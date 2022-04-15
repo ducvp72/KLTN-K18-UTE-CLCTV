@@ -61,7 +61,7 @@ const sendMess = async (user, req) => {
       groupId: req.groupId,
       sender: user.id,
       typeMessage: fileTypes.TEXT,
-      content: req.content,
+      text: req.text,
     });
     await autoUpdateDate(req.groupId);
     messN = newM;
@@ -87,7 +87,7 @@ const recallMess = async (user, req) => {
   try {
     await Message.findByIdAndUpdate(req.messId, {
       typeMessage: fileTypes.RECALL,
-      content: `Message was remove by ${find.fullname}`,
+      text: `Message was remove by ${find.fullname}`,
     });
   } catch (err) {
     console.log(err);
@@ -111,7 +111,6 @@ const sendLike = async (user, req) => {
       groupId: req.groupId,
       sender: user.id,
       typeMessage: fileTypes.LIKE,
-      content: '',
     });
     await autoUpdateDate(req.groupId);
     messN = newM;
@@ -129,7 +128,6 @@ const sendLove = async (user, req) => {
       groupId: req.groupId,
       sender: user.id,
       typeMessage: fileTypes.LOVE,
-      content: '',
     });
     await autoUpdateDate(req.groupId);
     messN = newM;

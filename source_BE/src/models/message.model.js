@@ -21,8 +21,17 @@ const messageSchema = new Schema(
       enum: files,
       required: true,
     },
-    content: {
+    text: {
       type: String,
+      default: 'null',
+    },
+    image: {
+      type: String,
+      default: 'null',
+    },
+    video: {
+      type: String,
+      default: 'null',
     },
   },
   {

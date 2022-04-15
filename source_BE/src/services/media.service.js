@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const cloudinary = require('cloudinary').v2;
 const { User, Message } = require('../models');
 const ApiError = require('../utils/ApiError');
+const { fileTypes } = require('../config/fileTypes');
 
 // const uploadImage = async (file, user) => {
 // const newImage = new Image({
@@ -34,14 +35,31 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
   let fileR;
   // console.log(groupId);
   // console.log(sender);
-  // console.log(typeMessage);
+  console.log(typeMessage);
 
-  try {
-    fileR = await Message.create(
-      { groupId, sender, typeMessage, content: file.path },
-      { new: true, useFindAndModify: false }
-    );
-  } catch (error) {}
+  if (typeMessage === fileTypes.IMAGE) {
+    try {
+      fileR = await Message.create(
+        { groupId, sender, typeMessage, image: file.path }
+        // { new: true, useFindAndModify: false }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  if (typeMessage === fileTypes.VIDEO) {
+    try {
+      fileR = await Message.create(
+        { groupId, sender, typeMessage, video: file.path }
+        // { new: true, useFindAndModify: false }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  console.log(fileR);
+
   return fileR;
 };
 

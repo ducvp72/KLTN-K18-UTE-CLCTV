@@ -4,7 +4,7 @@ const { objectId, objectIdArr } = require('./custom.validation');
 const sendText = {
   body: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
-    content: Joi.string().required(),
+    text: Joi.string().required(),
   }),
 };
 
