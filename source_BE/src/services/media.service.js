@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const cloudinary = require('cloudinary').v2;
-const { User, Message } = require('../models');
+const { User, Message, Group } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { fileTypes } = require('../config/fileTypes');
 
@@ -43,6 +43,10 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
         { groupId, sender, typeMessage, image: file.path }
         // { new: true, useFindAndModify: false }
       );
+
+      await Group.findByIdAndUpdate(groupId, {
+        message: fileR._id,
+      });
     } catch (error) {
       console.log(error);
     }

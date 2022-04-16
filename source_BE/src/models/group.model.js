@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { toJSONG, paginateGroup } = require('./plugins');
+const { toJSONG, paginateGroup, paginateLast } = require('./plugins');
 
 const groupSchema = mongoose.Schema(
   {
@@ -21,6 +21,11 @@ const groupSchema = mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    last: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Message',
+      // required: true,
+    },
     groupType: {
       type: String,
       required: true,
@@ -35,6 +40,7 @@ const groupSchema = mongoose.Schema(
 // add plugin that converts mongoose to json
 groupSchema.plugin(toJSONG);
 groupSchema.plugin(paginateGroup);
+groupSchema.plugin(paginateLast);
 
 /**
  * @typedef Token

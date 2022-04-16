@@ -2,12 +2,19 @@ const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 const { messageService, mediaService } = require('../services');
-const { fileTypes, files } = require('../config/fileTypes');
+const { fileTypes } = require('../config/fileTypes');
 
 const getMess = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate', 'typeMessage']);
   const kq = await messageService.getMess(req.user, req.params.groupId, options);
   res.status(httpStatus.OK).send(kq);
+});
+
+const getLastMessGroup = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['key']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const rs = await messageService.getListMess(req.user, filter, options);
+  res.status(httpStatus.OK).send(rs);
 });
 
 const getFile = catchAsync(async (req, res) => {
@@ -104,4 +111,5 @@ module.exports = {
   recallMess,
   deleteRecall,
   getLastMess,
+  getLastMessGroup,
 };

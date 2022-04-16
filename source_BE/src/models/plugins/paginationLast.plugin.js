@@ -18,9 +18,11 @@ const paginate = (schema) => {
    * @returns {Promise<QueryResult>}
    */
   // eslint-disable-next-line no-param-reassign
-  schema.statics.paginateGroup = async function (groupArray, filter, options) {
+  schema.statics.paginateLast = async function (groupArray, filter, options) {
     // eslint-disable-next-line no-param-reassign
-    options.populate = 'last.sender';
+
+    options.populate = 'last';
+
     let sort = '';
     if (options.sortBy) {
       const sortingCriteria = [];
@@ -59,7 +61,6 @@ const paginate = (schema) => {
       .limit(limit);
 
     if (options.populate) {
-      console.log('aaa');
       options.populate.split(',').forEach((populateOption) => {
         docsPromise = docsPromise.populate(
           populateOption
@@ -80,8 +81,6 @@ const paginate = (schema) => {
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
         const userN = JSON.parse(JSON.stringify(i));
-        delete userN.subName;
-        delete userN.admin;
         delete userN.isChangeName;
         userN._id = userN.id;
         delete userN.id;
@@ -99,7 +98,6 @@ const paginate = (schema) => {
       // eslint-disable-next-line no-restricted-syntax
 
       // eslint-disable-next-line no-restricted-syntax
-
       const totalPages = Math.ceil(totalResults / limit);
       const result = {
         results,
@@ -108,6 +106,7 @@ const paginate = (schema) => {
         totalPages,
         totalResults,
       };
+      console.log('result', result);
       return Promise.resolve(result);
     });
   };

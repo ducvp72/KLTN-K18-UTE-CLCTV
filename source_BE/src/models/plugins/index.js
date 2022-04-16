@@ -14,3 +14,4 @@ module.exports.paginateFriend = require('./paginateFriend.plugin');
 module.exports.paginateWaitingGroup = require('./paginanteWaitingGroup.plugin');
 module.exports.paginateMember = require('./paginateMember.plugin');
 module.exports.paginateMess = require('./paginateMess.plugin');
+module.exports.paginateLast = require('./paginationLast.plugin');

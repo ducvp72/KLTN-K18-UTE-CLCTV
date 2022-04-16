@@ -28,26 +28,48 @@ const toJSON = (schema) => {
         }
       });
 
-      //ret.id = ret._id.toString();
-      // delete ret._id;
+      ret.id = ret._id.toString();
+      delete ret._id;
       delete ret.__v;
-      delete ret.sender.role;
-      delete ret.sender.isActivated;
-      delete ret.sender.gender;
-      delete ret.sender.email;
-      delete ret.sender.username;
-      delete ret.sender.isBanned;
-      delete ret.sender.birth;
-      delete ret.sender.subname;
-      ret.user = ret.sender;
-      ret.user._id = ret.sender.id;
-      ret.user.name = ret.sender.fullname;
-      delete ret.sender;
-      delete ret.user.id;
-      delete ret.user.fullname;
+      // if (ret.sender) {
+      // delete ret.sender.role;
+      // delete ret.sender.isActivated;
+      // delete ret.sender.gender;
+      // delete ret.sender.email;
+      // delete ret.sender.username;
+      // delete ret.sender.isBanned;
+      // delete ret.sender.birth;
+      // delete ret.sender.subname;
+      // delete ret.sender;
+      // }
+      // if (ret.user) {
+      //   ret.user = ret.sender;
+      //   ret.user._id = ret.sender.id;
+      //   ret.user.name = ret.sender.fullname;
+      //   delete ret.user.id;
+      //   delete ret.user.fullname;
+      // }
+
+      if (ret.sender.id.toString().match(/^[0-9a-fA-F]{24}$/)) {
+        delete ret.sender.check;
+        delete ret.sender.role;
+        delete ret.sender.isActivated;
+        delete ret.sender.gender;
+        delete ret.sender.email;
+        delete ret.sender.username;
+        delete ret.sender.isBanned;
+        delete ret.sender.birth;
+        delete ret.sender.subname;
+        ret.sender.name = ret.sender.fullname;
+        delete ret.sender.fullname;
+        ret.sender._id = ret.sender.id;
+        delete ret.sender.id;
+        ret.user = ret.sender;
+        delete ret.sender;
+      }
       delete ret.groupId;
       delete ret.typeMessage;
-      // delete ret.createdAt;
+      delete ret.createdAt;
       delete ret.updatedAt;
 
       //

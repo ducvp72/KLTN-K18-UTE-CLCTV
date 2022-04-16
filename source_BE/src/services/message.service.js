@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 const httpStatus = require('http-status');
 const { userService, mediaService, groupService } = require('.');
-const { User, Search, Message, Group } = require('../models');
+const { User, Search, Message, Group, UserGroup } = require('../models');
 const changeName = require('../utils/sort');
 const ApiError = require('../utils/ApiError');
 const { fileTypes, files } = require('../config/fileTypes');
@@ -41,16 +41,19 @@ const getMess = async (userId, groupId, options) => {
   }
 };
 
-const getLastMess = async (user, groupId) => {
-  // await checkMem(user.id, groupId);
-
-  const lastMessage = await Message.findOne({
-    groupId,
-  })
-    .populate('sender')
-    .sort({ createdAt: -1 });
-
-  return lastMessage;
+const getListMess = async (user, filter, options) => {
+  console.log(filter, options, user.id);
+  // const findGroup = await Group.find().populate('last');
+  // console.log(findGroup);
+  const find = await UserGroup.find({ member: user.id });
+  const myGroup = find.map((item) => item.groupId);
+  const rs = await Group.paginateLast(myGroup, filter, options);
+  const results = [];
+  const { page, limit, totalPages, totalResults } = rs;
+  for (const item of rs.results) {
+    results.push(item);
+  }
+  return results;
 };
 
 const sendMess = async (user, req) => {
@@ -68,6 +71,10 @@ const sendMess = async (user, req) => {
   } catch (err) {
     console.log(err);
   }
+
+  await Group.findByIdAndUpdate(req.groupId, {
+    last: messN.id,
+  });
 
   const find = await Message.findById(messN._id).populate({
     path: 'sender',
@@ -137,6 +144,18 @@ const sendLove = async (user, req) => {
   return messN;
 };
 
+const getLastMess = async (user, groupId) => {
+  // await checkMem(user.id, groupId);
+
+  const lastMessage = await Message.findOne({
+    groupId,
+  })
+    .populate('sender')
+    .sort({ createdAt: -1 });
+
+  return lastMessage;
+};
+
 const attachMess = async (id) => {};
 
 const editAttach = async (id) => {};
@@ -156,4 +175,5 @@ module.exports = {
   getLastMess,
   getDowladFile,
   autoUpdateDate,
+  getListMess,
 };

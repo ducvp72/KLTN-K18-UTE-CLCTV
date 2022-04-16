@@ -43,4 +43,14 @@ const getMessagesFromConversation = {
   }),
 };
 
-module.exports = { groupId, sendText, getFileById, getFile, getMessagesFromConversation };
+const getListLast = {
+  query: Joi.object().keys({
+    key: Joi.string().allow(null).allow(''),
+    populate: Joi.string(),
+    limit: Joi.number().integer(),
+    page: Joi.number().integer(),
+    sortBy: Joi.string(),
+  }),
+};
+
+module.exports = { groupId, sendText, getFileById, getFile, getMessagesFromConversation, getListLast };
