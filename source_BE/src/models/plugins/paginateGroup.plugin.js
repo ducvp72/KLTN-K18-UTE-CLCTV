@@ -88,6 +88,7 @@ const paginate = (schema) => {
         userN.last._id = userN.last.id;
         delete userN.last.id;
         userN.lastMessage = userN.last;
+        userN.isSeen = true;
         delete userN.last;
         users.push(userN);
       }
