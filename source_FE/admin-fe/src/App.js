@@ -1,7 +1,14 @@
+import { env } from "./config/vairable";
+import { ErrorPage } from "./components/errorPage/error";
+
 const App = () => {
+  console.log(process.env.DOMAIN);
   return (
-    <div className=" border-8">
-      <div className=" bg-blue-500 text-red-700">aaa</div>
+    <div>
+      {/* <div className=" border-8">
+        <div className=" text-red-700">{env.domain}</div>
+      </div> */}
+      <ErrorPage />
     </div>
   );
 };
