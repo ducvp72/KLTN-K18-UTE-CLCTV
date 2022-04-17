@@ -1,14 +1,24 @@
 import { env } from "./config/vairable";
-import { ErrorPage } from "./components/errorPage/error";
+import {
+  Login,
+  Error,
+  Profile,
+  Forgot,
+  GroupDash,
+  UserDash,
+  Dashboard,
+} from "./components/index";
 
 const App = () => {
-  console.log(process.env.DOMAIN);
   return (
     <div>
-      {/* <div className=" border-8">
-        <div className=" text-red-700">{env.domain}</div>
-      </div> */}
-      <ErrorPage />
+      <Dashboard />
+      <UserDash />
+      <GroupDash />
+      {/* <Login /> */}
+      {/* <Forgot /> */}
+      {/* <Profile /> */}
+      {/* <Error /> */}
     </div>
   );
 };

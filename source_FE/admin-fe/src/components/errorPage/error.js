@@ -1,12 +1,12 @@
 import React from "react";
 import "./style.css";
-export const ErrorPage = () => {
+export const Error = () => {
   return (
     <div className="">
-      <div className="fixed w-full top-2">
+      <div className="fixed w-full top-5">
         <div className=" flex justify-center align-middle">
-          <button className=" bg-error-btn text-white font-mono border text-2xl rounded-md hover:bg-purple-700 cursor-pointer">
-            <p className=" p-2">Home</p>
+          <button className="animate-bounce bg-error-btn text-white font-mono border text-2xl rounded-md hover:bg-purple-700 cursor-pointer">
+            <p className=" p-2"> Back to Home</p>
           </button>
         </div>
       </div>

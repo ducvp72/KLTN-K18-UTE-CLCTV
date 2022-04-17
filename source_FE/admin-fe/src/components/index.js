@@ -1,0 +1,9 @@
+export { Login } from "./login/login";
+export { Error } from "./errorPage/error";
+export { Profile } from "./changeProfile/profile";
+export { Forgot } from "./forgotPassword/forgot";
+export { UserDash } from "./userDashboard";
+export { GroupDash } from "./groupDashboard";
+export { Dashboard } from "./dashboard";
+export { DetailUser } from "./genenrals/detailUser";
+export { DetailGroup } from "./genenrals/detailGroup";

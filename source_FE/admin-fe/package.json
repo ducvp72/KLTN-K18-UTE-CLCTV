@@ -7,7 +7,6 @@
     "@testing-library/react": "^13.0.1",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.26.1",
-    "dotenv": "^16.0.0",
     "moment": "^2.29.2",
     "react": "^18.0.0",
     "react-cookie": "^4.1.1",
