@@ -69,8 +69,8 @@ const toJSON = (schema) => {
       }
       delete ret.groupId;
       delete ret.typeMessage;
-      delete ret.createdAt;
-      delete ret.updatedAt;
+      // delete ret.createdAt;
+      // delete ret.updatedAt;
 
       //
       if (transform) {
