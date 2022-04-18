@@ -1,26 +1,10 @@
 import { env } from "./config/vairable";
-import {
-  Login,
-  Error,
-  Profile,
-  Forgot,
-  GroupDash,
-  UserDash,
-  Dashboard,
-} from "./components/index";
+import "@material-tailwind/react/tailwind.css";
+import "antd/dist/antd.css";
+import { Router } from "./router/router";
 
 const App = () => {
-  return (
-    <div>
-      <Dashboard />
-      <UserDash />
-      <GroupDash />
-      {/* <Login /> */}
-      {/* <Forgot /> */}
-      {/* <Profile /> */}
-      {/* <Error /> */}
-    </div>
-  );
+  return <Router />;
 };
 
 export default App;

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 export const Login = () => {
+  const navigate = useNavigate();
   return (
     <>
-      <div className="w-full h-screen flex items-center justify-center">
-        <form className="w-full md:w-1/3 bg-white rounded-lg">
+      <div className="h-screen flex items-center justify-center">
+        <form className="w-1/2 md:w-1/3 bg-white rounded-lg">
           <div className="flex font-bold justify-center mt-6">
             <img
               className="h-20 w-20"
@@ -42,13 +43,19 @@ export const Login = () => {
             <div className="w-full mb-1 ">
               <p className=" text-red-500">Wrong password</p>
             </div>
-            <a
-              href="https://github.com/ducvp72"
-              className="text-sm text-gray-500 float-right mb-4"
+            <p
+              onClick={() => {
+                navigate("/forgot");
+              }}
+              href="#"
+              className="text-sm text-gray-500 float-right mb-4 underline cursor-pointer"
             >
               Forgot Password?
-            </a>
+            </p>
             <button
+              onClick={() => {
+                navigate("/home/user", { state: "Duc", replace: true });
+              }}
               type="submit"
               className="w-full py-2 rounded-full bg-green-600 text-gray-100  focus:outline-none"
             >

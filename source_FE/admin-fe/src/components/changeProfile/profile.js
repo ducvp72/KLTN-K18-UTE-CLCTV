@@ -1,9 +1,10 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 export const Profile = () => {
+  const navigate = useNavigate();
   return (
     <div>
-      <div className="bg-grey-lighter min-h-screen flex flex-col">
+      <div className=" flex flex-col mb-10 mt-10">
         <div className="container max-w-sm mx-auto flex-1 flex flex-col items-center justify-center px-2">
           <div class="bg-white px-6 py-8 rounded shadow-md text-black w-full">
             <div className="flex justify-center align-middle mb-2">
@@ -50,12 +51,14 @@ export const Profile = () => {
           </div>
 
           <div className="text-grey-dark mt-6">
-            <a
-              className="no-underline border-b border-blue text-blue"
-              href="../login/"
+            <p
+              onClick={() => {
+                navigate("/", { replace: true });
+              }}
+              className="no-underline border-b border-blue text-blue cursor-pointer"
             >
               Forgot Password?
-            </a>
+            </p>
           </div>
         </div>
       </div>
