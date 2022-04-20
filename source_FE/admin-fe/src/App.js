@@ -1,6 +1,6 @@
 import { env } from "./config/vairable";
+import "antd/dist/antd.min.css";
 import "@material-tailwind/react/tailwind.css";
-import "antd/dist/antd.css";
 import { Router } from "./router/router";
 
 const App = () => {

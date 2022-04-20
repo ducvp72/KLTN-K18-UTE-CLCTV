@@ -1,13 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useStore, actions, SearchProvider } from "../contextApi";
+
 export const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [state, dispatch] = useStore(useStore);
+  const { key, query } = state;
+  console.log(state);
+
   useEffect(() => {
     console.log("location", location.pathname);
   }, [location]);
+
   return (
-    <div className="grid grid-cols-6 gap-2 w-full h-full p-5 mt-8">
+    <div className="grid grid-cols-6 gap-2 w-full h-full p-5">
       <div
         className=" border rounded-md w-full px-2"
         style={{ height: "600px" }}
@@ -66,27 +74,34 @@ export const Dashboard = () => {
         </div>
         {location.pathname === "/home/password" ? null : (
           <div className=" w-full mt-2 p-2 flex items-center ">
-            <div class="flex justify-start">
-              <div class="mb-3 xl:w-96">
-                <div class="input-group relative flex items-stretch w-full mb-4">
+            <div className="flex justify-start">
+              <div className="mb-3 xl:w-96">
+                <div className="input-group relative flex items-stretch w-full mb-4">
                   <input
                     type="search"
-                    class="form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                    className="form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                     placeholder="Search"
                     aria-label="Search"
                     aria-describedby="button-addon2"
+                    value={key}
+                    onChange={(e) => {
+                      dispatch(actions.setSearchIput(e.target.value));
+                    }}
                   />
                   <button
-                    class="btn inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700  focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out  items-center"
+                    className="btn inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700  focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out  items-center"
                     type="button"
                     id="button-addon2"
+                    onClick={(e) => {
+                      dispatch(actions.setSearchQuey(query));
+                    }}
                   >
                     <svg
                       aria-hidden="true"
                       focusable="false"
                       data-prefix="fas"
                       data-icon="search"
-                      class="w-4"
+                      className="w-4"
                       role="img"
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 512 512"
@@ -109,7 +124,7 @@ export const Dashboard = () => {
                 value="Sort"
                 onChange={(e, d) => console.log(e)}
               />
-              <label for="Sort"> asc</label>
+              <label htmlFor="Sort"> asc</label>
             </div>
           </div>
         )}

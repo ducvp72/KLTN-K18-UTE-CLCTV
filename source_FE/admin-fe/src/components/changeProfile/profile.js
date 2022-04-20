@@ -6,7 +6,7 @@ export const Profile = () => {
     <div>
       <div className=" flex flex-col mb-10 mt-10">
         <div className="container max-w-sm mx-auto flex-1 flex flex-col items-center justify-center px-2">
-          <div class="bg-white px-6 py-8 rounded shadow-md text-black w-full">
+          <div className="bg-white px-6 py-8 rounded shadow-md text-black w-full">
             <div className="flex justify-center align-middle mb-2">
               <img
                 className="h-20 w-20"
