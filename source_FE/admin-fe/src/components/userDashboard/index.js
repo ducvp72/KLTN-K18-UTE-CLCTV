@@ -78,7 +78,7 @@ export const UserDash = () => {
         pagination={{
           defaultPageSize: 8,
           showSizeChanger: true,
-          pageSizeOptions: ["8", "25", "20"],
+          pageSizeOptions: ["5", "8", "10"],
         }}
         dataSource={dataSource}
         // columns={columns}
@@ -95,10 +95,15 @@ export const UserDash = () => {
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              <div className=" group z-50">
-                <button className=" focus:outline-none text-my-blue cursor-pointer border-2 border-my-blue rounded-md ">
-                  <p className=" p-1 text-sm">Options</p>
-                </button>
+              <div className=" group z-50 ">
+                <div
+                  className=" w-16
+                 flex justify-center items-center "
+                >
+                  <button className=" focus:outline-none  cursor-pointer ">
+                    <i className="fas fa-edit text-base"></i>
+                  </button>
+                </div>
                 <div className=" hidden group-hover:block z-50 border-2 bg-transparent border-gray-200 shadow-lg">
                   <div className=" flex-col space-y-2 cursor-pointer mt-1 p-1  ">
                     <p className="flex focus:outline-none justify-center text-white bg-green-500 rounded-md">

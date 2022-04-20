@@ -6,6 +6,9 @@ module.exports = {
         "error-btn": "#6f5b92",
         "my-blue": "#3fabf6",
       },
+      backgroundImage: {
+        "footer-texture": "url('/img/footer-texture.png')",
+      },
     },
   },
   plugins: [],

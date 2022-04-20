@@ -9,3 +9,4 @@ export { DetailUser } from "./generals/detailUser";
 export { DetailGroup } from "./generals/detailGroup";
 export { AddUser } from "./generals/addUser";
 export { Search } from "./generals/search";
+export { Detail } from "./generals/detail";
