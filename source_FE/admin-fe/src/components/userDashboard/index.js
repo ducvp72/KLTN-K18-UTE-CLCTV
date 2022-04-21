@@ -107,10 +107,10 @@ export const UserDash = () => {
                 <div className=" hidden group-hover:block z-50 border-2 bg-transparent border-gray-200 shadow-lg">
                   <div className=" flex-col space-y-2 cursor-pointer mt-1 p-1  ">
                     <p className="flex focus:outline-none justify-center text-white bg-green-500 rounded-md">
-                      <i class="fa fa-info p-1"></i>
+                      <i className="fa fa-info p-1"></i>
                     </p>
                     <p className="flex focus:outline-none justify-center text-white bg-black rounded-md">
-                      <i class="fa fa-ban p-1"></i>
+                      <i className="fa fa-ban p-1"></i>
                     </p>
                     <p className="flex focus:outline-none justify-center text-white bg-red-500 rounded-md">
                       <i className="fa fa-trash p-1"></i>

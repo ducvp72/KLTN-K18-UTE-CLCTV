@@ -3,7 +3,7 @@ import SearchCt from "../store/contextSearch";
 import SearchRd, { initState } from "../reducer/SearchRd";
 import logger from "../helper/logger";
 const SearchPd = ({ children }) => {
-  const [state, dispatch] = useReducer(logger(SearchRd), initState);
+  const [state, dispatch] = useReducer(SearchRd, initState);
   return (
     <SearchCt.Provider value={[state, dispatch]}>{children}</SearchCt.Provider>
   );

@@ -1,24 +1,39 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useStore, actions, SearchProvider } from "../contextApi";
+import { useStore, actions } from "../contextApi";
+import { useSelector, useDispatch } from "react-redux";
 import { Detail } from "../components";
+import { openToggle } from "../redux/reducers/toggle";
+
 export const Dashboard = () => {
   const navigate = useNavigate();
+  const dispatchs = useDispatch();
   const location = useLocation();
-
+  const toggle = useSelector((state) => state.toggle);
   const [state, dispatch] = useStore(useStore);
   const { key, query } = state;
-  console.log(state);
-
   useEffect(() => {
-    console.log("location", location.pathname);
-  }, [location]);
+    console.log("toggle", toggle);
+  });
+
+  // useEffect(() => {
+  //   console.log("location", location.pathname);
+  // }, [location]);
 
   return (
     <>
-      <div className=" flex justify-center items-center absolute w-full h-full backdrop-opacity-10  backdrop-invert bg-white/30 z-40">
-        <Detail />
-      </div>
+      <button
+        onClick={() => {
+          dispatchs(openToggle(true));
+        }}
+      >
+        open
+      </button>
+      {toggle.show && (
+        <div className=" flex justify-center items-center absolute w-full h-full backdrop-opacity-10  backdrop-invert bg-white/30 z-40">
+          <Detail />
+        </div>
+      )}
       <div className="grid grid-cols-6 gap-2 w-full h-full p-5">
         <div
           className=" border rounded-md w-full px-2"

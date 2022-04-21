@@ -1,12 +1,14 @@
 import React from "react";
-
+import { useSelector, useDispatch } from "react-redux";
+import { openToggle } from "../../redux/reducers/toggle";
 export const Detail = () => {
+  const dispatch = useDispatch();
   return (
     <>
       <div className="cursor-pointer flex relative w-1/2 bg-white border-2 shadow-lg">
         <button
           onClick={() => {
-            alert("Closer");
+            dispatch(openToggle(false));
           }}
           className=" focus:outline-none flex justify-center items-center rounded-full w-8 h-8 border-2 border-red-500 text-red-500 absolute right-0"
         >
