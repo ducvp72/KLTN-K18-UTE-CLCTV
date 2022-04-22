@@ -8,10 +8,16 @@ const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
+console.log("username", username);
+console.log("room", room);
+
+const userR = username;
+const roomR = room;
+
 const socket = io();
 
 // Join chatroom
-socket.emit("joinRoom", { username, room });
+socket.emit("joinRoom", { username: userR, room: roomR });
 
 // Get room and users
 socket.on("roomUsers", ({ room, users }) => {
@@ -53,7 +59,7 @@ chatForm.addEventListener("submit", (e) => {
 
 // Output message to DOM
 function outputMessage(message) {
-  console.log("Message", message);
+  // console.log("Message", message);
   const div = document.createElement("div");
   div.classList.add("message");
 
