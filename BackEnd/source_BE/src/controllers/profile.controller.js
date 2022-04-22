@@ -14,7 +14,8 @@ const findProfileById = catchAsync(async (req, res) => {
 });
 
 const changeProfile = catchAsync(async (req, res) => {
-  const newProfile = await profileService.updateProfile(req.user, req.body);
+  const user = await profileService.updateProfile(req.user, req.body);
+  const newProfile = { user };
   res.status(httpStatus.OK).send(newProfile);
 });
 
