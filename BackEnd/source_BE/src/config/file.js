@@ -8,6 +8,9 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'myGallary',
     format: async (req, file) => {
+      // console.log(req);
+      // console.log(req.file);
+      // console.log(file);
       const mem = file.originalname.split('.').pop();
       return mem;
     }, // supports promises as well

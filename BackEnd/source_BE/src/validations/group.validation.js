@@ -75,6 +75,13 @@ const getGroupToJoin = {
   }),
 };
 
+const getGroupPrivate = {
+  body: Joi.object().keys({
+    friendId: Joi.string().custom(objectId).required(),
+    userId: Joi.string().custom(objectId).required(),
+  }),
+};
+
 const getUserToAdd = {
   query: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
@@ -109,4 +116,5 @@ module.exports = {
   deleteNameGroup,
   getGroupToJoin,
   deleteGroup,
+  getGroupPrivate,
 };

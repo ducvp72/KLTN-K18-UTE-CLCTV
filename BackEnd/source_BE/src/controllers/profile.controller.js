@@ -4,8 +4,8 @@ const { profileService, mediaService } = require('../services');
 
 const changeAvatar = catchAsync(async (req, res) => {
   console.log('req.file', req.file);
-  const kq = await mediaService.uploadImage(req.file, req.user);
-  res.status(httpStatus.OK).send(kq);
+  const user = await mediaService.uploadImage(req.file, req.user);
+  res.status(httpStatus.OK).send({ user });
 });
 
 const findProfileById = catchAsync(async (req, res) => {

@@ -83,6 +83,8 @@ const uploadImage = async (file, user) => {
     cloudinary.uploader.destroy(user.avatar.filename, function (result) {
       console.log(result);
     });
+
+    console.log(changeAvatarUser);
   } catch (error) {
     console.log(error);
   }

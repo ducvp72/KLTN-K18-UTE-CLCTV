@@ -21,7 +21,7 @@ const paginate = (schema) => {
   schema.statics.paginateLast = async function (groupArray, filter, options) {
     // eslint-disable-next-line no-param-reassign
 
-    options.populate = 'last';
+    options.populate = 'last admin';
 
     let sort = '';
     if (options.sortBy) {
@@ -88,6 +88,8 @@ const paginate = (schema) => {
         delete userN.last.id;
         userN.lastMessage = userN.last;
         delete userN.last;
+        userN.avatar = userN.admin.avatar;
+        delete userN.admin;
         users.push(userN);
       }
       results = users;

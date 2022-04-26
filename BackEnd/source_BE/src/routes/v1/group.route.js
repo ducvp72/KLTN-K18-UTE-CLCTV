@@ -8,6 +8,8 @@ const router = express.Router();
 const auth = require('../../middlewares/auth');
 
 router.get('/getMyGroup', auth(), validate(groupValidation.getListGroup), groupController.getMyGroup);
+router.get('/getGroupPrivate', auth(), validate(groupValidation.getGroupPrivate), groupController.getGroupPrivate);
+
 router.get('/getUserToAdd', auth(), validate(groupValidation.getUserToAdd), groupController.getUsersToAdd);
 router.post('/createChat', auth(), validate(groupValidation.member), groupController.createChat);
 router.get('/getGroupById', auth(), validate(groupValidation.getGroupByID), groupController.getGroupById);

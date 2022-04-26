@@ -107,6 +107,11 @@ const getGroupLink = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(rs);
 });
 
+const getGroupPrivate = catchAsync(async (req, res) => {
+  const rs = await groupService.getGroupPrivate(req.body.userId, req.body.friendId);
+  res.status(httpStatus.OK).send(rs);
+});
+
 module.exports = {
   checkMember,
   getGroupById,
@@ -127,4 +132,5 @@ module.exports = {
   deleteNameGroup,
   getListToAccept,
   getGroupLink,
+  getGroupPrivate,
 };

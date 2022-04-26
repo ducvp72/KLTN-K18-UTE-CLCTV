@@ -6,7 +6,12 @@ WORKDIR /usr/src/node-app
 
 COPY package.json yarn.lock ./
 
-CMD yarn start
+# Pm2 release
+# CMD yarn start
+
+# Dev
+CMD yarn dev
+
 
 RUN yarn install --pure-lockfile
 

@@ -530,6 +530,31 @@ const getGroupLink = async (memberId, groupId) => {
   return objGroup;
 };
 
+const getGroupPrivate = async (userId, friendId) => {
+  let result;
+  let groupR;
+  // UserGroup.find({ admin: userId, member: friendId }).exec(function (err, users) {
+  //   console.log(users);
+  //   result = users;
+  // });
+
+  try {
+    result = await UserGroup.findOne({
+      admin: userId,
+      member: friendId,
+    }).populate({
+      path: 'groupId',
+      match: {
+        groupType: { $eq: 'personal' },
+      },
+    });
+    groupR = result.groupId._id;
+  } catch (error) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error);
+  }
+  return groupR;
+};
+
 module.exports = {
   createChat,
   checkMember,
@@ -551,4 +576,5 @@ module.exports = {
   deleteNameGroup,
   getListToAccept,
   getGroupLink,
+  getGroupPrivate,
 };

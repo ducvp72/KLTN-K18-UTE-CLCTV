@@ -45,7 +45,9 @@ const getListMess = async (user, filter, options) => {
   console.log(filter, options, user.id);
   // const findGroup = await Group.find().populate('last');
   // console.log(findGroup);
-  const find = await UserGroup.find({ member: user.id });
+  const find = await UserGroup.find({ member: user.id }).populate({
+    path: 'admin',
+  });
   const myGroup = find.map((item) => item.groupId);
   const rs = await Group.paginateLast(myGroup, filter, options);
   const results = [];
