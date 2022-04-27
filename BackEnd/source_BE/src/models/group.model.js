@@ -31,6 +31,11 @@ const groupSchema = mongoose.Schema(
       required: true,
       enum: ['personal', 'public'],
     },
+    seen: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   {
     timestamps: true,

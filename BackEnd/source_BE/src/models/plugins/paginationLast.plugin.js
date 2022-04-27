@@ -88,8 +88,7 @@ const paginate = (schema) => {
         delete userN.last.id;
         userN.lastMessage = userN.last;
         delete userN.last;
-        userN.avatar = userN.admin.avatar;
-        delete userN.admin;
+
         users.push(userN);
       }
       results = users;

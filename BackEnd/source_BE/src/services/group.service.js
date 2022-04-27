@@ -555,6 +555,29 @@ const getGroupPrivate = async (userId, friendId) => {
   return groupR;
 };
 
+const adjustGroup = async (groupId, seen) => {
+  let rs;
+  await Group.findByIdAndUpdate(
+    groupId,
+    {
+      seen,
+    },
+    {
+      new: true,
+      useFindAndModify: false,
+    }
+  )
+    .populate({ path: 'last' })
+    .then((res) => {
+      rs = res;
+    })
+    .catch((err) => {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
+    });
+  console.log(rs);
+  return rs;
+};
+
 module.exports = {
   createChat,
   checkMember,
@@ -577,4 +600,5 @@ module.exports = {
   getListToAccept,
   getGroupLink,
   getGroupPrivate,
+  adjustGroup,
 };

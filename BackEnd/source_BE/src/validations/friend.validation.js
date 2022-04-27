@@ -9,6 +9,8 @@ const friend = {
 
 const getListFriend = {
   query: Joi.object().keys({
+    fullname: Joi.string().allow(null).allow(''),
+    username: Joi.string().allow(null).allow(''),
     type: Joi.string().valid('white', 'black'),
     sortBy: Joi.string(),
     populate: Joi.string(),

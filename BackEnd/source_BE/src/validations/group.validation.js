@@ -20,6 +20,13 @@ const addMember = {
   }),
 };
 
+const adjustGroup = {
+  body: Joi.object().keys({
+    groupId: Joi.string().custom(objectId).required(),
+    seen: Joi.boolean().required(),
+  }),
+};
+
 const deleteGroup = {
   body: Joi.object().keys({
     groupId: Joi.array().custom(objectIdArr).required(),
@@ -117,4 +124,5 @@ module.exports = {
   getGroupToJoin,
   deleteGroup,
   getGroupPrivate,
+  adjustGroup,
 };

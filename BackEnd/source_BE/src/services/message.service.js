@@ -52,7 +52,18 @@ const getListMess = async (user, filter, options) => {
   const rs = await Group.paginateLast(myGroup, filter, options);
   const results = [];
   const { page, limit, totalPages, totalResults } = rs;
+  // eslint-disable-next-line no-restricted-syntax
   for (const item of rs.results) {
+    if (item.groupType === 'personal') {
+      console.log('check', item._id);
+      // eslint-disable-next-line no-await-in-loop
+      const check = await UserGroup.find({ groupId: item._id }).populate({ path: 'member' });
+      console.log('check', check);
+      // item.member = check.member;
+      const list = check.map((x) => x.member);
+      // console.log('llist', list);
+      item.member = list;
+    }
     results.push(item);
   }
   return results;

@@ -15,6 +15,9 @@ const checkUserValid = async (user, friendId) => {
   }
 };
 const isWaiting = async (userId, friendId) => {
+  console.log('user', userId);
+  console.log('user', friendId);
+
   await checkUserValid(userId, friendId);
   const checkWaitingFriend = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
   return checkWaitingFriend;
@@ -95,7 +98,7 @@ const firstAddFriend = async (userId, friendId) => {
 const cancle = async (user, friendId) => {
   await checkUserValid(user.id, friendId);
   // const check = await isWaiting(friendId, user.id);
-  const check = await isWaiting(user.id, friendId);
+  const check = await isWaiting(friendId, user.id);
 
   console.log(check);
   if (!check) {
@@ -200,13 +203,14 @@ const queryListFriend = async (userId, filter, options) => {
     path: 'friends',
     select: '-isActivated -role -isBanned',
   });
+  // console.log('friends', find);
   if (!find) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'invalid User !');
   }
 
-  if (friends.fullname === '') fullname = ' ';
+  // if (friends.fullname === '') fullname = ' ';
 
-  if (fullname) {
+  if (filter.fullname) {
     const find = await changeName(filter.fullname);
     filter.friend.fullname = { $regex: find || ' ', $options: 'i' };
   }

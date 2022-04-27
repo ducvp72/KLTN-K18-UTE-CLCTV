@@ -37,6 +37,7 @@ const unFriend = catchAsync(async (req, res) => {
 });
 
 const acceptFriend = catchAsync(async (req, res) => {
+  console.log('aaaaaaaaaaaaaaaaaa');
   const friend = await friendService.accept(req.user, req.body.friendId);
   res.status(httpStatus.CREATED).send(friend);
 });

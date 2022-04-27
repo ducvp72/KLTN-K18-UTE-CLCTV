@@ -28,5 +28,6 @@ router.post('/joinGroup', auth(), validate(groupValidation.waitingMember), group
 router.post('/acceptRequest', auth(), validate(groupValidation.addMember), groupController.acceptRequest);
 router.delete('/cancleRequest', auth(), validate(groupValidation.addMember), groupController.cancleRequest);
 router.get('/:groupId', auth(), validate(groupValidation.getGroupToJoin), groupController.getGroupLink);
+router.put('/', validate(groupValidation.adjustGroup), groupController.adjustGroup);
 
 module.exports = router;

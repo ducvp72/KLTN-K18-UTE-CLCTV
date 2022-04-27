@@ -112,6 +112,11 @@ const getGroupPrivate = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(rs);
 });
 
+const adjustGroup = catchAsync(async (req, res) => {
+  const rs = await groupService.adjustGroup(req.body.groupId, req.body.seen);
+  res.status(httpStatus.OK).send(rs);
+});
+
 module.exports = {
   checkMember,
   getGroupById,
@@ -133,4 +138,5 @@ module.exports = {
   getListToAccept,
   getGroupLink,
   getGroupPrivate,
+  adjustGroup,
 };
