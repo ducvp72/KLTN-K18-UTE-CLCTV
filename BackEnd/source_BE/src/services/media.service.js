@@ -32,39 +32,48 @@ const { fileTypes } = require('../config/fileTypes');
 // };
 
 const upLoadFile = async (sender, file, typeMessage, groupId) => {
-  let fileR;
-  // console.log(groupId);
+  let m;
+  let res;
+  console.log(groupId);
   // console.log(sender);
-  console.log(typeMessage);
+  // console.log(typeMessage);
 
   if (typeMessage === fileTypes.IMAGE) {
+    console.log('IMG', typeMessage);
     try {
-      fileR = await Message.create(
-        { groupId, sender, typeMessage, image: file.path }
-        // { new: true, useFindAndModify: false }
-      );
-
-      await Group.findByIdAndUpdate(groupId, {
-        message: fileR._id,
-      });
+      m = new Message({ groupId, sender, typeMessage, image: file.path });
     } catch (error) {
       console.log(error);
     }
   }
 
   if (typeMessage === fileTypes.VIDEO) {
+    console.log('VIDEO', typeMessage);
     try {
-      fileR = await Message.create(
-        { groupId, sender, typeMessage, video: file.path }
-        // { new: true, useFindAndModify: false }
-      );
+      m = new Message({ groupId, sender, typeMessage, video: file.path });
     } catch (error) {
       console.log(error);
     }
   }
-  console.log(fileR);
 
-  return fileR;
+  console.log('ID M', m._id);
+  await Group.findByIdAndUpdate(groupId, {
+    last: m._id,
+  });
+
+  await m.save().then((item) => {
+    item
+      .populate({
+        path: 'sender',
+        select: 'fullname avatar',
+      })
+      .execPopulate();
+    res = item;
+  });
+
+  console.log('fileRrrrrrrrr', res);
+
+  return res;
 };
 
 const uploadImage = async (file, user) => {

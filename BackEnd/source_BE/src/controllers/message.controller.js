@@ -55,6 +55,8 @@ const sendFile = catchAsync(async (req, res) => {
 
   const kq = await mediaService.upLoadFile(req.user.id, req.file, typeMessage, req.body.groupId);
   await messageService.autoUpdateDate(req.body.groupId);
+
+  console.log('Kq', kq);
   res.status(httpStatus.CREATED).send(kq);
 });
 

@@ -120,7 +120,6 @@ const sendMess = async (user, req) => {
     });
     await autoUpdateDate(req.groupId);
     await Group.findByIdAndUpdate(req.groupId, {
-      // last: messN.id,
       last: m.id,
     });
   } catch (error) {
