@@ -1,10 +1,12 @@
 /* eslint-disable no-param-reassign */
+const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
 const { userService, mediaService, groupService } = require('.');
 const { User, Search, Message, Group, UserGroup } = require('../models');
 const changeName = require('../utils/sort');
 const ApiError = require('../utils/ApiError');
 const { fileTypes, files } = require('../config/fileTypes');
+const config = require('../config/config');
 
 const autoUpdateDate = async (groupId) => {
   try {
@@ -69,8 +71,47 @@ const getListMess = async (user, filter, options) => {
   return results;
 };
 
+const generateMessage = (userId, groupId, message, secret = config.jwt.secret) => {
+  const payload = {
+    sub: message,
+    groupId,
+    userId,
+  };
+  return jwt.sign(payload, secret);
+};
+
+const decodeMessage = async (message) => {
+  const payload = jwt.verify(message, config.jwt.secret);
+  // const tokenDoc = await Message.findOne({ message, user: payload.sub, blacklisted: false });
+  // if (!tokenDoc) {
+  //   throw new Error('Token not found');
+  // }
+  // return tokenDoc;
+  return payload;
+};
+
+const checkTosee = async (member, groupId) => {
+  const check = await UserGroup.findOne({ member, groupId });
+  if (check) {
+    console.log('Checkkkkkkkkkkkkkkkkkk', check);
+  } else {
+    console.warn('You not allow to see message');
+  }
+};
+
 const sendMess = async (user, req) => {
   await checkMem(user.id, req.groupId);
+
+  // const hashMess = generateMessage(user.id, req.groupId, req.text);
+
+  // console.log('hash', hashMess);
+
+  // const decode = await decodeMessage(hashMess);
+
+  // console.log('decode', decode.sub);
+
+  checkTosee('623ddaf684df2530941c8677', req.groupId);
+
   let messN;
   try {
     const newM = await Message.create({
@@ -78,7 +119,9 @@ const sendMess = async (user, req) => {
       sender: user.id,
       typeMessage: fileTypes.TEXT,
       text: req.text,
+      typeId: req.typeId,
     });
+
     await autoUpdateDate(req.groupId);
     messN = newM;
   } catch (err) {

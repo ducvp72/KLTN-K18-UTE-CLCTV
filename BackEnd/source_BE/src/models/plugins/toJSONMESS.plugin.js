@@ -28,9 +28,11 @@ const toJSON = (schema) => {
         }
       });
 
-      ret.id = ret._id.toString();
-      delete ret._id;
+      // ret.id = ret._id.toString();
+      // delete ret._id;
       delete ret.__v;
+      ret.sent = true;
+      ret.pending = false;
       // if (ret.sender) {
       // delete ret.sender.role;
       // delete ret.sender.isActivated;

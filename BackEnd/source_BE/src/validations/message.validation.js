@@ -5,6 +5,7 @@ const sendText = {
   body: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
     text: Joi.string().required(),
+    typeId: Joi.string().required(),
   }),
 };
 
