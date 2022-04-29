@@ -109,35 +109,62 @@ const sendMess = async (user, req) => {
   // const decode = await decodeMessage(hashMess);
 
   // console.log('decode', decode.sub);
-
-  checkTosee('623ddaf684df2530941c8677', req.groupId);
-
-  let messN;
+  let m;
   try {
-    const newM = await Message.create({
+    m = new Message({
       groupId: req.groupId,
       sender: user.id,
       typeMessage: fileTypes.TEXT,
       text: req.text,
       typeId: req.typeId,
     });
-
     await autoUpdateDate(req.groupId);
-    messN = newM;
-  } catch (err) {
-    console.log(err);
+    await Group.findByIdAndUpdate(req.groupId, {
+      // last: messN.id,
+      last: m.id,
+    });
+  } catch (error) {
+    console.log(error);
   }
 
-  await Group.findByIdAndUpdate(req.groupId, {
-    last: messN.id,
-  });
+  return m.save().then((item) =>
+    item
+      .populate({
+        path: 'sender',
+        select: 'fullname avatar',
+      })
+      .execPopulate()
+  );
 
-  const find = await Message.findById(messN._id).populate({
-    path: 'sender',
-    select: 'fullname avatar',
-  });
+  // let messN, newM;
+  // try {
+  //   newM = await Message.create({
+  //     groupId: req.groupId,
+  //     sender: user.id,
+  //     typeMessage: fileTypes.TEXT,
+  //     text: req.text,
+  //     typeId: req.typeId,
+  //   }).populate({
+  //     path: 'sender',
+  //     select: 'fullname avatar',
+  //   });
+  //   await autoUpdateDate(req.groupId);
+  //   messN = newM;
+  // } catch (err) {
+  //   console.log(err);
+  // }
 
-  return find;
+  // await Group.findByIdAndUpdate(req.groupId, {
+  //   // last: messN.id,
+  //   last: newM.id,
+  // });
+
+  // const find = await Message.findById(messN._id).populate({
+  //   path: 'sender',
+  //   select: 'fullname avatar',
+  // });
+
+  // return newM;
 };
 
 const getDowladFile = async (user, file, req) => {
