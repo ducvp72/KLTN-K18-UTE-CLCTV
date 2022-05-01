@@ -9,6 +9,7 @@ const router = express.Router();
 const auth = require('../../middlewares/auth');
 
 router.get('/ListLast', auth(), validate(messageValidation.getListLast), messageController.getLastMessGroup);
+
 router.post('/sendMess', auth(), validate(messageValidation.sendText), messageController.sendMess);
 router.post('/sendFile', auth(), fileMiddleware.uploadFile, validate(messageValidation.groupId), messageController.sendFile);
 // router.get('/getLastMess/:groupId', auth(), validate(messageValidation.getFileById), messageController.getLastMess);

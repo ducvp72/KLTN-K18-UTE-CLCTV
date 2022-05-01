@@ -57,17 +57,15 @@ const getListMess = async (user, filter, options) => {
   // eslint-disable-next-line no-restricted-syntax
   for (const item of rs.results) {
     if (item.groupType === 'personal') {
-      console.log('check', item._id);
       // eslint-disable-next-line no-await-in-loop
       const check = await UserGroup.find({ groupId: item._id }).populate({ path: 'member' });
-      console.log('check', check);
       // item.member = check.member;
       const list = check.map((x) => x.member);
-      // console.log('llist', list);
       item.member = list;
     }
     results.push(item);
   }
+  // return { results, page, limit, totalPages, totalResults };
   return results;
 };
 
@@ -226,7 +224,7 @@ const sendLove = async (user, req) => {
   return messN;
 };
 
-const getLastMess = async (user, groupId) => {
+const getLastMess = async (user, options) => {
   // await checkMem(user.id, groupId);
 
   const lastMessage = await Message.findOne({
