@@ -8,5 +8,10 @@ yarn-error.log
 # .env*
 # !.env*.example
 
+
+#packageJson
+package-lock.json
+
+
 # Code coverage
 coverage
