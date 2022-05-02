@@ -9,7 +9,7 @@ const axiosApi = (
   token = null
 ) => {
   return axios({
-    url: `${env.domain}/${endpoint}`,
+    url: `${env.local}/${endpoint}`,
     method,
     data,
     params: params ? params : null,

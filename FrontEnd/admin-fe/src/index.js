@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "./index.css";
-import { SearchProvider } from "./contextApi";
+import { HelmetProvider } from "react-helmet-async";
 import { CookiesProvider } from "react-cookie";
 import { Provider } from "react-redux";
 import store from "./redux/store";
@@ -18,9 +18,9 @@ root.render(
       <PersistGate loading={null} persistor={persistor}>
         <CookiesProvider>
           <BrowserRouter>
-            <SearchProvider>
+            <HelmetProvider>
               <App />
-            </SearchProvider>
+            </HelmetProvider>
           </BrowserRouter>
         </CookiesProvider>
       </PersistGate>

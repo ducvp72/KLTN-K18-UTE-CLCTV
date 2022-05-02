@@ -1,12 +1,13 @@
 import React from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
-import { Login } from "../../components/";
-export const DashBoard = ({ role }) => {
+import { useCookies } from "react-cookie";
+export const DashBoard = () => {
+  const [cookies] = useCookies(["user_key"]);
   const location = useLocation();
-
+  console.log("aaaaa", cookies.user_key);
   return (
     <div>
-      {role ? (
+      {cookies.user_key ? (
         <Outlet />
       ) : (
         <Navigate to="/" state={{ from: location }} replace />

@@ -3,7 +3,6 @@ export { Error } from "./errorPage/error";
 export { Profile } from "./changeProfile/profile";
 export { Forgot } from "./forgotPassword/forgot";
 export { UserDash } from "./userDashboard";
-export { GroupDash } from "./groupDashboard";
 export { Dashboard } from "./dashboard";
 export { DetailUser } from "./generals/detailUser";
 export { DetailGroup } from "./generals/detailGroup";
