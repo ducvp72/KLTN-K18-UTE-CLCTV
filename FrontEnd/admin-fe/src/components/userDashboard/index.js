@@ -2,141 +2,135 @@ import React, { useState, useEffect } from "react";
 import { Table, Space } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { searchFilterChange } from "../../redux/reducers/filter";
+import { openToggle } from "../../redux/reducers/toggle";
 import { Helmet } from "react-helmet-async";
-
-// import { useStore, actions } from "../../contextApi";
+import { useCookies } from "react-cookie";
+import { adminApi } from "../../apis";
+import Swal from "sweetalert2";
+import moment from "moment";
 
 export const UserDash = () => {
-  const { Column } = Table;
   document.body.style.overflow = "hidden";
+  const [cookies] = useCookies(["rm_psw", "user_key"]);
+  const [load, setLoad] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [temp, setTemp] = useState(0);
+  const { Column } = Table;
   const dispatch = useDispatch();
   const filter = useSelector((state) => state.filterData);
-  // useEffect(() => {
-  //   console.log("Filter", filter.queryInput);
-  // }, [filter.queryInput]);
-
   const [globalState, setGlobalState] = useState({
     filteredInfo: null,
     sortedInfo: null,
-    loading: false,
-    pagination: {
-      current: 1,
-      pageSize: 10,
-    },
-    data: [],
   });
-  const [sortDate, setSortDate] = useState(false);
 
-  const dataSource = [
-    {
-      key: "1",
-      fullname: "a",
-      username: "caube.vui",
-      birth: 132,
-      email: "10 Downing Street",
-      ban: "Ban",
-      createAt: "07/02/2000",
-      gender: "male",
-    },
-    {
-      key: "2",
-      fullname: "c",
-      username: "caube.vui2",
-      birth: 42,
-      email: "10 Downing Street",
-      ban: "Ban",
-      createAt: "07/02/2000",
-      gender: "male",
-    },
-    {
-      key: "3",
-      fullname: "b",
-      username: "tieuthu.vui2",
-      birth: 52,
-      email: "10 Downing Street",
-      ban: "UnBan",
-      createAt: "07/02/2000",
-      gender: "other",
-    },
-    {
-      key: "4",
-      fullname: "e",
-      username: "rrac.vui2",
-      birth: 62,
-      email: "10 Downing Street",
-      ban: "Ban",
-      createAt: "07/02/2000",
-      gender: "female",
-    },
-    {
-      key: "5",
-      fullname: "d",
-      username: "mtp",
-      birth: 72,
-      email: "10 Downing Street",
-      ban: "Ban",
-      createAt: "07/02/2000",
-      gender: "female",
-    },
-    {
-      key: "6",
-      fullname: "f",
-      username: "jack",
+  useEffect(() => {
+    filterUser("", page, "asc");
+  }, []);
 
-      birth: 82,
-      email: "10 Downing Street",
-      ban: "Ban",
-      createAt: "07/02/2000",
-      gender: "other",
-    },
-    {
-      key: "7",
-      fullname: "g",
-      username: "jack",
+  useEffect(() => {
+    setLoad(load);
+  }, [load]);
 
-      birth: 92,
-      email: "10 Downing Street",
-      ban: "Ban",
-      createAt: "07/02/2000",
-      gender: "other",
-    },
-    {
-      key: "8",
-      fullname: "h",
-      username: "mr.bean",
-
-      birth: 12,
-      email: "10 Downing Street",
-      ban: "Ban",
-      createAt: "07/02/2000",
-      gender: "female",
-    },
-    {
-      key: "9",
-      fullname: "i",
-      username: "longNam",
-      birth: 22,
-      email: "10 Downing Street",
-      ban: "UnBan",
-      createAt: "07/02/2000",
-      gender: "male",
-    },
-  ];
+  useEffect(() => {
+    setTemp(temp);
+  }, [temp]);
 
   const handleEnter = (e) => {
     if (e.key === "Enter") {
       console.log(filter.queryInput);
-      dispatch(searchFilterChange(""));
+      // dispatch(searchFilterChange({ queryInput: "" }));
+      setSearch("");
     }
   };
 
+  const filterUser = async (query, pageNum, sort) => {
+    setLoad(true);
+    await adminApi
+      .searchUsers(
+        cookies.user_key.tokens.access.token,
+        query,
+        pageNum,
+        8,
+        sort
+      )
+      .then((res) => {
+        setLoad(false);
+        dispatch(
+          searchFilterChange({
+            queryInput: "",
+            data: res.data.results,
+            limit: 8,
+            totalPages: res.data.totalPages,
+            totalResults: res.data.totalResults,
+            sortBy: sort,
+          })
+        );
+      })
+      .catch((err) => {
+        console.log(err.response.data.message);
+      });
+  };
+
   const handleChange = (pagination, filters, sorter) => {
-    console.log("Various parameters", pagination, filters, sorter);
+    // console.log("Various parameters", pagination, filters, sorter);
     setGlobalState({
       filteredInfo: filters,
       sortedInfo: sorter,
     });
-    console.log("global", globalState);
+    // console.log("global", globalState);
+  };
+
+  const handleBanUser = async (user) => {
+    console.log(user.id);
+    console.log("Ban");
+    await adminApi
+      .banUser(cookies.user_key.tokens.access.token, { userId: user.id })
+      .then(async (res) => {
+        console.log(res);
+        await filterUser(search, page, "asc");
+        Swal.fire({
+          icon: "warning",
+          title: `${user?.fullname} was banned `,
+          showConfirmButton: false,
+          timer: 1000,
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: `User not found`,
+          showConfirmButton: false,
+          timer: 1000,
+        });
+        console.log(error);
+      });
+  };
+
+  const handleUnBanUser = async (user) => {
+    console.log(user.id);
+    console.log("Unban");
+    await adminApi
+      .banUser(cookies.user_key.tokens.access.token, { userId: user.id })
+      .then(async (res) => {
+        console.log(res);
+        await filterUser(search, page, "asc");
+        Swal.fire({
+          icon: "success",
+          title: `${user?.fullname} was unBanned `,
+          showConfirmButton: false,
+          timer: 1000,
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: `User not found`,
+          showConfirmButton: false,
+          timer: 1000,
+        });
+        console.log(error);
+      });
   };
 
   return (
@@ -149,14 +143,15 @@ export const UserDash = () => {
           <div className="mb-3 xl:w-96">
             <div className="input-group relative flex items-stretch w-full mb-4">
               <input
-                value={filter.queryInput}
+                value={search}
                 type="search"
                 className="form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                 placeholder="Search"
                 aria-label="Search"
                 aria-describedby="button-addon2"
                 onChange={(e) => {
-                  dispatch(searchFilterChange(e.target.value));
+                  setSearch(e.target.value);
+                  filterUser(e.target.value, page, "asc");
                 }}
                 onKeyDown={(e) => {
                   handleEnter(e);
@@ -167,7 +162,8 @@ export const UserDash = () => {
                 type="button"
                 id="button-addon2"
                 onClick={() => {
-                  dispatch(searchFilterChange(""));
+                  filterUser(search, page, "asc");
+                  setSearch("");
                 }}
               >
                 <svg
@@ -191,21 +187,22 @@ export const UserDash = () => {
         </div>
 
         <div className=" ml-2 mb-6 flex items-center space-x-2">
-          <button
+          {/* <button
             onClick={() => {
-              setSortDate(!sortDate);
-              setGlobalState({
-                filteredInfo: null,
-                sortedInfo: {
-                  order: `${sortDate ? "ascend" : "descend"}`,
-                  columnKey: "dateCreated",
-                },
-              });
+              // setSortDate(!sortDate);
+              // setGlobalState({
+              //   filteredInfo: null,
+              //   sortedInfo: {
+              //     order: `${sortDate ? "ascend" : "descend"}`,
+              //     columnKey: "dateCreated",
+              //   },
+              // });
+              // handleSort();
             }}
             className=" border-2 border-my-blue w-full rounded focus:outline-none"
           >
             <p className=" p-1">createdDate: {sortDate ? "asc" : "desc"} </p>
-          </button>
+          </button> */}
           <button
             onClick={() => {
               setGlobalState({
@@ -224,21 +221,41 @@ export const UserDash = () => {
         size={"default"}
         pagination={{
           position: ["bottomRight"],
-          defaultPageSize: 5,
-          showSizeChanger: true,
-          pageSizeOptions: ["5", "8", "10"],
+          current: page,
+          onChange: (pageNext) => {
+            // console.log(page);
+            setPage(pageNext);
+            filterUser(search, pageNext, "asc");
+            if (pageNext > page) {
+              setTemp(temp + 8);
+            } else {
+              setTemp(temp - 8);
+            }
+          },
+          defaultPageSize: 8,
+          total: filter.totalResults,
+
+          // showSizeChanger: true,
+          // pageSizeOptions: ["5", "8", "10"],
         }}
         onChange={(pagination, filters, sorter) => {
           handleChange(pagination, filters, sorter);
         }}
         bordered={true}
-        dataSource={dataSource}
+        dataSource={filter.data}
         scroll={{ y: 440, x: 10 }}
-        loading={false}
+        loading={load}
       >
-        <Column width={50} title="#" dataIndex="key" key="key" />
+        <Column
+          render={(text, row) => <p> {text + temp} </p>}
+          width={50}
+          title="#"
+          dataIndex="key"
+          key="key"
+        />
         <Column
           title="Name"
+          width={200}
           dataIndex="fullname"
           key="fullname"
           filteredValue={globalState.filteredInfo?.fullname || null}
@@ -253,8 +270,10 @@ export const UserDash = () => {
         />
         <Column
           title="Username"
-          dataIndex="username"
+          dataIndex={"username"}
           key="username"
+          width={200}
+          render={(text, row) => <p> {text || <b>NaN</b>} </p>}
           filteredValue={globalState.filteredInfo?.username || null}
           onFilter={(value, record) => record.username.includes(value)}
           sorter={(a, b) => a.username.localeCompare(b.username)}
@@ -270,16 +289,20 @@ export const UserDash = () => {
           title="Birth"
           dataIndex="birth"
           key="birth"
-          width={100}
+          width={140}
+          // render={(text, row) => (
+          //   <p> {moment().diff(moment(text).format("MM-DD-YYYY"), "days")} </p>
+          // )}
           // defaultSortOrder={"ascend"}
           sortDirections={["descend", "ascend"]}
-          sorter={(a, b) => a.birth - b.birth}
+          sorter={(a, b) => new Date(a.birth) - new Date(b.birth)}
           sortOrder={
             globalState.sortedInfo?.columnKey === "birth" &&
             globalState?.sortedInfo.order
           }
           ellipsis={true}
         />
+
         <Column
           filters={[
             { text: "Female", value: "female" },
@@ -301,25 +324,28 @@ export const UserDash = () => {
         />
         <Column
           filters={[
-            { text: "Ban", value: "Ban" },
-            { text: "UnBan", value: "UnBan" },
+            { text: "Ban", value: "true" },
+            { text: "UnBan", value: "false" },
           ]}
           width={100}
-          title="Is Ban"
-          dataIndex="ban"
-          key="ban"
-          filteredValue={globalState.filteredInfo?.ban || null}
-          onFilter={(value, record) => record.ban.indexOf(value) === 0}
+          title="Ban"
+          dataIndex="isBanned"
+          key="isBanned"
+          render={(text, row) => <p> {text.toString()} </p>}
+          filteredValue={globalState.filteredInfo?.isBanned || null}
+          onFilter={(value, record) =>
+            record.isBanned.toString().includes(value)
+          }
           sortOrder={
-            globalState.sortedInfo?.columnKey === "ban" &&
+            globalState.sortedInfo?.columnKey === "isBanned" &&
             globalState.sortedInfo?.order
           }
-          // sorter={(a, b) => a.ban.length - b.ban.length}
           ellipsis={true}
         />
 
         <Column
           title="Action"
+          width={100}
           key="action"
           render={(text, record) => (
             <Space size="middle">
@@ -333,18 +359,38 @@ export const UserDash = () => {
                   </button>
                 </div>
                 <div className=" hidden group-hover:block z-50 border-2 bg-transparent border-gray-200 shadow-lg">
-                  <div className=" flex-col space-y-2 cursor-pointer mt-1 p-1  ">
+                  <div className=" flex-col space-y-4 cursor-pointer mt-1 p-1  ">
                     <p
                       onClick={() => {
-                        console.log(text);
-                        console.log(record);
+                        dispatch(
+                          openToggle({
+                            show: true,
+                            user: text, //item of row
+                          })
+                        );
                       }}
                       className="flex focus:outline-none justify-center text-white bg-green-500 rounded-md"
                     >
                       <i className="fa fa-info p-1"></i>
                     </p>
-                    <p className="flex focus:outline-none justify-center text-white bg-red-500  rounded-md">
-                      <i className="fa fa-ban p-1"></i>
+                    <p
+                      onClick={() => {
+                        console.log(text);
+                        if (text.isBanned === false) {
+                          handleBanUser(text);
+                        } else {
+                          handleUnBanUser(text);
+                        }
+                      }}
+                      className={`flex focus:outline-none justify-center text-white ${
+                        text.isBanned === false ? `bg-red-500` : `bg-blue-500`
+                      }   rounded-md`}
+                    >
+                      {text.isBanned === false ? (
+                        <i className="fas fa-user-lock p-1 "></i>
+                      ) : (
+                        <i className="fas fa-lock-open p-1  "></i>
+                      )}
                     </p>
                     {/* <p className="flex focus:outline-none justify-center text-white bg-red-500 rounded-md">
                       <i className="fa fa-trash p-1"></i>

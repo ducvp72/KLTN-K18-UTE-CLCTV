@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Detail } from "../components";
-import { openToggle } from "../redux/reducers/toggle";
 import { useCookies } from "react-cookie";
 import { saveUser } from "../redux/reducers/auth";
 import { adminApi } from "../apis";
@@ -14,10 +13,6 @@ export const Dashboard = () => {
   const dispatch = useDispatch();
   const toggle = useSelector((state) => state.toggle);
   const userInfo = useSelector((state) => state.userData);
-
-  useEffect(() => {
-    console.log("toggle", toggle);
-  });
 
   // useEffect(() => {
   //   console.log("location", location.pathname);
@@ -41,13 +36,6 @@ export const Dashboard = () => {
       <Helmet>
         <title>Home</title>
       </Helmet>
-      <button
-        onClick={() => {
-          dispatch(openToggle(true));
-        }}
-      >
-        open
-      </button>
       {toggle.show && (
         <div className=" flex justify-center items-center absolute w-full h-full backdrop-opacity-10  backdrop-invert bg-white/30 z-40">
           <Detail />

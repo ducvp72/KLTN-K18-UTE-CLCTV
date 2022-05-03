@@ -4,7 +4,7 @@ import { useCookies } from "react-cookie";
 export const DashBoard = () => {
   const [cookies] = useCookies(["user_key"]);
   const location = useLocation();
-  console.log("aaaaa", cookies.user_key);
+  // console.log("aaaaa", cookies.user_key);
   return (
     <div>
       {cookies.user_key ? (

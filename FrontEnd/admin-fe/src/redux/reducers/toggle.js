@@ -4,10 +4,12 @@ const toggleSlice = createSlice({
   name: "toggle",
   initialState: {
     show: false,
+    user: "",
   },
   reducers: {
     openToggle: (state, action) => {
-      state.show = action.payload;
+      state.show = action.payload.show;
+      state.user = action.payload.user;
     },
   },
 });

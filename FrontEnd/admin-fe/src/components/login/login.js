@@ -28,6 +28,10 @@ export const Login = () => {
   // }, [remem]);
 
   useEffect(() => {
+    console.log("iserRemem", user);
+  }, [user]);
+
+  useEffect(() => {
     // console.log(showPass);
     if (cookies.rm_psw) {
       setShow(false);
@@ -47,9 +51,9 @@ export const Login = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (userInfo.data !== "") console.log("UserInfo", userInfo);
-  }, [userInfo]);
+  // useEffect(() => {
+  //   if (userInfo.data !== "") console.log("UserInfo", userInfo);
+  // }, [userInfo]);
 
   // useEffect(() => {
   //   if (user.password.length >= 1) setShow(true);
@@ -60,6 +64,14 @@ export const Login = () => {
       setCookie("rm_psw", userObj);
     else {
       removeCookie("rm_psw");
+    }
+    if (user.email === "" || user.password === "") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill the field username or password",
+      });
+      return;
     }
     await adminApi
       .login(user)
