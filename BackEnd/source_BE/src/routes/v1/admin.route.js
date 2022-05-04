@@ -4,7 +4,6 @@ const validate = require('../../middlewares/validate');
 const adminValidation = require('../../validations/admin.validation');
 const adminController = require('../../controllers/admin.controller');
 const authController = require('../../controllers/auth.controller');
-const userController = require('../../controllers/user.controller');
 const sortController = require('../../controllers/sort.controller');
 
 const auth = require('../../middlewares/auth');
@@ -13,6 +12,7 @@ const router = express.Router();
 
 router.post('/register', validate(adminValidation.createAdmin), adminController.registerAdmin);
 router.post('/login', validate(adminValidation.login), adminController.login);
+router.put('/reset-password', validate(adminValidation.forgot), adminController.resetAdminPassword);
 router.post('/logout', validate(adminValidation.logout), authController.logout);
 // router.post('/refresh-tokens', auth('manageUsers'), adminController.login);
 router.delete('/deleteAdmin', auth('manageUsers'), adminController.deleteAdmin);

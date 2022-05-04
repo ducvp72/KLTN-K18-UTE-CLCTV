@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const { Admin, User, Token } = require('../models');
-const { userService, emailService } = require('../services');
+const { userService, emailService, authService } = require('../services');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
 const authController = require('../controllers/auth.controller');
@@ -11,7 +11,7 @@ const getAdminById = async (id) => {
 };
 
 const getAdminByEmail = async (email) => {
-  return Admin.findOne({ email });
+  return Admin.findOne({ gmail: email });
 };
 
 const createAdmin = async (adminBody) => {
@@ -25,7 +25,7 @@ const createAdmin = async (adminBody) => {
 };
 
 const loginAdminWithEmailAndPassword = async (email, password) => {
-  const admin = await getAdminByEmail(email);
+  const admin = await Admin.findOne({ email });
   if (!admin || !(await admin.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
   }
@@ -83,12 +83,15 @@ const changeAdminPassword = async (user, oldPassword, newPassword) => {
 
 const resetAdminPassword = async (email) => {
   const userR = await getAdminByEmail(email);
+  const verificationCode = Math.floor(10000 + Math.random() * 9000);
+  console.log('verificationCode', verificationCode);
   if (!userR) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Incorrect email');
   }
   try {
-    Object.assign(userR, { password: '123456@Admin' }, { new: true, useFindAndModify: false });
+    Object.assign(userR, { password: `${verificationCode}@Admin` }, { new: true, useFindAndModify: false });
     await userR.save();
+    await emailService.sendResetPassword(email, `${verificationCode}@Admin`);
     return userR;
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
@@ -150,9 +153,9 @@ const banUser = async (userId) => {
   }
   try {
     if (userR.isBanned === false) {
-      Object.assign(userR, { isBanned: true }, { new: true, useFindAndModify: false });
+      Object.assign(userR, { isBanned: true, isActivated: false }, { new: true, useFindAndModify: false });
     } else {
-      Object.assign(userR, { isBanned: false }, { new: true, useFindAndModify: false });
+      Object.assign(userR, { isBanned: false, isActivated: true }, { new: true, useFindAndModify: false });
     }
     await userR.save();
     return userR.isBanned;

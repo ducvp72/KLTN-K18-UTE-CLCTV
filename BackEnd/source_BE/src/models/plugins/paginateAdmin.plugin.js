@@ -18,7 +18,7 @@ const paginate = (schema) => {
    * @returns {Promise<QueryResult>}
    */
   // eslint-disable-next-line no-param-reassign
-  schema.statics.paginateClient = async function (userR, filter, options) {
+  schema.statics.paginateAdmin = async function (filter, options) {
     // eslint-disable-next-line no-param-reassign
     options.populate = 'user';
     let sort = '';
@@ -33,14 +33,12 @@ const paginate = (schema) => {
       sort = 'createdAt';
     }
 
-    // console.log('user', userR);
     const { key } = filter;
     // const valueE = { $regex: key, $ne: userR.user.email || '', $options: 'i' };
     // const valueS = { $regex: key, $ne: userR.subname || '', $options: 'i' };
     // const valueU = { $regex: key, $ne: userR.user.username || '', $options: 'i' };
     const value = {
       $regex: key,
-      $nin: [userR.user.email || '', userR.subname || '', userR.user.username || ''],
       $options: 'i',
     };
 
@@ -76,15 +74,25 @@ const paginate = (schema) => {
       let [totalResults, results] = values;
 
       // eslint-disable-next-line no-restricted-syntax
-
       // eslint-disable-next-line no-restricted-syntax
+      console.log(results.length);
       const users = [];
       // eslint-disable-next-line no-restricted-syntax
-      for (const i of results) {
-        const userN = JSON.parse(JSON.stringify(i));
-        delete userN.user.isActivated;
-        delete userN.user.role;
-        delete userN.user.isBanned;
+      for (let i = 0; i < results.length; i++) {
+        const userN = JSON.parse(JSON.stringify(results[i]));
+        userN.key = i;
+        userN.fullname = userN.user.fullname;
+        userN.avatar = userN.user.avatar;
+        userN.username = userN.user.username;
+        userN.email = userN.user.email;
+        userN.gender = userN.user.gender;
+        userN.birth = userN.user.birth;
+        userN.isBanned = userN.user.isBanned;
+        userN.isActivated = userN.user.isActivated;
+        userN.createdAt = userN.user.createdAt;
+        userN.id = userN.user.id;
+
+        delete userN.user;
         users.push(userN);
       }
       results = users;

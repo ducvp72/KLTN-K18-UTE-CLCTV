@@ -22,7 +22,7 @@ const adminSchema = new mongoose.Schema(
       },
     },
     email: { required: true, type: String },
-    phone: { required: false, type: String },
+    gmail: { required: true, type: String },
     password: { required: true, type: String },
   },
   { timestamps: true }

@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
-const { toJSONM, paginateClient, paginateUserGroup, paginateWaitingGroup, paginateMember } = require('./plugins');
+const {
+  toJSONM,
+  paginateClient,
+  paginateUserGroup,
+  paginateWaitingGroup,
+  paginateMember,
+  paginateAdmin,
+} = require('./plugins');
 
 const searchSchema = new mongoose.Schema(
   {
@@ -20,6 +27,7 @@ searchSchema.plugin(paginateClient);
 searchSchema.plugin(paginateUserGroup);
 searchSchema.plugin(paginateWaitingGroup);
 searchSchema.plugin(paginateMember);
+searchSchema.plugin(paginateAdmin);
 
 /**
  * @typedef Search

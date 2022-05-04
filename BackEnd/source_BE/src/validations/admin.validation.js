@@ -5,6 +5,7 @@ const createAdmin = {
   body: Joi.object().keys({
     fullname: Joi.string().required(),
     email: Joi.string().required().min(5),
+    gmail: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
   }),
 };
@@ -19,6 +20,12 @@ const login = {
 const logout = {
   body: Joi.object().keys({
     refreshToken: Joi.string().required(),
+  }),
+};
+
+const forgot = {
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
   }),
 };
 
@@ -90,7 +97,6 @@ const sortListUser = {
     fullname: Joi.string().allow(null).allow(''),
     email: Joi.string().allow(null).allow(''),
     username: Joi.string().allow(null).allow(''),
-    role: Joi.string(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
@@ -111,4 +117,5 @@ module.exports = {
   getUserForAdmin,
   getUserId,
   sortListUser,
+  forgot,
 };
