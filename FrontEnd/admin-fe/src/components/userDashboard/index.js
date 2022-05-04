@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Table, Space } from "antd";
+import React, { useState, useEffect, useRef } from "react";
+import { Table, Space, Input, Button } from "antd";
 import { useSelector, useDispatch } from "react-redux";
+
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
+
 import { searchFilterChange } from "../../redux/reducers/filter";
 import { openToggle } from "../../redux/reducers/toggle";
 import { Helmet } from "react-helmet-async";
@@ -34,6 +38,7 @@ export const UserDash = () => {
 
   useEffect(() => {
     setTemp(temp);
+    // console.log("temp", temp);
   }, [temp]);
 
   const handleEnter = (e) => {
@@ -133,6 +138,117 @@ export const UserDash = () => {
       });
   };
 
+  const searchInput = useRef(null);
+
+  const [searchId, setSearchId] = useState({
+    searchText: "",
+    searchedColumn: "",
+  });
+
+  useEffect(() => {
+    setSearchId(searchId);
+    console.log(searchId);
+  }, [searchId]);
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchId({
+      ...searchId,
+      searchText: selectedKeys[0],
+      searchedColumn: dataIndex,
+    });
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchId({ ...searchId, searchText: "" });
+  };
+
+  const getColumnSearchProps = (dataIndex) => {
+    console.log(dataIndex);
+    return {
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            ref={searchInput}
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) => {
+              console.log("Key", e.target.value);
+              setSelectedKeys(e.target.value ? [e.target.value] : []);
+            }}
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Search
+            </Button>
+            <Button
+              onClick={() => handleReset(clearFilters)}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Reset
+            </Button>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => {
+                confirm({ closeDropdown: false });
+                setSearchId({
+                  searchText: selectedKeys[0],
+                  searchedColumn: dataIndex,
+                });
+              }}
+            >
+              Filter
+            </Button>
+          </Space>
+        </div>
+      ),
+
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      ),
+      onFilter: (value, record) =>
+        record[dataIndex]
+          ? record[dataIndex]
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          : "",
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInput.current.select(), 100);
+        }
+      },
+
+      render: (text) =>
+        searchId.searchedColumn === dataIndex ? (
+          <Highlighter
+            highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+            searchWords={[searchId.searchText]}
+            autoEscape
+            textToHighlight={text ? text.toString() : ""}
+          />
+        ) : (
+          text
+        ),
+    };
+  };
+
   return (
     <div className="">
       <Helmet>
@@ -187,22 +303,6 @@ export const UserDash = () => {
         </div>
 
         <div className=" ml-2 mb-6 flex items-center space-x-2">
-          {/* <button
-            onClick={() => {
-              // setSortDate(!sortDate);
-              // setGlobalState({
-              //   filteredInfo: null,
-              //   sortedInfo: {
-              //     order: `${sortDate ? "ascend" : "descend"}`,
-              //     columnKey: "dateCreated",
-              //   },
-              // });
-              // handleSort();
-            }}
-            className=" border-2 border-my-blue w-full rounded focus:outline-none"
-          >
-            <p className=" p-1">createdDate: {sortDate ? "asc" : "desc"} </p>
-          </button> */}
           <button
             onClick={() => {
               setGlobalState({
@@ -223,14 +323,23 @@ export const UserDash = () => {
           position: ["bottomRight"],
           current: page,
           onChange: (pageNext) => {
-            // console.log(page);
-            setPage(pageNext);
+            // console.log("pageCurrent", page);
+            // console.log("pageNext", pageNext);
             filterUser(search, pageNext, "asc");
-            if (pageNext > page) {
-              setTemp(temp + 8);
-            } else {
-              setTemp(temp - 8);
+            if (pageNext === 1) {
+              setTemp(0);
             }
+            if (pageNext > page) {
+              // setTemp(temp + 8);
+              console.log("tang");
+
+              setTemp(Math.abs(temp + (pageNext - page) * 8));
+            }
+            if (pageNext < page && pageNext !== 1) {
+              console.log("giam");
+              setTemp(temp - (page - pageNext) * 8);
+            }
+            setPage(pageNext);
           },
           defaultPageSize: 8,
           total: filter.totalResults,
@@ -247,18 +356,81 @@ export const UserDash = () => {
         loading={load}
       >
         <Column
-          render={(text, row) => <p> {text + temp} </p>}
           width={50}
           title="#"
-          dataIndex="key"
+          // dataIndex="key"
           key="key"
+          render={(text, record) => (
+            <div
+              className={`${
+                text.isBanned === true && `text-red-600 font-bold`
+              }`}
+            >
+              <p> {text.key + temp} </p>
+            </div>
+          )}
         />
         <Column
+          title="Id"
+          // width={"100px"}
+          {...getColumnSearchProps("id")}
+          // dataIndex="id"
+          key="id"
+          filteredValue={globalState.filteredInfo?.id || null}
+          render={(text, record) => (
+            <div className="">
+              <p
+                onClick={() => {
+                  Swal.fire({
+                    icon: "info",
+                    title: `${text} `,
+                    // showConfirmButton: false,
+                    // timer: 1000,
+                  });
+                }}
+                className={`ml-2 cursor-pointer ${
+                  text.isBanned === true && `text-red-600 font-bold`
+                }`}
+              >
+                {text.id[0]}
+                {text.id[1]}
+                {text.id[2]}
+                {text.id[3]}
+                {text.id[4]}
+                ********
+              </p>
+            </div>
+          )}
+          // onFilter={(value, record) => record.fullname.includes(value)}
+          // sorter={(a, b) => a.fullname.localeCompare(b.fullname)}
+          // sortDirections={["descend", "ascend"]}
+          // sortOrder={
+          //   globalState.sortedInfo?.columnKey === "fullname" &&
+          //   globalState.sortedInfo?.order
+          // }
+          ellipsis={true}
+        />
+
+        <Column
           title="Name"
+          // {...getColumnSearchProps("id")}
           width={200}
-          dataIndex="fullname"
+          // dataIndex="id"
           key="fullname"
           filteredValue={globalState.filteredInfo?.fullname || null}
+          render={(text, record) => (
+            <div
+              className={`${
+                text.isBanned === true && `text-red-600 font-bold`
+              }`}
+            >
+              {text.isBanned === true && (
+                <i className=" mr-2 fas fa-user-lock"></i>
+              )}
+
+              {text.fullname.toString()}
+            </div>
+          )}
           onFilter={(value, record) => record.fullname.includes(value)}
           sorter={(a, b) => a.fullname.localeCompare(b.fullname)}
           sortDirections={["descend", "ascend"]}
@@ -270,13 +442,15 @@ export const UserDash = () => {
         />
         <Column
           title="Username"
-          dataIndex={"username"}
+          dataIndex="username"
           key="username"
           width={200}
-          render={(text, row) => <p> {text || <b>NaN</b>} </p>}
+          render={(text, record) => <p> {text || <b>NaN</b>} </p>}
           filteredValue={globalState.filteredInfo?.username || null}
           onFilter={(value, record) => record.username.includes(value)}
-          sorter={(a, b) => a.username.localeCompare(b.username)}
+          sorter={(a, b) =>
+            a.username ?? "NaN".localeCompare(b.username ?? "NaN")
+          }
           sortDirections={["descend", "ascend"]}
           sortOrder={
             globalState.sortedInfo?.columnKey === "username" &&
@@ -331,7 +505,7 @@ export const UserDash = () => {
           title="Ban"
           dataIndex="isBanned"
           key="isBanned"
-          render={(text, row) => <p> {text.toString()} </p>}
+          render={(text, record) => <p> {text.toString()} </p>}
           filteredValue={globalState.filteredInfo?.isBanned || null}
           onFilter={(value, record) =>
             record.isBanned.toString().includes(value)

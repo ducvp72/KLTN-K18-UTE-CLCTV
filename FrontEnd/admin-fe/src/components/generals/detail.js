@@ -5,7 +5,7 @@ import moment from "moment";
 export const Detail = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.toggle.user);
-  console.log("toggle", user);
+
   return (
     <>
       <div className="cursor-pointer flex relative w-1/2 bg-white border-2 shadow-lg">
@@ -64,7 +64,7 @@ export const Detail = () => {
 
             <div className="flex space-x-2 text-2xl items-center ">
               <label className=" ">isActivated: </label>
-              <p
+              <div
                 className={` font-bold ${
                   user.isActivated.toString() === "true"
                     ? `text-green-600`
@@ -76,24 +76,24 @@ export const Detail = () => {
                 ) : (
                   <p className=" w-5 h-5 rounded-full bg-red-500"></p>
                 )}
-              </p>
+              </div>
             </div>
 
             <div className="flex space-x-2 text-2xl">
               <label className="">Ban status: </label>
-              <p
+              <div
                 className={` font-bold ${
                   user.isBanned.toString() === "false"
                     ? `text-green-600`
                     : `text-red-500`
                 }`}
               >
-                <p className=" font-bold">
+                <div className=" font-bold">
                   <p className=" font-bold ">
                     {user.isBanned.toString() || "NaN"}
                   </p>
-                </p>
-              </p>
+                </div>
+              </div>
             </div>
 
             <div className="flex space-x-2 text-2xl">

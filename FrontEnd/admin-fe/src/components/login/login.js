@@ -27,9 +27,9 @@ export const Login = () => {
   //   console.log("iserRemem", remem);
   // }, [remem]);
 
-  useEffect(() => {
-    console.log("iserRemem", user);
-  }, [user]);
+  // useEffect(() => {
+  //   console.log("iserRemem", user);
+  // }, [user]);
 
   useEffect(() => {
     // console.log(showPass);

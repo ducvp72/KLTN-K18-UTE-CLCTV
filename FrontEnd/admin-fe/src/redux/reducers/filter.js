@@ -13,7 +13,7 @@ const filterSlice = createSlice({
   },
   reducers: {
     searchFilterChange: (state, action) => {
-      console.log("action.payload", action.payload);
+      // console.log("action.payload", action.payload);
       state.queryInput = action.payload.queryInput;
       state.data = action.payload.data;
       state.limit = action.payload.limit;
