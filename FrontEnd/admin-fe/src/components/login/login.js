@@ -4,7 +4,7 @@ import { password, username } from "../../validations";
 import { useCookies } from "react-cookie";
 import Swal from "sweetalert2";
 import { adminApi } from "../../apis";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { saveUser } from "../../redux/reducers/auth";
 import { Helmet } from "react-helmet-async";
 
@@ -13,8 +13,6 @@ export const Login = () => {
 
   const dispatch = useDispatch();
 
-  const userInfo = useSelector((state) => state.userData);
-
   const [cookies, setCookie, removeCookie] = useCookies(["rm_psw", "user_key"]);
   const [showPass, setShow] = useState(false);
   const [remem, setRember] = useState(false);
@@ -22,6 +20,12 @@ export const Login = () => {
     email: "",
     password: "",
   });
+  useEffect(() => {
+    setRember(cookies.rm_psw ? true : false);
+    return () => {
+      setRember("");
+    };
+  }, [cookies]);
 
   // useEffect(() => {
   //   console.log("iserRemem", remem);
@@ -32,23 +36,13 @@ export const Login = () => {
   // }, [user]);
 
   useEffect(() => {
-    // console.log(showPass);
     if (cookies.rm_psw) {
-      setShow(false);
       setUser((prev) => ({
         ...prev,
         email: cookies.rm_psw.email,
         password: cookies.rm_psw.password,
       }));
     }
-  }, []);
-
-  useEffect(() => {
-    // console.log("Ok", cookies.user_key);
-    setRember(cookies.rm_psw ? true : true);
-    return () => {
-      setRember("");
-    };
   }, []);
 
   // useEffect(() => {
@@ -60,9 +54,9 @@ export const Login = () => {
   // }, [user]);
 
   const handeSubmit = async (userObj) => {
-    if (remem && (user.email.length > 0, user.password.length > 0))
+    if (remem && (user.email.length > 0, user.password.length > 0)) {
       setCookie("rm_psw", userObj);
-    else {
+    } else {
       removeCookie("rm_psw");
     }
     if (user.email === "" || user.password === "") {
@@ -85,7 +79,7 @@ export const Login = () => {
           showConfirmButton: false,
           timer: 1000,
         });
-        navigate("/home/user", { state: "Duc", replace: true });
+        navigate("/home/user", { replace: true });
       })
       .catch((err) => {
         console.log(err);

@@ -8,7 +8,7 @@ import { adminApi } from "../apis";
 import { Helmet } from "react-helmet-async";
 
 export const Dashboard = () => {
-  const [cookies] = useCookies(["rm_psw", "user_key"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["rm_psw", "user_key"]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toggle = useSelector((state) => state.toggle);
@@ -22,9 +22,11 @@ export const Dashboard = () => {
     await adminApi
       .logout(cookies.user_key.tokens.refresh.token)
       .then((res) => {
-        console.log("res", res);
-        dispatch(saveUser(""));
         navigate("/", { replace: true });
+        dispatch(saveUser(""));
+        // if (!cookies.rm_psw) {
+        // }
+        removeCookie("user_key");
       })
       .catch((err) => {
         console.log(err);
@@ -61,17 +63,17 @@ export const Dashboard = () => {
               onClick={() => {
                 navigate("/home/user");
               }}
-              className=" border border-my-blue rounded flex justify-center  items-center  cursor-pointer hover:bg-my-blue hover:text-white hover:boder hover:rounded-md h-12"
+              className=" border hover:bg-blue-300 bg-my-blue text-white  rounded flex justify-center  items-center  cursor-pointer  over:rounded-md h-12"
             >
-              <p className=" tex">User Dashboard</p>
+              <p className=" font-bold">User Dashboard</p>
             </div>
             <div
               onClick={() => {
                 navigate("/home/password");
               }}
-              className="border border-my-blue rounded flex justify-center items-center cursor-pointer hover:bg-my-blue hover:text-white hover:boder hover:rounded-md h-12"
+              className="border hover:bg-blue-300 bg-my-blue text-white rounded flex justify-center items-center cursor-pointer    hover:rounded-md h-12"
             >
-              Change Password
+              <p className=" font-bold"> Change Password</p>
             </div>
           </div>
           <div className=" h-1/3  relative w-full">
@@ -87,10 +89,10 @@ export const Dashboard = () => {
         </div>
 
         <div className=" block col-span-5 border rounded-md">
-          <div className=" flex items-center bg-my-blue">
-            <p className=" w-full h-full p-2 font-normal text-white">
+          <div className=" flex items-center bg-my-blue h-8 rounded-md">
+            {/* <p className=" w-full h-full p-2 font-normal text-white">
               Name of route
-            </p>
+            </p> */}
           </div>
 
           <div className="">

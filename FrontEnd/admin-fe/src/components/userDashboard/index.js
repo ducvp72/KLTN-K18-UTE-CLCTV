@@ -43,8 +43,7 @@ export const UserDash = () => {
 
   const handleEnter = (e) => {
     if (e.key === "Enter") {
-      console.log(filter.queryInput);
-      // dispatch(searchFilterChange({ queryInput: "" }));
+      filterUser(search, page, "asc");
       setSearch("");
     }
   };
@@ -87,8 +86,6 @@ export const UserDash = () => {
   };
 
   const handleBanUser = async (user) => {
-    console.log(user.id);
-    console.log("Ban");
     await adminApi
       .banUser(cookies.user_key.tokens.access.token, { userId: user.id })
       .then(async (res) => {
@@ -113,12 +110,9 @@ export const UserDash = () => {
   };
 
   const handleUnBanUser = async (user) => {
-    console.log(user.id);
-    console.log("Unban");
     await adminApi
       .banUser(cookies.user_key.tokens.access.token, { userId: user.id })
       .then(async (res) => {
-        console.log(res);
         await filterUser(search, page, "asc");
         Swal.fire({
           icon: "success",
@@ -147,7 +141,6 @@ export const UserDash = () => {
 
   useEffect(() => {
     setSearchId(searchId);
-    console.log(searchId);
   }, [searchId]);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -165,7 +158,6 @@ export const UserDash = () => {
   };
 
   const getColumnSearchProps = (dataIndex) => {
-    console.log(dataIndex);
     return {
       filterDropdown: ({
         setSelectedKeys,
@@ -179,7 +171,7 @@ export const UserDash = () => {
             placeholder={`Search ${dataIndex}`}
             value={selectedKeys[0]}
             onChange={(e) => {
-              console.log("Key", e.target.value);
+              // console.log("Key", e.target.value);
               setSelectedKeys(e.target.value ? [e.target.value] : []);
             }}
             onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
@@ -318,8 +310,9 @@ export const UserDash = () => {
       </div>
 
       <Table
-        size={"default"}
+        size={"small"}
         pagination={{
+          size: "default",
           position: ["bottomRight"],
           current: page,
           onChange: (pageNext) => {
@@ -331,12 +324,10 @@ export const UserDash = () => {
             }
             if (pageNext > page) {
               // setTemp(temp + 8);
-              console.log("tang");
 
               setTemp(Math.abs(temp + (pageNext - page) * 8));
             }
             if (pageNext < page && pageNext !== 1) {
-              console.log("giam");
               setTemp(temp - (page - pageNext) * 8);
             }
             setPage(pageNext);
@@ -357,13 +348,13 @@ export const UserDash = () => {
       >
         <Column
           width={50}
-          title="#"
+          title={<b className=" font-bold"> # </b>}
           // dataIndex="key"
           key="key"
           render={(text, record) => (
             <div
-              className={`${
-                text.isBanned === true && `text-red-600 font-bold`
+              className={`  font-bold ${
+                text.isBanned === true && `text-red-600`
               }`}
             >
               <p> {text.key + temp} </p>
@@ -383,7 +374,7 @@ export const UserDash = () => {
                 onClick={() => {
                   Swal.fire({
                     icon: "info",
-                    title: `${text} `,
+                    title: `${text.id} `,
                     // showConfirmButton: false,
                     // timer: 1000,
                   });
@@ -444,7 +435,7 @@ export const UserDash = () => {
           title="Username"
           dataIndex="username"
           key="username"
-          width={200}
+          width={120}
           render={(text, record) => <p> {text || <b>NaN</b>} </p>}
           filteredValue={globalState.filteredInfo?.username || null}
           onFilter={(value, record) => record.username.includes(value)}
@@ -523,7 +514,7 @@ export const UserDash = () => {
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              <div className=" group z-50 ">
+              <div className=" group z-50 flex justify-center ">
                 <div
                   className=" w-16
                  flex justify-center items-center "
@@ -532,7 +523,7 @@ export const UserDash = () => {
                     <i className="fas fa-edit text-base"></i>
                   </button>
                 </div>
-                <div className=" hidden group-hover:block z-50 border-2 bg-transparent border-gray-200 shadow-lg">
+                <div className=" bg-blue-300 rounded-xl hidden w-11/12 group-hover:mt-5 group-hover:block group-hover:absolute z-50 border-2  border-gray-200 shadow-lg">
                   <div className=" flex-col space-y-4 cursor-pointer mt-1 p-1  ">
                     <p
                       onClick={() => {
@@ -549,7 +540,6 @@ export const UserDash = () => {
                     </p>
                     <p
                       onClick={() => {
-                        console.log(text);
                         if (text.isBanned === false) {
                           handleBanUser(text);
                         } else {
