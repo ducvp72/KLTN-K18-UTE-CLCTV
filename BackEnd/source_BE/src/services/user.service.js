@@ -27,54 +27,52 @@ const createUser = async (userBody) => {
   return user;
 };
 
-/**
- * Query for users
- * @param {Object} filter - Mongo filter
- * @param {Object} options - Query options
- * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
- * @param {number} [options.limit] - Maximum number of results per page (default = 10)
- * @param {number} [options.page] - Current page (default = 1)
- * @returns {Promise<QueryResult>}
- */
+// const queryUsers = async (filter, options) => {
+//   const { fullname, email } = filter;
+
+//   if (email) {
+//     // eslint-disable-next-line no-param-reassign
+//     filter.email = { $regex: email.trim() || '', $options: 'i' };
+//   }
+
+//   if (fullname) {
+//     const find = await changeName(filter.fullname);
+//     // eslint-disable-next-line no-param-reassign
+//     filter.fullname = { $regex: find || '', $options: 'i' };
+//   }
+
+//   const users = await User.paginate(filter, options);
+//   return users;
+// };
+
 const queryUsers = async (filter, options) => {
-  const { fullname, email } = filter;
-
-  if (email) {
+  if (filter.key) {
     // eslint-disable-next-line no-param-reassign
-    filter.email = { $regex: email.trim() || '', $options: 'i' };
+    filter.key = await changeName(filter.key);
   }
-
-  if (fullname) {
-    const find = await changeName(filter.fullname);
-    // eslint-disable-next-line no-param-reassign
-    filter.fullname = { $regex: find || '', $options: 'i' };
-  }
-
-  const users = await User.paginate(filter, options);
+  const users = await Search.paginateAdmin(filter, options);
+  // const results = [];
+  // const { page, limit, totalPages, totalResults } = users;
+  // eslint-disable-next-line no-restricted-syntax
+  // totalResults = totalResults - 1;
+  // eslint-disable-next-line no-restricted-syntax
+  // for (const item of users.results) {
+  //   const newUser = {};
+  //   const userId = item.user.id;
+  //   // eslint-disable-next-line prefer-destructuring
+  //   const username = item.username;
+  //   // eslint-disable-next-line prefer-destructuring
+  //   const fullname = item.user.fullname;
+  //   // eslint-disable-next-line prefer-destructuring
+  //   const email = item.user.email;
+  //   // eslint-disable-next-line prefer-destructuring
+  //   const avatar = item.user.avatar;
+  //   results.push(Object.assign(newUser, { userId, fullname, username, avatar, email }));
+  // }
   return users;
 };
 
-const isFriendN = async (userId, friendId) => {
-  // console.log('checkFriend', userId, '/n', friendId);
-  let find = 0;
-  const checkFriend = await Friend.findOne({ user: userId, friends: friendId });
-  const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
-  const checkWaitingMine = await WaitingFriend.findOne({ user: userId, waitingFriends: friendId });
-  if (checkFriend) {
-    //Bạn hay chưa với nó
-    find = 1;
-  } else if (checkWaitingOther) {
-    //Mình có trong danh sách chờ kết bạn của nó không
-    find = 2;
-  } else if (checkWaitingMine) {
-    //Nó có trong danh sách chờ kết bạn của mình không
-    find = 3;
-  } else find = 0;
-  return find;
-};
-
 const queryUsersClient = async (userR, filter, options) => {
-  console.log('filter', filter);
   const find = await Search.findOne({ user: userR.id }).populate({ path: 'user' });
   if (filter.key) {
     // eslint-disable-next-line no-param-reassign
@@ -103,6 +101,25 @@ const queryUsersClient = async (userR, filter, options) => {
     results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
   }
   return { results, page, limit, totalPages, totalResults };
+};
+
+const isFriendN = async (userId, friendId) => {
+  // console.log('checkFriend', userId, '/n', friendId);
+  let find = 0;
+  const checkFriend = await Friend.findOne({ user: userId, friends: friendId });
+  const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
+  const checkWaitingMine = await WaitingFriend.findOne({ user: userId, waitingFriends: friendId });
+  if (checkFriend) {
+    //Bạn hay chưa với nó
+    find = 1;
+  } else if (checkWaitingOther) {
+    //Mình có trong danh sách chờ kết bạn của nó không
+    find = 2;
+  } else if (checkWaitingMine) {
+    //Nó có trong danh sách chờ kết bạn của mình không
+    find = 3;
+  } else find = 0;
+  return find;
 };
 
 /**

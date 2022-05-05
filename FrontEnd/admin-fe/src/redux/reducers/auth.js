@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const authSlice = createSlice({
-  name: "filter",
+  name: "auth",
   initialState: {
-    data: [],
+    data: "",
   },
   reducers: {
     saveUser: (state, action) => {
-      state.key = action.payload;
+      state.data = action.payload;
     },
   },
 });

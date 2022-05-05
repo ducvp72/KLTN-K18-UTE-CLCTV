@@ -75,7 +75,6 @@ const paginate = (schema) => {
       // eslint-disable-next-line prefer-const
       let [totalResults, results] = values;
 
-      // JSON.parse(JSON.stringify(user));
       // eslint-disable-next-line no-restricted-syntax
 
       // eslint-disable-next-line no-restricted-syntax

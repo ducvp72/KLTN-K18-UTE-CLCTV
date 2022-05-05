@@ -3,13 +3,24 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 const filterSlice = createSlice({
   name: "filter",
   initialState: {
-    key: "",
-    status: "All",
+    queryInput: "",
     data: [],
+    page: 1,
+    limit: 8,
+    totalPages: "",
+    totalResults: "",
+    sortBy: "asc",
   },
   reducers: {
     searchFilterChange: (state, action) => {
-      state.key = action.payload;
+      // console.log("action.payload", action.payload);
+      state.queryInput = action.payload.queryInput;
+      state.data = action.payload.data;
+      state.limit = action.payload.limit;
+      state.totalPages = action.payload.totalPages;
+      state.totalResults = action.payload.totalResults;
+      state.sortBy = action.payload.sortBy;
+      state.loading = action.payload.loading;
     },
   },
 });

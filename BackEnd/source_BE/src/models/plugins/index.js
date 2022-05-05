@@ -16,3 +16,4 @@ module.exports.paginateMember = require('./paginateMember.plugin');
 module.exports.paginateMess = require('./paginateMess.plugin');
 module.exports.paginateLast = require('./paginationLast.plugin');
 module.exports.paginationLastMess = require('./paginationLastMess.plugin');
+module.exports.paginateAdmin = require('./paginateAdmin.plugin');

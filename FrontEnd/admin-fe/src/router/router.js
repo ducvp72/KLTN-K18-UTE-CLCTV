@@ -1,30 +1,31 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import {
   Login,
   Error,
   Profile,
   Forgot,
-  GroupDash,
   UserDash,
   Dashboard,
 } from "../components/";
-import { DashBoard } from "./layouts/DashBoardLayout";
+import { DashBoardRoute } from "./layouts/DashBoardLayout";
+import { UnAuthLoginRoute } from "./layouts/unAuthLogin";
+
 export const Router = () => {
-  const check = true;
   return (
     <div className="">
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/forgot" element={<Forgot />} />
-        <Route element={<DashBoard role={check} />}>
+        <Route element={<UnAuthLoginRoute />}>
+          <Route path="/" element={<Login />} />
+          <Route path="/forgot" element={<Forgot />} />
+        </Route>
+
+        <Route element={<DashBoardRoute />}>
           <Route path="/home" element={<Dashboard />}>
             <Route path="user" element={<UserDash />} />
-            <Route path="group" element={<GroupDash />} />
             <Route path="password" element={<Profile />} />
           </Route>
         </Route>
-
         <Route path="*" element={<Error />} />
       </Routes>
     </div>

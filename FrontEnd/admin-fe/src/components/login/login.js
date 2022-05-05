@@ -2,54 +2,100 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { password, username } from "../../validations";
 import { useCookies } from "react-cookie";
+import Swal from "sweetalert2";
+import { adminApi } from "../../apis";
+import { useDispatch } from "react-redux";
+import { saveUser } from "../../redux/reducers/auth";
+import { Helmet } from "react-helmet-async";
+
 export const Login = () => {
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(["rm_psw", "token"]);
+
+  const dispatch = useDispatch();
+
+  const [cookies, setCookie, removeCookie] = useCookies(["rm_psw", "user_key"]);
   const [showPass, setShow] = useState(false);
   const [remem, setRember] = useState(false);
   const [user, setUser] = useState({
-    username: "",
+    email: "",
     password: "",
   });
+  useEffect(() => {
+    setRember(cookies.rm_psw ? true : false);
+    return () => {
+      setRember("");
+    };
+  }, [cookies]);
+
+  // useEffect(() => {
+  //   console.log("iserRemem", remem);
+  // }, [remem]);
+
+  // useEffect(() => {
+  //   console.log("iserRemem", user);
+  // }, [user]);
 
   useEffect(() => {
-    console.log("iserRemem", remem);
-  }, [remem]);
-
-  useEffect(() => {
-    console.log(showPass);
-
     if (cookies.rm_psw) {
-      setShow(false);
       setUser((prev) => ({
         ...prev,
-        username: cookies.rm_psw.username,
+        email: cookies.rm_psw.email,
         password: cookies.rm_psw.password,
       }));
     }
   }, []);
 
-  useEffect(() => {
-    setRember(cookies.rm_psw ? true : true);
-    return () => {
-      setRember("");
-    };
-  }, []);
+  // useEffect(() => {
+  //   if (userInfo.data !== "") console.log("UserInfo", userInfo);
+  // }, [userInfo]);
 
   // useEffect(() => {
   //   if (user.password.length >= 1) setShow(true);
   // }, [user]);
 
-  const handeSubmit = (userObj) => {
-    if (remem && (user.username.length > 0, user.password.length > 0))
+  const handeSubmit = async (userObj) => {
+    if (remem && (user.email.length > 0, user.password.length > 0)) {
       setCookie("rm_psw", userObj);
-    else {
+    } else {
       removeCookie("rm_psw");
     }
+    if (user.email === "" || user.password === "") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill the field username or password",
+      });
+      return;
+    }
+    await adminApi
+      .login(user)
+      .then((res) => {
+        console.log(res);
+        setCookie("user_key", res.data);
+        dispatch(saveUser(res.data));
+        Swal.fire({
+          icon: "success",
+          title: `Welcome ${res.data.admin.fullname}`,
+          showConfirmButton: false,
+          timer: 1000,
+        });
+        navigate("/home/user", { replace: true });
+      })
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Wrong username or password",
+        });
+      });
   };
 
   return (
     <>
+      <Helmet>
+        <title>Login</title>
+      </Helmet>
       <div className="h-screen flex items-center justify-center">
         <form className="w-1/2 md:w-1/3 bg-white rounded-lg">
           <div className="flex font-bold justify-center mt-6">
@@ -67,9 +113,9 @@ export const Login = () => {
               <div className="flex items-center">
                 <i className="ml-3 fill-current text-gray-400 text-xs z-10 fas fa-user"></i>
                 <input
-                  value={user.username}
+                  value={user.email}
                   onChange={(e) => {
-                    setUser((prev) => ({ ...prev, username: e.target.value }));
+                    setUser((prev) => ({ ...prev, email: e.target.value }));
                   }}
                   type="text"
                   placeholder="Username"
@@ -78,7 +124,7 @@ export const Login = () => {
               </div>
             </div>
             <div className="w-full h-2 py-3 flex items-center">
-              {user.username.length > 0 && username(user.username)}
+              {user.email.length > 0 && username(user.email)}
             </div>
             <div className="w-full mb-2">
               <div className="flex items-center">
@@ -142,8 +188,6 @@ export const Login = () => {
             </p>
             <button
               onClick={(e) => {
-                navigate("/home/user", { state: "Duc", replace: true });
-                console.log("user", user);
                 e.preventDefault();
                 handeSubmit(user);
               }}

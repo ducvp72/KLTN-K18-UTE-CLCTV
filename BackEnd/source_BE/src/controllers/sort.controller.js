@@ -5,7 +5,7 @@ const catchAsync = require('../utils/catchAsync');
 const { userService } = require('../services');
 
 const getUsersForAdmin = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['fullname', 'email', 'role']);
+  const filter = pick(req.query, ['fullname', 'email', 'role', 'key']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
   const result = await userService.queryUsers(filter, options);
   res.send(result);

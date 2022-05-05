@@ -1,16 +1,23 @@
-import React from "react";
-import { Outlet, Navigate, useLocation } from "react-router-dom";
-import { Login } from "../../components/";
-export const DashBoard = ({ role }) => {
+import React, { useEffect } from "react";
+import { Outlet, Navigate, useLocation, Route } from "react-router-dom";
+import { useCookies } from "react-cookie";
+export const DashBoardRoute = () => {
+  const [cookies] = useCookies(["user_key"]);
   const location = useLocation();
 
+  // useEffect(() => {
+  //   if (cookies.user_key) {
+  //     console.log("aaaaaaaaaaaa", cookies.user_key);
+  //   }
+  // }, [cookies]);
+
   return (
-    <div>
-      {role ? (
+    <>
+      {cookies.user_key ? (
         <Outlet />
       ) : (
         <Navigate to="/" state={{ from: location }} replace />
       )}
-    </div>
+    </>
   );
 };

@@ -4,39 +4,87 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
     <link rel="stylesheet" href="css/style.css" />
+
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"
+        integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H"
+        crossorigin="anonymous"></script>
+
+    <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
     <title>ChatCord App</title>
 </head>
 
 <body>
-    <div class="join-container">
-        <header class="join-header">
+    <div class="chat-container">
+        <div id="err"></div>
+        <header class="chat-header">
             <h1><i class="fas fa-smile"></i> ChatCord</h1>
+            <div>
+                <label for="roomId">roomId</label>
+                <input id="roomId" value="62599b1e2954dd181437c8d8" />
+                <button disabled onclick="changeRoom()">Change Rooom (Khoi can nhan nut nay)</button>
+            </div>
+            <div center>
+                <label for="userId">Id User</label>
+                <input style="word-wrap:scroll" id="userId" value="" />
+                <button onclick="changeUser()">
+                    <b>
+                        Nhap ID User
+                        <br> Xong an nut nay de tham gia phong
+                    </b>
+
+                </button>
+                <div class="">
+                    <p class=""></p>
+                    <br>
+                    <p class="">623b5687ea354824f06170d4: m xài </p>
+                    <br>
+                    <hr>
+                    <br>
+                    <p class="">623ca9a6e2a7172d64904c87: t xài</p>
+
+                </div>
+            </div>
+
+            <div>
+                <label for="inviter">Invter</label>
+                <input id="inviterId" value="" />
+                <button disabled onclick="inviteUser()">Invite</button>
+            </div>
+            <b class="">NhậP id group theo DB Mongo muốn thoát, nhập bên ô "roomId" ròi hãy "Leave Room"</b>
+            <button id="leave-btn" class="btn" onclick="leaveSpecialRoom()">Leave Room</button>
+
+
+
         </header>
-        <main class="join-main">
-            <form action="chat.html">
-                <div class="form-control">
-                    <label for="username">Username</label>
-                    <input type="text" name="username" id="username" placeholder="Enter username..." required />
-                </div>
-                <div class="form-control">
-                    <label for="room">Room</label>
-                    <select name="room" id="room">
-                        <option value="JavaScript">JavaScript</option>
-                        <option value="Python">Python</option>
-                        <option value="PHP">PHP</option>
-                        <option value="C#">C#</option>
-                        <option value="Ruby">Ruby</option>
-                        <option value="Java">Java</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn">Join Chat</button>
-            </form>
+        <main class="chat-main">
+            <div class="chat-sidebar">
+                <h3><i class="fas fa-comments"></i> Room Name:</h3>
+                <h2 id="room-name"></h2>
+                <h3><i class="fas fa-users"></i> Users</h3>
+                <ul id="users"></ul>
+
+            </div>
+            <div class="chat-messages"></div>
         </main>
+        <div class="chat-form-container">
+            <div id="userTyping" class=""></div>
+            <form id="chat-form">
+                <input id="msg" type="text" placeholder="Enter Message" required autocomplete="off" />
+                <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+            </form>
+
+        </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"
+        integrity="sha256-TDxXjkAUay70ae/QJBEpGKkpVslXaHHayklIVglFRT4=" crossorigin="anonymous"></script>
+
+    <script src="./js/main.js">
+
+    </script>
 </body>
 
 </html>

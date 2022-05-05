@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { toJSON, paginate, paginateClient, paginateUserGroup } = require('./plugins');
+const { toJSON, paginate, paginateClient, paginateUserGroup, paginateAdmin } = require('./plugins');
 const { roleTypes, genderTypes } = require('../config/myConfig');
 
 const userSchema = new mongoose.Schema(
@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema(
 userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
 userSchema.plugin(paginateClient);
+userSchema.plugin(paginateAdmin);
 userSchema.plugin(paginateUserGroup);
 
 /**

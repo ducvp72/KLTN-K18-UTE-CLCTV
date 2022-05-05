@@ -6,6 +6,7 @@ import { persistReducer } from "redux-persist";
 import thunk from "redux-thunk";
 import filterReducer from "./reducers/filter";
 import toggleReducer from "./reducers/toggle";
+import authReducer from "./reducers/auth";
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const persistConfig = {
@@ -14,16 +15,17 @@ const persistConfig = {
   blacklist: ["toggle"],
 };
 
-const toogglePersistConfig = {
-  key: "toggle",
-  storage: storage,
-  whitelist: ["toggle"],
-};
+// const toogglePersistConfig = {
+//   key: "toggle",
+//   storage: storage,
+//   whitelist: ["toggle"],
+// };
 
 const rootReducer = combineReducers({
-  filter: filterReducer,
-  // toggle: persistReducer(toogglePersistConfig, toggleReducer),
+  userData: authReducer,
+  filterData: filterReducer,
   toggle: toggleReducer,
+  // toggle: persistReducer(toogglePersistConfig, toggleReducer),
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

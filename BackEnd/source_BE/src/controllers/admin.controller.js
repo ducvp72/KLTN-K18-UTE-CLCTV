@@ -34,7 +34,7 @@ const changeAdminPassword = catchAsync(async (req, res) => {
 
 const resetAdminPassword = catchAsync(async (req, res) => {
   await adminService.resetAdminPassword(req.body.email);
-  res.status(httpStatus.OK).send('Your password was reset default !');
+  res.status(httpStatus.OK).send();
 });
 
 const resetUserPassword = catchAsync(async (req, res) => {

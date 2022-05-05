@@ -32,7 +32,7 @@ const toJSON = (schema) => {
       delete ret._id;
       delete ret.__v;
       delete ret.password;
-      delete ret.createdAt;
+      // delete ret.createdAt;
       delete ret.updatedAt;
       //Xoa path
       ret.avatar = ret.avatar.path;

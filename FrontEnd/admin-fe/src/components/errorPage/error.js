@@ -1,16 +1,27 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
 import "./style.css";
 export const Error = () => {
+  const navigate = useNavigate();
+  const handleToHome = () => {
+    navigate("/home/user", { replace: true });
+  };
   return (
-    <div classNameName="">
-      <div classNameName="fixed w-full top-5">
-        <div classNameName=" flex justify-center align-middle">
-          <button classNameName="animate-bounce bg-error-btn text-white font-mono border text-2xl rounded-md hover:bg-purple-700 cursor-pointer">
-            <p classNameName=" p-2"> Back to Home</p>
+    <div className="">
+      <div className="fixed w-full top-5">
+        <div className=" flex justify-center align-middle">
+          <button
+            onClick={() => {
+              handleToHome();
+            }}
+            className="animate-bounce bg-error-btn text-white font-mono border text-2xl rounded-md hover:bg-purple-700 cursor-pointer"
+          >
+            <p className=" p-2"> Back to Home</p>
           </button>
         </div>
       </div>
-      <div classNameName="wrapper">
+      <div className="wrapper">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1000">
           <title>404</title>
           <g id="Layer_12 yellow-back-fig" data-name="Layer 12">
