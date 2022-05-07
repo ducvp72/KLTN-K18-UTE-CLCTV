@@ -31,7 +31,7 @@ const changeUser = async () => {
   //https://socket-ute-v2.herokuapp.com
 
   //sua duong link o day
-  socket = await io("https://nodejsapi.eastasia.cloudapp.azure.com:8000/", {
+  socket = await io("http://nodejsapi.eastasia.cloudapp.azure.com:8000/", {
     transports: ["polling"],
     reconnectionDelayMax: 10000,
     auth: { userId: token },
