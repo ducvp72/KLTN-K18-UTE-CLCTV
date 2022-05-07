@@ -80,24 +80,6 @@ const onConnection = async (socket) => {
 
   registerRoomHanlers(io, socket, userInfo);
 
-  const Welcometemp = {
-    text: `Welcome you ${userInfo.fullname ? userInfo.fullname : "Unknown"} , ${
-      socket.id
-    }, ${socket.handshake.auth.userId} to chat`,
-    image: null,
-    video: null,
-    createdAt: `${new Date()}`,
-    updatedAt: `${new Date()}`,
-    typeId: new Date().getTime(),
-    id: "96969696969696",
-    user: {
-      avatar:
-        "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
-      name: "Admin Group",
-      _id: "6969696969696969",
-    },
-  };
-
   // await socket.emit("room:chat", formatMessage(temp));
   // console.log("WELCOME", temp);
 
