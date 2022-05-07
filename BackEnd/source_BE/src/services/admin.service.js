@@ -153,9 +153,9 @@ const banUser = async (userId) => {
   }
   try {
     if (userR.isBanned === false) {
-      Object.assign(userR, { isBanned: true, isActivated: false }, { new: true, useFindAndModify: false });
+      Object.assign(userR, { isBanned: true }, { new: true, useFindAndModify: false });
     } else {
-      Object.assign(userR, { isBanned: false, isActivated: true }, { new: true, useFindAndModify: false });
+      Object.assign(userR, { isBanned: false }, { new: true, useFindAndModify: false });
     }
     await userR.save();
     return userR.isBanned;
