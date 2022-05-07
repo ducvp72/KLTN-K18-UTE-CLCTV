@@ -4,15 +4,12 @@ const roomName = document.getElementById("room-name");
 const userList = document.getElementById("users");
 
 // Get username and room from URL
-const { username, room } = Qs.parse(location.search, {
-  ignoreQueryPrefix: true,
-});
+// const { username, room } = Qs.parse(location.search, {
+//   ignoreQueryPrefix: true,
+// });
 
 // console.log("username", username);
 // console.log("room", room);
-
-const userR = username;
-const roomR = room;
 
 let socket;
 let roomId;
@@ -55,7 +52,8 @@ const changeUser = async () => {
   // changeRoom();
 
   socket.on("connect", () => {
-    console.log(socket.id);
+    console.log("Your socket id: ", socket.id);
+
     //Listen Message from server
     socket.on("room:chat", (message) => {
       console.log("ON EVENT - room:chat", message);
@@ -79,6 +77,11 @@ const changeUser = async () => {
     socket.on("room:inRoom", (memo) => {
       alert(memo);
     });
+
+    //notificatition invite
+    // socket.on("room:invite", ({ status, message }) => {
+    //   inviteSpecialRoom(status, message);
+    // });
   });
 };
 
@@ -104,14 +107,25 @@ const leaveSpecialRoom = () => {
     document.getElementById("roomId").value = "";
     console.log("You out this room: ", roomId);
   } else {
+    // alert("some thing was wrong please try again");
+    return;
+  }
+};
+
+const inviteSpecialRoom = (status, message) => {
+  const roomId = document.getElementById("roomId").value;
+  if (status) {
+    alert(`${message}`);
+  } else {
     alert("some thing was wrong please try again");
+    return;
   }
 };
 
 const inviteUser = () => {
+  const userId = document.getElementById("inviterId").value;
   const roomId = document.getElementById("roomId").value;
-  const memberId = document.getElementById("inviterId").value;
-  socket.emit("room:addMember", { memberId, roomId });
+  socket.emit("room:invite", { userId, roomId });
 };
 
 // Message submit

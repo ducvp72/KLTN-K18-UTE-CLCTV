@@ -1,12 +1,11 @@
 const { User, Room, UserGroup } = require("../models/");
 
 const {
-  checkInCurrentRoom,
+  checkInRoomById,
   deleteRoomOfUser,
   getMemberInRoom,
 } = require("../services/store.service");
-
-const { getUser } = require("../utils/db_socket");
+const { checkInGroupDB } = require("./user.service");
 const formatMessage = require("../utils/messages");
 
 module.exports = (io, socket, userInfo) => {
@@ -66,13 +65,6 @@ module.exports = (io, socket, userInfo) => {
     console.log("RoomHandler", socket.rooms);
   };
 
-  const addMember = ({ memberId, roomId }) => {
-    console.log(memberId + "?" + roomId);
-    const user = getUser(memberId);
-    console.info(user);
-    io.to(user.socketId).emit("room:invite", { roomId });
-  };
-
   const leaveRoom = async (roomId) => {
     const user = checkInCurrentRoom(userInfo.id, roomId);
 
@@ -116,11 +108,33 @@ module.exports = (io, socket, userInfo) => {
     getRoomInfo(roomId);
   };
 
+  const inviteRoom = async ({ userId, roomId }) => {
+    const checkIn = await checkInGroupDB(userId, roomId);
+    if (checkIn) {
+      console.log("Check before invite if", userStore);
+
+      io.to(socket.id).emit("room:invite", {
+        status: true,
+        message: `${userId} currently in this room ${roomId} `,
+      });
+    } else {
+      const userStore = checkInCurrentRoom(userId, roomId);
+      console.log("do something");
+
+      console.log("Check before invite else", userStore);
+
+      // io.to(socket.id).emit("room:invite", {
+      //   status: true,
+      //   message: `${userId} currently in this room ${roomId} `,
+      // });
+    }
+  };
+
   return {
     getRoomInfo,
     joinRoom,
     leaveRoom,
     chatToGroup,
-    addMember,
+    inviteRoom,
   };
 };
