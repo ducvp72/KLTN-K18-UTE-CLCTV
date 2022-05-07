@@ -66,7 +66,7 @@ module.exports = (io, socket, userInfo) => {
   };
 
   const leaveRoom = async (roomId) => {
-    const user = checkInCurrentRoom(userInfo.id, roomId);
+    const user = checkInRoomById(userInfo.id, roomId);
 
     const leaveTemp = {
       text: `${userInfo.fullname}  has left this room : ${roomId}`,
@@ -118,11 +118,7 @@ module.exports = (io, socket, userInfo) => {
         message: `${userId} currently in this room ${roomId} `,
       });
     } else {
-      const userStore = checkInCurrentRoom(userId, roomId);
       console.log("do something");
-
-      console.log("Check before invite else", userStore);
-
       // io.to(socket.id).emit("room:invite", {
       //   status: true,
       //   message: `${userId} currently in this room ${roomId} `,

@@ -67,7 +67,6 @@ const getMemberInRoom = (idR) => {
 // deleteRoomOfUser(1, 7);
 
 //check InRoom
-// console.log(checkInCurrentRoom(1, 5));
 
 //tim user id
 // console.log(findUserById(1).roomId);
