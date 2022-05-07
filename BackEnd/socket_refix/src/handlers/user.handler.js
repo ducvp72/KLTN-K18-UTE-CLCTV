@@ -25,7 +25,7 @@ module.exports = async (io, socket, userInfo) => {
   await storeService.addUser(
     socket.handshake.auth.userId,
     socket.id,
-    userInfo.fullname,
+    userInfo?.fullname,
     arrGroup
   );
 

@@ -65,8 +65,6 @@ const onConnection = async (socket) => {
     return;
   }
 
-  console.log("aaaas");
-
   try {
     userInfo = await userService.getUserById(socket.handshake.auth.userId);
   } catch (error) {
