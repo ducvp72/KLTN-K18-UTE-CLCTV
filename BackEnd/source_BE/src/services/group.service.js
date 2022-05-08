@@ -640,10 +640,16 @@ const userJoinGroupByCode = async (user, groupId, code) => {
   if (checkIn) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You was in this group');
   }
+
+  const findGroup = await Group.findById(groupId).populate('admin');
+
+  if (findGroup.status === 'close') {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Group is full');
+  }
+
   await codeService
     .verifyCodeJoinGroup(code, groupId)
     .then(async () => {
-      const findGroup = await Group.findById(groupId).populate('admin');
       await addToGroup(user, groupId, findGroup);
     })
     .catch((err) => {
@@ -663,6 +669,7 @@ const setStatusGroup = async (user, groupId, status) => {
     {
       new: true,
       useFindAndModify: false,
+      timestamps: false,
     }
   )
     .then((res) => {
