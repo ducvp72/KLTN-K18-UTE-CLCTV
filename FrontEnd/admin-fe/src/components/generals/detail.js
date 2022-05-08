@@ -71,7 +71,7 @@ export const Detail = () => {
                     : `text-red-500`
                 }`}
               >
-                {user.isActivated.toString() === "false" ? (
+                {user.isActivated.toString() === "true" ? (
                   <p className=" w-5 h-5 rounded-full bg-green-500"></p>
                 ) : (
                   <p className=" w-5 h-5 rounded-full bg-red-500"></p>
