@@ -1,10 +1,10 @@
 const httpStatus = require('http-status');
 const moment = require('moment');
-const { User, Search, Friend, WaitingFriend, Group, UserGroup, WaitingGroup } = require('../models');
+const { Search, Group, UserGroup, WaitingGroup } = require('../models');
 const ApiError = require('../utils/ApiError');
-
 const changeName = require('../utils/sort');
-const { userService, friendService } = require('../services');
+const { userService, friendService, codeService } = require('../services');
+const { sendMess } = require('../services/message.service.js');
 
 const checkMember = async (groupR) => {
   console.log(groupR);
@@ -99,7 +99,7 @@ const createChat = async (admin, memberId) => {
     groupName: memberN.fullname,
     admin: admin.id,
     groupType: 'personal',
-  });
+  }).then;
   await UserGroup.create({
     groupId: chat.id,
     member: memberId,
@@ -111,6 +111,8 @@ const createChat = async (admin, memberId) => {
     member: admin.id,
     admin: admin.id,
   });
+
+  // await autoUpdateNameGroup();
 
   return chat;
 };
@@ -198,8 +200,6 @@ const isInGroup = async (member, groupId) => {
 };
 
 const addMember = async (user, groupR) => {
-  console.log('groupR', groupR);
-
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < groupR.memberId.length; i++) {
     // eslint-disable-next-line no-await-in-loop
@@ -236,9 +236,9 @@ const addMember = async (user, groupR) => {
       groupName += `${userM[i].member.fullname}, `;
     }
     groupName = groupName.trim().slice(0, -1);
+
     const subName = await changeName(groupName);
     if (userM.length > 2) {
-      console.log(userM.length);
       await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName, groupType: 'public' });
     } else await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName, groupType: 'personal' });
   }
@@ -273,6 +273,7 @@ const createGroup = async (user, groupR) => {
         //Them user vao group
         await UserGroup.insertMany(arrUser);
         group = await autoUpdateNameGroup(res._id, user.id);
+        await codeService.generateVerifyCodeGroup(res.id);
       }
     })
     .catch((err) => {
@@ -301,6 +302,12 @@ const leaveGroup = async (user, groupR) => {
       await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName, groupType: 'public' });
     } else await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName, groupType: 'personal' });
   }
+  const mess = {
+    groupId: groupR.groupId,
+    text: `${user.fullname} has left  group`,
+    typeId: '999',
+  };
+  await sendMess({ id: user.id }, mess);
 };
 
 const deleteMember = async (user, GroupR) => {
@@ -308,10 +315,22 @@ const deleteMember = async (user, GroupR) => {
   if (JSON.stringify(group.admin) !== `"${user.id}"`) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You must be admin of group !');
   }
-  await UserGroup.deleteMany({ groupId: GroupR.groupId, member: { $in: GroupR.memberId } });
+
+  const userDel = GroupR.memberId.map((x) => x.userId);
+
+  await UserGroup.deleteMany({ groupId: GroupR.groupId, member: { $in: userDel } });
+
   if (group.isChangeName === false) {
     await autoUpdateNameGroup(GroupR.groupId, user.id);
   }
+  GroupR.memberId.forEach(async (item) => {
+    const mess = {
+      groupId: GroupR.groupId,
+      text: `Admin deleted ${item.fullname}`,
+      typeId: '999',
+    };
+    await sendMess({ id: user.id }, mess);
+  });
 };
 
 const checkAdminGroup = async (adminId, groupId) => {
@@ -409,9 +428,6 @@ const getMyGroup = async (user, filter, options) => {
 
 const deleteGroup = async (user, groupR) => {
   const find = await Group.find({ admin: user.id, _id: { $in: groupR.groupId } }).populate('admin');
-  // const checkMem = await UserGroup.find({ member: user.id, groupId: { $in: groupR.groupId } });
-  // console.log('find', find);
-  // console.log('checkMem', checkMem);
 
   if (find.length > 0) {
     throw new ApiError(
@@ -421,13 +437,20 @@ const deleteGroup = async (user, groupR) => {
   }
   try {
     await UserGroup.deleteMany({ member: user.id, groupId: { $in: groupR.groupId } });
+
+    groupR.groupId.forEach(async (id) => {
+      const mess = {
+        groupId: id,
+        text: `${user.fullname} has left  group`,
+        typeId: '999',
+      };
+      await sendMess({ id: user.id }, mess);
+    });
+
     const groupS = await Group.find({ _id: { $in: groupR.groupId } });
-    console.log('groups', groupS);
+
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < groupS.length; i++) {
-      // eslint-disable-next-line no-await-in-loop
-      // console.log('groups', groupS[i]._id);
-      // console.log('admin', groupS[i].admin);
       // eslint-disable-next-line no-await-in-loop
       if (groupS[i].isChangeName === false) {
         // eslint-disable-next-line no-await-in-loop
@@ -446,8 +469,6 @@ const searchMember = async (userR, filter, options) => {
   const results = [];
   const { page, limit, totalPages, totalResults } = users;
   // eslint-disable-next-line no-restricted-syntax
-  // totalResults = totalResults - 1;
-  // eslint-disable-next-line no-restricted-syntax
   for (const item of users.results) {
     const newUser = {};
     const userId = item.user.id;
@@ -461,7 +482,6 @@ const searchMember = async (userR, filter, options) => {
     const avatar = item.user.avatar;
     // eslint-disable-next-line no-await-in-loop
     const isFriend = await friendService.isFriend(userR.id, userId);
-    // console.log(isFriend);
     results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
   }
   return { results, page, limit, totalPages, totalResults };
@@ -473,8 +493,6 @@ const getListToAccept = async (userR, filter, options) => {
   const users = await Search.paginateWaitingGroup(members, filter, options);
   const results = [];
   const { page, limit, totalPages, totalResults } = users;
-  // eslint-disable-next-line no-restricted-syntax
-  // totalResults = totalResults - 1;
   // eslint-disable-next-line no-restricted-syntax
   for (const item of users.results) {
     const newUser = {};
@@ -496,8 +514,6 @@ const getListToAccept = async (userR, filter, options) => {
 };
 
 const getGroupLink = async (memberId, groupId) => {
-  console.log('memberId', memberId);
-  console.log('groupId', groupId);
   let check = 0;
   let objGroup;
   await UserGroup.findOne({ member: memberId, groupId })
@@ -578,6 +594,86 @@ const adjustGroup = async (groupId, seen) => {
   return rs;
 };
 
+const addToGroup = async (userId, groupId, GroupInfo) => {
+  const item = { member: userId.id, groupId, admin: GroupInfo.admin.id };
+  console.log('item', item);
+
+  //Them user vao group
+  await UserGroup.create(item);
+
+  //Kiem tra isChangeName
+  let groupName = '';
+
+  if (GroupInfo.isChangeName === false) {
+    const userM = await UserGroup.find({ groupId }).populate('member');
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < userM.length; i++) {
+      if (userM[i].member.fullname === GroupInfo.admin.fullname) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      groupName += `${userM[i].member.fullname}, `;
+    }
+    groupName = groupName.trim().slice(0, -1);
+    const subName = await changeName(groupName);
+    if (userM.length > 2) {
+      // console.log(userM.length);
+      await Group.findByIdAndUpdate(groupId, { groupName, subName, groupType: 'public' });
+    } else {
+      await Group.findByIdAndUpdate(groupId, { groupName, subName, groupType: 'personal' });
+    }
+    const mess = {
+      groupId,
+      text: `${userId.fullname} has join to group`,
+      typeId: '999',
+    };
+    await sendMess({ id: userId.id }, mess);
+  }
+};
+
+const userJoinGroupByCode = async (user, groupId, code) => {
+  const checkIn = await UserGroup.findOne({
+    groupId,
+    member: user.id,
+  });
+
+  if (checkIn) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'You was in this group');
+  }
+  await codeService
+    .verifyCodeJoinGroup(code, groupId)
+    .then(async () => {
+      const findGroup = await Group.findById(groupId).populate('admin');
+      await addToGroup(user, groupId, findGroup);
+    })
+    .catch((err) => {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
+    });
+};
+
+const setStatusGroup = async (user, groupId, status) => {
+  let Res;
+  const group = await Group.findById(groupId);
+  if (!group) throw new ApiError(httpStatus.NOT_FOUND, 'Cant not find group');
+  if (JSON.stringify(group.admin) !== `"${user.id}"`) throw new ApiError(httpStatus.BAD_REQUEST, 'You are not admin group');
+
+  await Group.findByIdAndUpdate(
+    groupId,
+    { status },
+    {
+      new: true,
+      useFindAndModify: false,
+    }
+  )
+    .then((res) => {
+      Res = res;
+    })
+    .catch((err) => {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
+    });
+  return Res;
+};
+
 module.exports = {
   createChat,
   checkMember,
@@ -601,4 +697,6 @@ module.exports = {
   getGroupLink,
   getGroupPrivate,
   adjustGroup,
+  userJoinGroupByCode,
+  setStatusGroup,
 };

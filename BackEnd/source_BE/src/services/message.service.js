@@ -98,14 +98,10 @@ const checkTosee = async (member, groupId) => {
 };
 
 const sendMess = async (user, req) => {
-  await checkMem(user.id, req.groupId);
-
+  // await checkMem(user.id, req.groupId);
   // const hashMess = generateMessage(user.id, req.groupId, req.text);
-
   // console.log('hash', hashMess);
-
   // const decode = await decodeMessage(hashMess);
-
   // console.log('decode', decode.sub);
   let m;
   try {

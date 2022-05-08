@@ -117,6 +117,16 @@ const adjustGroup = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(rs);
 });
 
+const userJoinGroupByCode = catchAsync(async (req, res) => {
+  const rs = await groupService.userJoinGroupByCode(req.user, req.body.groupId, req.body.code);
+  res.status(httpStatus.OK).send(rs);
+});
+
+const setStatusGroup = catchAsync(async (req, res) => {
+  const rs = await groupService.setStatusGroup(req.user, req.body.groupId, req.body.status);
+  res.status(httpStatus.OK).send(rs);
+});
+
 module.exports = {
   checkMember,
   getGroupById,
@@ -139,4 +149,6 @@ module.exports = {
   getGroupLink,
   getGroupPrivate,
   adjustGroup,
+  userJoinGroupByCode,
+  setStatusGroup,
 };

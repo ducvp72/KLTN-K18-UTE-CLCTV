@@ -36,6 +36,12 @@ const groupSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+    status: {
+      type: String,
+      required: true,
+      enum: ['close', 'open'],
+      default: 'open',
+    },
   },
   {
     timestamps: true,

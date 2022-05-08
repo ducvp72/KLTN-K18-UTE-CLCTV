@@ -23,6 +23,16 @@ const saveCode = async (code, userId, expires, blacklisted = false) => {
   return codeDoc;
 };
 
+const saveCodeGroup = async (code, group, expires, blacklisted = false) => {
+  const codeDoc = await Code.create({
+    code,
+    group,
+    expires: expires.toDate(),
+    blacklisted,
+  });
+  return codeDoc;
+};
+
 const verifyCode = async (code, user) => {
   const codeDoc = await Code.findOne({ code, user, blacklisted: false });
   const countExpire = codeDoc.expires - Date.now();
@@ -51,6 +61,19 @@ const verifyCodeResetPassword = async (code, email) => {
   return codeDoc;
 };
 
+const verifyCodeJoinGroup = async (code, group) => {
+  const codeDoc = await Code.findOne({ code, group, blacklisted: false });
+  const countExpire = codeDoc.expires - Date.now();
+  // eslint-disable-next-line no-console
+  if (countExpire <= 0) {
+    throw new Error('Code expired');
+  }
+  if (!codeDoc) {
+    throw new Error('Code not found');
+  }
+  return codeDoc;
+};
+
 /**
  * Generate verify email code
  * @param {User} user
@@ -63,9 +86,18 @@ const generateVerifyCode = async (user) => {
   return verificationCode;
 };
 
+const generateVerifyCodeGroup = async (group) => {
+  const expires = moment().add(config.code.verifyExpirationMinutesGroup, 'minutes');
+  const verificationCode = Math.floor(10000 + Math.random() * 9000);
+  await saveCodeGroup(verificationCode, group, expires);
+  return verificationCode;
+};
+
 module.exports = {
   saveCode,
   verifyCode,
   generateVerifyCode,
   verifyCodeResetPassword,
+  generateVerifyCodeGroup,
+  verifyCodeJoinGroup,
 };

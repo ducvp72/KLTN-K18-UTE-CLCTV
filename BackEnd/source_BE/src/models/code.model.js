@@ -11,7 +11,11 @@ const codeSchema = mongoose.Schema(
     user: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'User',
-      required: true,
+      // required: true,
+    },
+    group: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Group',
     },
     expires: {
       type: Date,

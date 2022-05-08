@@ -9,6 +9,8 @@ const auth = require('../../middlewares/auth');
 
 router.get('/getMyGroup', auth(), validate(groupValidation.getListGroup), groupController.getMyGroup);
 router.get('/getGroupPrivate', auth(), validate(groupValidation.getGroupPrivate), groupController.getGroupPrivate);
+router.put('/setStatusJoin', auth(), validate(groupValidation.setStatusGroup), groupController.setStatusGroup);
+router.post('/joinGroupByCode', auth(), validate(groupValidation.joinGroupByCode), groupController.userJoinGroupByCode);
 
 router.get('/getUserToAdd', auth(), validate(groupValidation.getUserToAdd), groupController.getUsersToAdd);
 router.post('/createChat', auth(), validate(groupValidation.member), groupController.createChat);
@@ -19,7 +21,7 @@ router.delete('/deleteNameGroup', auth(), validate(groupValidation.deleteNameGro
 router.delete('/deleteGroup', auth(), validate(groupValidation.deleteGroup), groupController.deleteGroup);
 router.post('/addMember', auth(), validate(groupValidation.addMember), groupController.addMember);
 router.delete('/leaveGroup', auth(), validate(groupValidation.getGroupByID), groupController.leaveGroup);
-router.delete('/deleteMember', auth(), validate(groupValidation.addMember), groupController.deleteMember);
+router.delete('/deleteMember', auth(), validate(groupValidation.delMember), groupController.deleteMember);
 router.get('/getWaitingGroupList', auth(), validate(groupValidation.getListWaiting), groupController.getListToAccept);
 router.get('/checkMember', validate(groupValidation.groupMember), groupController.checkMember);
 router.get('/searchMember', auth(), validate(groupValidation.getUserToAdd), groupController.searchMember);

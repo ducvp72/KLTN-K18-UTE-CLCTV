@@ -24,6 +24,8 @@ const envVarsSchema = Joi.object()
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     VERIFY_EXPIRATION_MINUTES: Joi.number().default(10).description('minutes after which send verify code'),
+    VERIFY_EXPIRATION_MINUTES_GROUP: Joi.number().default(10).description('minutes after which create verify code'),
+
     SMS_USERNAME: Joi.string().description('username for sms service from twilio'),
     SMS_PASSWORD: Joi.string().description('password for sms service from twilio'),
     CLOUDINARY_NAME: Joi.string().description('cloudinary name'),
@@ -71,6 +73,7 @@ module.exports = {
   },
   code: {
     verifyExpirationMinutes: envVars.VERIFY_EXPIRATION_MINUTES,
+    verifyExpirationMinutesGroup: envVars.VERIFY_EXPIRATION_MINUTES_GROUP,
   },
   sms: {
     smtp: {

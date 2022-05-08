@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { objectId, objectIdArr } = require('./custom.validation');
+const { objectId, objectIdArr, objectIdArrDel } = require('./custom.validation');
 
 const waitingMember = {
   body: Joi.object().keys({
@@ -17,6 +17,13 @@ const addMember = {
   body: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
     memberId: Joi.array().custom(objectIdArr).required(),
+  }),
+};
+
+const delMember = {
+  body: Joi.object().keys({
+    groupId: Joi.string().custom(objectId).required(),
+    memberId: Joi.array().custom(objectIdArrDel).required(),
   }),
 };
 
@@ -109,6 +116,19 @@ const getListWaiting = {
   }),
 };
 
+const setStatusGroup = {
+  body: Joi.object().keys({
+    groupId: Joi.string().custom(objectId).required(),
+    status: Joi.string().required().valid('close', 'open'),
+  }),
+};
+const joinGroupByCode = {
+  body: Joi.object().keys({
+    groupId: Joi.string().custom(objectId).required(),
+    code: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   getListWaiting,
   createGroup,
@@ -125,4 +145,7 @@ module.exports = {
   deleteGroup,
   getGroupPrivate,
   adjustGroup,
+  setStatusGroup,
+  joinGroupByCode,
+  delMember,
 };
