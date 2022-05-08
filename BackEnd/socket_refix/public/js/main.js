@@ -29,9 +29,10 @@ const changeUser = async () => {
   // });
   // http://localhost:8000
   //https://socket-ute-v2.herokuapp.com
+  // http://nodejsapi.eastasia.cloudapp.azure.com:8000
 
   //sua duong link o day
-  socket = await io("http://nodejsapi.eastasia.cloudapp.azure.com:8000/", {
+  socket = await io("http://localhost:8000", {
     transports: ["polling"],
     reconnectionDelayMax: 10000,
     auth: { userId: token },
@@ -49,8 +50,6 @@ const changeUser = async () => {
     // console.log(err.toString());
   });
 
-  // changeRoom();
-
   socket.on("connect", () => {
     console.log("Your socket id: ", socket.id);
 
@@ -59,6 +58,10 @@ const changeUser = async () => {
       console.log("ON EVENT - room:chat", message);
       outputMessage(message);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+
+    socket.on("room:getout", ({ roomId }) => {
+      adminKickRoom(roomId);
     });
 
     //getUserInfo with socket
@@ -92,11 +95,16 @@ const changeUser = async () => {
 // Join chatroom
 const changeRoom = () => {
   const roomId = document.getElementById("roomId").value;
-  // socket.emit("room:join", roomId);
-  // socket.emit("room:info", {
-  //   roomId,
-  // });
-  console.log(roomId);
+  socket.emit("room:join", roomId);
+  console.log("roomId", roomId);
+};
+
+const adminKickRoom = (roomId) => {
+  console.log(`M bi admin kick roi con ${roomId}`);
+  setTimeout(() => {
+    socket.emit("room:kickByAdmin", roomId);
+  }, 500);
+  // socket.emit("room:out", roomId);
 };
 
 const leaveSpecialRoom = () => {
@@ -122,10 +130,12 @@ const inviteSpecialRoom = (status, message) => {
   }
 };
 
-const inviteUser = () => {
-  const userId = document.getElementById("inviterId").value;
+const kickUser = () => {
+  const userId = document.getElementById("deleteId").value;
   const roomId = document.getElementById("roomId").value;
-  socket.emit("room:invite", { userId, roomId });
+  console.log("userId", userId);
+  console.log("roomId", roomId);
+  socket.emit("room:kick", { userId, roomId });
 };
 
 // Message submit

@@ -51,6 +51,8 @@ module.exports = async (io, socket, userInfo) => {
       },
     };
 
+    // console.log(userGroups[i].groupId.toString());
+
     // Broadcast when a user connects
     await socket.broadcast
       .to(userGroups[i].groupId.toString())

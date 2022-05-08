@@ -83,16 +83,17 @@ const onConnection = async (socket) => {
 
   socket.on("disconnect", () => {
     //Check if user in room
-    const user = storeService.findUserById(socket.handshake.auth.userId);
-
-    if (!user) return;
+    // const user = storeService.findUserById(socket.handshake.auth.userId);
+    const user = storeService.getInfoById(socket.handshake.auth.userId);
 
     storeService.deleteUserById(socket.handshake.auth.userId);
 
+    if (!user) return;
+    console.log("user", user);
     // socket.emit("room:chat", formatMessage(leaveTempSocket));
 
     // Send users and room info to client was join
-    user?.roomId?.forEach((room) => {
+    user?.roomId.forEach((room) => {
       //info to all room that user join
       io.to(room).emit(
         "room:chat",

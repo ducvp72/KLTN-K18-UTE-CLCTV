@@ -5,6 +5,11 @@ const findUserById = (userId) => {
   return check;
 };
 
+const getInfoById = (userId) => {
+  const check = userMap.get(userId);
+  return check;
+};
+
 const checkInRoomById = (idU, idR) => {
   return userMap.get(idU).roomId.find((x) => x === idR) ? true : false;
 };
@@ -24,7 +29,7 @@ const deleteUserById = (idU) => {
   console.log("after remove", userMap);
 };
 
-const addRoomForUser = (idU, roomAdd) => {
+const addRoomForUser = async (idU, roomAdd) => {
   const check = checkInRoomById(idU, roomAdd);
   if (check) {
     console.log("co roi");
@@ -91,4 +96,5 @@ module.exports = {
   addRoomForUser,
   getMemberInRoom,
   checkInRoomById,
+  getInfoById,
 };
