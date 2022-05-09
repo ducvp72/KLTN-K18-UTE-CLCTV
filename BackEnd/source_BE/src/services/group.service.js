@@ -66,7 +66,6 @@ const getGroupById = async (adminId, groupId) => {
 };
 
 const getGroupInfo = async (groupId) => {
-  console.log('ok ddd');
   const find = await Group.findById(groupId).populate({
     path: 'admin',
     select: 'fullname username avatar gender birth -_id',

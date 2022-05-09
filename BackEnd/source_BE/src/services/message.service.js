@@ -1,12 +1,19 @@
 /* eslint-disable no-param-reassign */
 const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
-const { userService, mediaService, groupService } = require('.');
-const { User, Search, Message, Group, UserGroup } = require('../models');
-const changeName = require('../utils/sort');
+const { Message, Group, UserGroup } = require('../models');
 const ApiError = require('../utils/ApiError');
-const { fileTypes, files } = require('../config/fileTypes');
+const { fileTypes } = require('../config/fileTypes');
+// const { checkMember } = require('./group.service');
 const config = require('../config/config');
+
+// const checkMem = async (userId, groupId) => {
+//   const value = { groupId, userId };
+//   const checkM = await checkMember(value);
+//   if (!checkM) {
+//     throw new ApiError(httpStatus.FORBIDDEN, 'You must be member of group');
+//   }
+// };
 
 const autoUpdateDate = async (groupId) => {
   try {
@@ -16,16 +23,8 @@ const autoUpdateDate = async (groupId) => {
   }
 };
 
-const checkMem = async (userId, groupId) => {
-  const value = { groupId, userId };
-  const checkMember = await groupService.checkMember(value);
-  if (!checkMember) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'You must be member of group');
-  }
-};
-
 const getMess = async (userId, groupId, options) => {
-  await checkMem(userId, groupId);
+  // await checkMem(userId, groupId);
   try {
     let messages;
     options.populate = 'sender';
@@ -161,11 +160,11 @@ const sendMess = async (user, req) => {
 };
 
 const getDowladFile = async (user, file, req) => {
-  await checkMem(user.id, req.groupId);
+  // await checkMem(user.id, req.groupId);
 };
 
 const recallMess = async (user, req) => {
-  await checkMem(user.id, req.groupId);
+  // await checkMem(user.id, req.groupId);
   const find = await Message.findById(req.messId).populate('sender');
   try {
     await Message.findByIdAndUpdate(req.messId, {
@@ -187,7 +186,7 @@ const deleteRecall = async (user, req) => {
 };
 
 const sendLike = async (user, req) => {
-  await checkMem(user.id, req.groupId);
+  // await checkMem(user.id, req.groupId);
   let messN;
   try {
     const newM = await Message.create({
@@ -204,7 +203,7 @@ const sendLike = async (user, req) => {
 };
 
 const sendLove = async (user, req) => {
-  await checkMem(user.id, req.groupId);
+  // await checkMem(user.id, req.groupId);
   let messN;
   try {
     const newM = await Message.create({
