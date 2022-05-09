@@ -93,33 +93,32 @@ const onConnection = async (socket) => {
     // socket.emit("room:chat", formatMessage(leaveTempSocket));
 
     // Send users and room info to client was join
-    user?.roomId.forEach((room) => {
-      //info to all room that user join
-      io.to(room).emit(
-        "room:chat",
-        formatMessage({
-          text: `${userInfo.fullname}  has left this room: ${room} `,
-          image: null,
-          video: null,
-          createdAt: `${new Date()}`,
-          updatedAt: `${new Date()}`,
-          typeId: new Date().getTime(),
-          id: "96969696969696",
-          user: {
-            avatar:
-              "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
-            name: `${userInfo.fullname}`,
-            _id: "6969696969696969",
-          },
-        })
-      );
+    // user?.roomId.forEach((room) => {
+    //   //info to all room that user join
+    //   io.to(room).emit(
+    //     "room:chat",
+    //     formatMessage({
+    //       text: `${userInfo.fullname}  has left this room: ${room} `,
+    //       image: null,
+    //       video: null,
+    //       createdAt: `${new Date()}`,
+    //       updatedAt: `${new Date()}`,
+    //       typeId: new Date().getTime(),
+    //       id: "96969696969696",
+    //       user: {
+    //         avatar:
+    //           "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
+    //         name: `${userInfo.fullname}`,
+    //         _id: "6969696969696969",
+    //       },
+    //     })
+    //   );
 
-      //reset member in room to all user left in room
-      io.to(room).emit("room:info", {
-        room: room,
-        users: storeService.getMemberInRoom(room),
-      });
-    });
+    //   io.to(room).emit("room:info", {
+    //     room: room,
+    //     users: storeService.getMemberInRoom(room),
+    //   });
+    // });
   });
 };
 

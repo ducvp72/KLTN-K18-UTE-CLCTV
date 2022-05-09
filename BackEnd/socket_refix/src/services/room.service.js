@@ -103,7 +103,7 @@ module.exports = (io, socket, userInfo) => {
           },
         };
         // Broadcast when a user connects
-        socket.broadcast.to(roomId).emit("room:chat", formatMessage(temp));
+        // socket.broadcast.to(roomId).emit("room:chat", formatMessage(temp));
         await addRoomForUser(userInfo.id, roomId);
         getRoomInfo(roomId);
         console.log("RoomHandler", socket.rooms);
@@ -149,7 +149,7 @@ module.exports = (io, socket, userInfo) => {
 
     await deleteRoomOfUser(userInfo.id, roomId);
 
-    socket.to(roomId).emit("room:chat", formatMessage(leaveTemp));
+    // socket.to(roomId).emit("room:chat", formatMessage(leaveTemp));
 
     getRoomInfo(roomId);
   };
@@ -204,7 +204,7 @@ module.exports = (io, socket, userInfo) => {
 
     await deleteRoomOfUser(userInfo.id, roomId);
 
-    socket.to(roomId).emit("room:chat", formatMessage(leaveTemp));
+    // socket.to(roomId).emit("room:chat", formatMessage(leaveTemp));
 
     getRoomInfo(roomId);
 

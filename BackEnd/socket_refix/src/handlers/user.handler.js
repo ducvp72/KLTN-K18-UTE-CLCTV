@@ -54,9 +54,9 @@ module.exports = async (io, socket, userInfo) => {
     // console.log(userGroups[i].groupId.toString());
 
     // Broadcast when a user connects
-    await socket.broadcast
-      .to(userGroups[i].groupId.toString())
-      .emit("room:chat", formatMessage(temp));
+    // await socket.broadcast
+    //   .to(userGroups[i].groupId.toString())
+    //   .emit("room:chat", formatMessage(temp));
   }
 
   socket.emit("user:getUserInfo", { userInfo, socketId: socket.id });
