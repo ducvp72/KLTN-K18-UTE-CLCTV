@@ -98,7 +98,7 @@ const createChat = async (admin, memberId) => {
     groupName: memberN.fullname,
     admin: admin.id,
     groupType: 'personal',
-  }).then;
+  });
   await UserGroup.create({
     groupId: chat.id,
     member: memberId,
