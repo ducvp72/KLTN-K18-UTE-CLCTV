@@ -10,7 +10,7 @@ const createChat = catchAsync(async (req, res) => {
 });
 
 const createGroup = catchAsync(async (req, res) => {
-  const result = await groupService.createGroup(req.user, req.body);
+  const result = await groupService.createGroup(req.user);
   res.status(httpStatus.CREATED).send(result);
 });
 

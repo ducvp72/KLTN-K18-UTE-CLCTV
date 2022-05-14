@@ -55,7 +55,7 @@ const getListMess = async (user, filter, options) => {
   const { page, limit, totalPages, totalResults } = rs;
   // eslint-disable-next-line no-restricted-syntax
   for (const item of rs.results) {
-    if (item.groupType === 'personal') {
+    if (item.groupType === 'personal' || item.groupType === 'public') {
       // eslint-disable-next-line no-await-in-loop
       const check = await UserGroup.find({ groupId: item._id }).populate({ path: 'member' });
       // item.member = check.member;

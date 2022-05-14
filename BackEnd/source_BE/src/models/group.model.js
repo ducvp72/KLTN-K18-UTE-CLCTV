@@ -24,7 +24,7 @@ const groupSchema = mongoose.Schema(
     last: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'Message',
-      // required: true,
+      required: false,
     },
     groupType: {
       type: String,

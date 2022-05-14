@@ -9,11 +9,14 @@ const hashedPassword = bcrypt.hashSync(password, salt);
 
 const userOne = {
   _id: mongoose.Types.ObjectId(),
-  name: faker.name.findName(),
+  fullname: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'user',
   isEmailVerified: false,
+  gender: 'male',
+  username: 'Lam Bui',
+  birth: '07/02/2000',
 };
 
 const userTwo = {

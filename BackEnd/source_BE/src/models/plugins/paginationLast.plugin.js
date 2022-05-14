@@ -21,7 +21,7 @@ const paginate = (schema) => {
   schema.statics.paginateLast = async function (groupArray, filter, options) {
     // eslint-disable-next-line no-param-reassign
 
-    options.populate = 'last admin';
+    options.populate = 'last.sender admin';
 
     let sort = '';
     if (options.sortBy) {
@@ -76,19 +76,20 @@ const paginate = (schema) => {
     return Promise.all([countPromise, docsPromise]).then((values) => {
       // eslint-disable-next-line prefer-const
       let [totalResults, results] = values;
-
+      console.log('docsPromise =>> ' + JSON.stringify(values));
       const users = [];
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
         const userN = JSON.parse(JSON.stringify(i));
+        // console.log('userN: ' + JSON.stringify(userN));
         delete userN.isChangeName;
         userN._id = userN.id;
         delete userN.id;
         userN.last._id = userN.last.id;
+        // userN.last._id = userN.last.id;
         delete userN.last.id;
         userN.lastMessage = userN.last;
         delete userN.last;
-
         users.push(userN);
       }
       results = users;

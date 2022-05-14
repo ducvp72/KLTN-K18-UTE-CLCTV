@@ -243,9 +243,9 @@ const addMember = async (user, groupR) => {
   }
 };
 
-const createGroup = async (user, groupR) => {
-  groupR.memberId.push(user.id);
-  console.log(groupR);
+const createGroup = async (user) => {
+  // groupR.memberId.push(user.id);
+  // console.log(groupR);
   let group;
   // if (!groupR) {
   //   throw new ApiError(httpStatus.BAD_REQUEST, 'Please add your group name !');
@@ -259,20 +259,22 @@ const createGroup = async (user, groupR) => {
     groupType: 'public',
   })
     .then(async (res) => {
-      // group = res;
+      group = res;
       // eslint-disable-next-line no-plusplus
-      if (groupR.memberId && groupR.memberId.length > 0) {
-        // eslint-disable-next-line prefer-const
-        let arrUser = [];
-        // eslint-disable-next-line no-plusplus
-        for (let i = 0; i < groupR.memberId.length; i++) {
-          const item = { member: groupR.memberId[i], admin: user.id, groupId: res.id };
-          arrUser.push(item);
-        }
+      if (true) {
         //Them user vao group
-        await UserGroup.insertMany(arrUser);
-        group = await autoUpdateNameGroup(res._id, user.id);
+        await UserGroup.create({ member: user.id, admin: user.id, groupId: res.id });
+        // group = await autoUpdateNameGroup(res._id, user.id);
         await codeService.generateVerifyCodeGroup(res.id);
+
+        const xxx = {
+          groupId: res.id,
+          sender: user.id,
+          typeMessage: 'TEXT',
+          text: `${user.fullname} `,
+          typeId: 0,
+        };
+        await sendMess(user, xxx);
       }
     })
     .catch((err) => {
@@ -304,7 +306,7 @@ const leaveGroup = async (user, groupR) => {
   const mess = {
     groupId: groupR.groupId,
     text: `${user.fullname} has left  group`,
-    typeId: '999',
+    typeId: '0',
   };
   await sendMess({ id: user.id }, mess);
 };
@@ -326,7 +328,7 @@ const deleteMember = async (user, GroupR) => {
     const mess = {
       groupId: GroupR.groupId,
       text: `Admin deleted ${item.fullname}`,
-      typeId: '999',
+      typeId: '0',
     };
     await sendMess({ id: user.id }, mess);
   });
@@ -441,7 +443,7 @@ const deleteGroup = async (user, groupR) => {
       const mess = {
         groupId: id,
         text: `${user.fullname} has left  group`,
-        typeId: '999',
+        typeId: '0',
       };
       await sendMess({ id: user.id }, mess);
     });
@@ -624,7 +626,7 @@ const addToGroup = async (userId, groupId, GroupInfo) => {
     const mess = {
       groupId,
       text: `${userId.fullname} has join to group`,
-      typeId: '999',
+      typeId: '0',
     };
     await sendMess({ id: userId.id }, mess);
   }
@@ -654,6 +656,8 @@ const userJoinGroupByCode = async (user, groupId, code) => {
     .catch((err) => {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
     });
+
+  return findGroup;
 };
 
 const setStatusGroup = async (user, groupId, status) => {
