@@ -17,14 +17,27 @@ const register = catchAsync(async (req, res) => {
   verifier.verify(req.body.email, async (err, data) => {
     if (err) throw err;
     let x;
+    let qr;
     if (data.smtpCheck === 'true') {
       try {
         const user = await userService.createUser(req.body);
+
+        await user.tempQR
+          // eslint-disable-next-line no-shadow
+          .then((res) => {
+            qr = res;
+          })
+          // eslint-disable-next-line no-shadow
+          .catch((err) => {
+            // eslint-disable-next-line no-console
+            console.log(err);
+          });
+
         x = user;
         const tokens = await tokenService.generateAuthTokens(user);
         const verifyCode = await codeService.generateVerifyCode(user);
         await emailService.sendVerificationEmail(user.email, verifyCode);
-        res.status(httpStatus.CREATED).send({ user, tokens });
+        res.status(httpStatus.CREATED).send({ user, tokens, qr });
         // eslint-disable-next-line no-shadow
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -70,10 +83,21 @@ const cloneUser = catchAsync(async (req, res) => {
 });
 
 const login = catchAsync(async (req, res) => {
+  let qr;
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.send({ user, tokens });
+  await user.tempQR
+    // eslint-disable-next-line no-shadow
+    .then((res) => {
+      qr = res;
+    })
+    // eslint-disable-next-line no-shadow
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log(err);
+    });
+  res.send({ user, tokens, qr });
 });
 
 const logout = catchAsync(async (req, res) => {

@@ -20,8 +20,7 @@ if (config.env !== 'test') {
  */
 const sendEmail = async (to, subject, html) => {
   const msg = { from: config.email.from, to, subject, html };
-  const a = await transport.sendMail(msg);
-  console.log(a);
+  await transport.sendMail(msg);
 };
 
 /**
@@ -44,12 +43,10 @@ const sendResetPasswordEmail = async (to, code) => {
  * @returns {Promise}
  */
 const sendVerificationEmail = async (to, code) => {
-  console.log('Check gui mail ne');
   const subject = 'Email Verification';
   // replace this url with the link to the email verification page of your front-end app
   const text = `<h3 style="color: #1000b5">Dear user, welcome to MM App ! </h3><br/>This is your verification code:  <span style=" font-weight: bold; text-decoration: underline; font-size: 25px; color: #f70000">${code}</span></h3> <br/> <h4 style="color: #f70000">Warning: Do not share for anybody !</h4> `;
-  const check = await sendEmail(to, subject, text);
-  console.log('Check gui mail', check);
+  await sendEmail(to, subject, text);
 };
 
 /**

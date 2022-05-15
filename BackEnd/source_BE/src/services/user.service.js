@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+
 const { User, Search, Friend, WaitingFriend } = require('../models');
 const changeName = require('../utils/sort');
 const ApiError = require('../utils/ApiError');

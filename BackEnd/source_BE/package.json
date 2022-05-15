@@ -80,6 +80,7 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "pm2": "^5.1.0",
+    "qrcode": "^1.5.0",
     "smtp-email-verifier": "^1.0.2",
     "string-encode-decode": "^1.0.7",
     "swagger-jsdoc": "^6.0.8",
