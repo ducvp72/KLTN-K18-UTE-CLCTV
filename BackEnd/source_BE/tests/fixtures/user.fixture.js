@@ -13,19 +13,23 @@ const userOne = {
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'user',
-  isEmailVerified: false,
   gender: 'male',
-  username: 'Lam Bui',
+  username: 'lam.bui',
   birth: '07/02/2000',
+  avatar: 'https://res.cloudinary.com/kltn-k18-dl/image/upload/v1645972871/myGallary/defaultAvatar.png.png',
 };
 
 const userTwo = {
   _id: mongoose.Types.ObjectId(),
-  name: faker.name.findName(),
+  fullname: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'user',
-  isEmailVerified: false,
+  gender: 'male',
+  username: 'lam.bui2',
+  birth: '07/03/2000',
+  avatar: 'https://res.cloudinary.com/kltn-k18-dl/image/upload/v1645972871/myGallary/defaultAvatar.png.png',
+  isActivated: false,
 };
 
 const admin = {

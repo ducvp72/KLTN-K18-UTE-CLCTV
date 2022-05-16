@@ -18,33 +18,45 @@ const { userOneAccessToken, adminAccessToken } = require('../fixtures/token.fixt
 
 setupTestDB();
 
+const avar = 'https://res.cloudinary.com/kltn-k18-dl/image/upload/v1645972871/myGallary/defaultAvatar.png.png';
+
 describe('Auth routes', () => {
   // describe('POST /v1/auth/register', () => {
   //   let newUser;
   //   beforeEach(() => {
   //     newUser = {
-  //       name: faker.name.findName(),
+  //       fullname: faker.name.findName(),
   //       email: faker.internet.email().toLowerCase(),
-  //       password: 'password1',
+  //       password: '123456aR',
+  //       birth: '07/02/2000',
+  //       gender: 'male',
+  //       username: 'a.b.cmd',
   //     };
   //   });
 
   //   test('should return 201 and successfully register user if request data is ok', async () => {
   //     const res = await request(app).post('/v1/auth/register').send(newUser).expect(httpStatus.CREATED);
-
+  //     console.log('Res', res);
   //     expect(res.body.user).not.toHaveProperty('password');
+
   //     expect(res.body.user).toEqual({
   //       id: expect.anything(),
-  //       name: newUser.name,
+  //       fullname: newUser.fullname,
   //       email: newUser.email,
   //       role: 'user',
-  //       isEmailVerified: false,
+  //       birth: newUser.birth,
+  //       createdAt: expect.anything(),
+  //       gender: newUser.gender,
+  //       username: newUser.username,
+  //       isActivated: false,
+  //       isBanned: false,
+  //       avatar: avar,
   //     });
 
   //     const dbUser = await User.findById(res.body.user.id);
   //     expect(dbUser).toBeDefined();
   //     expect(dbUser.password).not.toBe(newUser.password);
-  //     expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: 'user', isEmailVerified: false });
+  //     expect(dbUser).toMatchObject({ fullname: newUser.fullname, email: newUser.email, role: 'user' });
 
   //     expect(res.body.tokens).toEqual({
   //       access: { token: expect.anything(), expires: expect.anything() },
@@ -94,11 +106,16 @@ describe('Auth routes', () => {
 
       expect(res.body.user).toEqual({
         id: expect.anything(),
-        name: userOne.name,
+        fullname: userOne.fullname,
         email: userOne.email,
-        role: userOne.role,
-        isEmailVerified: userOne.isEmailVerified,
-        // avatar,
+        role: 'user',
+        birth: userOne.birth,
+        createdAt: expect.anything(),
+        gender: userOne.gender,
+        username: userOne.username,
+        isActivated: false,
+        isBanned: false,
+        avatar: avar,
       });
 
       expect(res.body.tokens).toEqual({
@@ -453,7 +470,6 @@ describe('Auth routes', () => {
   //   });
   // });
 });
-
 // describe('Auth middleware', () => {
 //   test('should call next with no errors if access token is valid', async () => {
 //     await insertUsers([userOne]);

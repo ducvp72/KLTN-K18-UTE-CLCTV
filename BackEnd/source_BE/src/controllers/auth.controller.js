@@ -11,44 +11,57 @@ const checkValidEmail = catchAsync(async (req, res) => {
   });
 });
 
+// const register = catchAsync(async (req, res) => {
+//   // eslint-disable-next-line no-console
+//   const verifier = new Verifier('at_FPj6893CCr6sOWxmHpqXEVBQ8qTgg');
+//   verifier.verify(req.body.email, async (err, data) => {
+//     if (err) throw err;
+//     let qr;
+//     const user = await userService.createUser(req.body);
+//     if (data.smtpCheck === 'true') {
+//       await user.tempQR
+//         // eslint-disable-next-line no-shadow
+//         .then((res) => {
+//           qr = res;
+//         })
+//         // eslint-disable-next-line no-shadow
+//         .catch((err) => {
+//           // eslint-disable-next-line no-console
+//           console.log(err);
+//         });
+
+//       const tokens = await tokenService.generateAuthTokens(user);
+//       const verifyCode = await codeService.generateVerifyCode(user);
+//       await emailService.sendVerificationEmail(user.email, verifyCode);
+//       res.status(httpStatus.CREATED).send({ user, tokens, qr });
+//     }
+//     if (data.smtpCheck === 'false') {
+//       res.status(httpStatus.NOT_FOUND).send('Email not exists !');
+//     }
+//   });
+// });
+
 const register = catchAsync(async (req, res) => {
   // eslint-disable-next-line no-console
-  const verifier = new Verifier('at_FPj6893CCr6sOWxmHpqXEVBQ8qTgg');
-  verifier.verify(req.body.email, async (err, data) => {
-    if (err) throw err;
-    let x;
-    let qr;
-    if (data.smtpCheck === 'true') {
-      try {
-        const user = await userService.createUser(req.body);
+  let qr;
+  const user = await userService.createUser(req.body);
 
-        await user.tempQR
-          // eslint-disable-next-line no-shadow
-          .then((res) => {
-            qr = res;
-          })
-          // eslint-disable-next-line no-shadow
-          .catch((err) => {
-            // eslint-disable-next-line no-console
-            console.log(err);
-          });
+  await user.tempQR
+    // eslint-disable-next-line no-shadow
+    .then((res) => {
+      qr = res;
+    })
+    // eslint-disable-next-line no-shadow
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log(err);
+    });
 
-        x = user;
-        const tokens = await tokenService.generateAuthTokens(user);
-        const verifyCode = await codeService.generateVerifyCode(user);
-        await emailService.sendVerificationEmail(user.email, verifyCode);
-        res.status(httpStatus.CREATED).send({ user, tokens, qr });
-        // eslint-disable-next-line no-shadow
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        if (x === 0) res.status(httpStatus.BAD_REQUEST).send('username already taken !');
-        else res.status(httpStatus.BAD_REQUEST).send('Email already taken !');
-      }
-    }
-    if (data.smtpCheck === 'false') {
-      res.status(httpStatus.NOT_FOUND).send('Email not exists !');
-    }
-  });
+  const tokens = await tokenService.generateAuthTokens(user);
+  const verifyCode = await codeService.generateVerifyCode(user);
+  await emailService.sendVerificationEmail(user.email, verifyCode);
+  res.status(httpStatus.CREATED).send({ user, tokens, qr });
+  // eslint-disable-next-line no-shadow
 });
 
 const randomDate = (start, end) => {
