@@ -24,23 +24,25 @@ const parser = multer({
   limits: { fileSize: 50000000 },
   // filer out invalid filetypes
   // eslint-disable-next-line object-shorthand
-  // fileFilter: function (req, file, cb) {
-  //   // eslint-disable-next-line no-use-before-define
-  //   // checkImageType(file, cb);
-  // },
+  fileFilter: function (req, file, cb) {
+    // eslint-disable-next-line no-use-before-define
+    checkImageType(file, cb);
+  },
 });
 
 function checkImageType(file, cb) {
   // define a regex that includes the file types we accept
-  const filetypes = /jpeg|jpg|png|gif|mp4/;
+  const filetypes = /jpeg|jpg|png|gif|mp4|mp3|zip|rar|document|docx|txt|pdf|xlsx|pptx|wav|text/;
   //check the file extention
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  console.log('Ex', path.extname(file.originalname).toLowerCase());
   // more importantly, check the mimetype
+  // console.log('Info', file);
   const mimetype = filetypes.test(file.mimetype);
   // if both are good then continue
   if (mimetype && extname) return cb(null, true);
   // otherwise, return error message
-  cb('filetype');
+  cb('filetypeNull');
 }
 
 module.exports = { parser };

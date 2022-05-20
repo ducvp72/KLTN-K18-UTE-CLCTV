@@ -56,7 +56,15 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
     }
   }
 
-  console.log('ID M', m._id);
+  if (typeMessage === fileTypes.READ || fileTypes.DOWNLOAD) {
+    console.log('FILE', typeMessage);
+    try {
+      m = new Message({ groupId, sender, typeMessage, file: file.path });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   await Group.findByIdAndUpdate(groupId, {
     last: m._id,
   });

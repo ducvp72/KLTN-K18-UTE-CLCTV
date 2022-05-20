@@ -33,6 +33,10 @@ const messageSchema = new Schema(
       type: String,
       default: 'null',
     },
+    file: {
+      type: String,
+      default: 'null',
+    },
     typeId: {
       type: String,
       default: 'null',

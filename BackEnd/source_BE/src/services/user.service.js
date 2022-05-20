@@ -73,10 +73,12 @@ const queryUsers = async (filter, options) => {
 
 const queryUsersClient = async (userR, filter, options) => {
   const find = await Search.findOne({ user: userR.id }).populate({ path: 'user' });
+
   if (filter.key) {
     // eslint-disable-next-line no-param-reassign
     filter.key = await changeName(filter.key);
   }
+
   const users = await Search.paginateClient(find, filter, options);
   const results = [];
   const { page, limit, totalPages, totalResults } = users;

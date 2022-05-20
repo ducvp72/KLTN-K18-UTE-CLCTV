@@ -28,12 +28,11 @@ const sendMess = catchAsync(async (req, res) => {
 });
 
 const sendFile = catchAsync(async (req, res) => {
-  console.log(req.file);
   let typeMessage;
   const type = req.file.originalname.split('.').pop().toLowerCase();
   const getMine = req.file.mimetype.split('/')[0];
-  console.log('type', type);
-  console.log('getMine', getMine);
+  // console.log('type', type);
+  // console.log('getMine', getMine);
 
   if (getMine === 'image' || getMine === 'video' || getMine === 'audio') {
     if (type === 'jpeg' || type === 'png' || type === 'gif' || type === 'jpg') {
@@ -51,12 +50,10 @@ const sendFile = catchAsync(async (req, res) => {
       typeMessage = fileTypes.DOWNLOAD;
     }
   }
-  console.log('getypeMessagetMine', typeMessage);
 
   const kq = await mediaService.upLoadFile(req.user.id, req.file, typeMessage, req.body.groupId);
   await messageService.autoUpdateDate(req.body.groupId);
 
-  console.log('Kq', kq);
   res.status(httpStatus.CREATED).send(kq);
 });
 
