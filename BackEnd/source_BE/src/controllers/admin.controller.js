@@ -14,7 +14,7 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const admin = await adminService.loginAdminWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(admin);
-  res.send({ admin, tokens });
+  res.status(httpStatus.OK).send({ admin, tokens });
 });
 
 const deleteAdmin = catchAsync(async (req, res) => {
