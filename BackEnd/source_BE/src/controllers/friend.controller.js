@@ -22,6 +22,11 @@ const addFriend = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(friend);
 });
 
+const addFriendTest = catchAsync(async (req, res) => {
+  const friend = await friendService.acceptTest(req.user, req.body.friendId);
+  res.status(httpStatus.CREATED).send(friend);
+});
+
 const checkisBlockedFriend = catchAsync(async (req, res) => {
   const check = await friendService.isBlockedFriend(req.user, req.body.friendId);
   if (check) {
@@ -75,4 +80,5 @@ module.exports = {
   checkWaiting,
   checkisBlockedFriend,
   getListFriend,
+  addFriendTest,
 };

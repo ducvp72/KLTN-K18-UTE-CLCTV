@@ -7,6 +7,7 @@ const friendController = require('../../controllers/friend.controller');
 const router = express.Router();
 const auth = require('../../middlewares/auth');
 
+router.post('/add-friend-test', auth(), validate(friendValidation.friend), friendController.addFriendTest);
 router.post('/add-friend', auth(), validate(friendValidation.friend), friendController.addFriend);
 router.post('/accept-friend', auth(), validate(friendValidation.friend), friendController.acceptFriend);
 router.post('/unfriend', auth(), validate(friendValidation.friend), friendController.unFriend);

@@ -82,6 +82,7 @@ const addFriend = async (userId, friendId) => {
   }
   await firstWaiting(userId, friendId);
 };
+
 const firstAddFriend = async (userId, friendId) => {
   console.log('firstAddFriend', userId, '/n', friendId);
   await Friend.create({
@@ -127,6 +128,26 @@ const accept = async (user, friendId) => {
   } else {
     await cancle(user, friendId);
     //addFriend of User
+    try {
+      await firstAddFriend(user.id, friendId);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+};
+
+const acceptTest = async (user, friendId) => {
+  console.log('accept', user.id, '/n', friendId);
+
+  if (user.id === friendId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Can not add yourself !');
+  }
+  await checkUserValid(user.id, friendId);
+
+  const checkFr = await checkFriend(user.id, friendId);
+  if (checkFr) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User is your Friend !');
+  } else {
     try {
       await firstAddFriend(user.id, friendId);
     } catch (err) {
@@ -230,4 +251,5 @@ module.exports = {
   isBlockedFriend,
   queryListFriend,
   isFriend,
+  acceptTest,
 };
