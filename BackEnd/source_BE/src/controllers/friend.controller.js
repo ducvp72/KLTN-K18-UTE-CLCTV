@@ -42,7 +42,6 @@ const unFriend = catchAsync(async (req, res) => {
 });
 
 const acceptFriend = catchAsync(async (req, res) => {
-  console.log('aaaaaaaaaaaaaaaaaa');
   const friend = await friendService.accept(req.user, req.body.friendId);
   res.status(httpStatus.CREATED).send(friend);
 });
@@ -52,9 +51,17 @@ const cancleFriend = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send();
 });
 
+const deleteIvite = catchAsync(async (req, res) => {
+  if (JSON.stringify(req.user.id) === `"${req.body.friendId}"`) {
+    res.status(httpStatus.BAD_REQUEST).send('FriendId can not equal to Auth');
+  } else {
+    await friendService.deleteIvite(req.user, req.body);
+    res.status(httpStatus.OK).send();
+  }
+});
+
 const blockFriend = catchAsync(async (req, res) => {
   const friend = await friendService.blockFriend(req.user, req.body.friendId);
-  console.log('Friend', friend);
   if (friend === 0) {
     res.status(httpStatus.OK).send('Your friend was unblocked !');
     return;
@@ -63,8 +70,8 @@ const blockFriend = catchAsync(async (req, res) => {
 });
 
 const getListFriend = catchAsync(async (req, res) => {
-  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate', 'type']);
-  const filter = pick(req.query, ['fullname', 'username', 'email', 'typeFriend']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const filter = pick(req.query, ['key', 'type']);
   const rs = await friendService.queryListFriend(req.user.id, filter, options);
   // console.log('rs pro', rs);
   res.status(httpStatus.OK).send(rs);
@@ -81,4 +88,5 @@ module.exports = {
   checkisBlockedFriend,
   getListFriend,
   addFriendTest,
+  deleteIvite,
 };

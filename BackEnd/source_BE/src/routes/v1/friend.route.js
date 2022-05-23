@@ -11,6 +11,7 @@ router.post('/add-friend-test', auth(), validate(friendValidation.friend), frien
 router.post('/add-friend', auth(), validate(friendValidation.friend), friendController.addFriend);
 router.post('/accept-friend', auth(), validate(friendValidation.friend), friendController.acceptFriend);
 router.post('/unfriend', auth(), validate(friendValidation.friend), friendController.unFriend);
+router.delete('/delete-invtiation', auth(), validate(friendValidation.friend), friendController.deleteIvite);
 router.post('/cancle-addfriend', auth(), validate(friendValidation.friend), friendController.cancleFriend);
 router.post('/block-friend', auth(), validate(friendValidation.friend), friendController.blockFriend);
 router.get('/check-isFriend', auth(), validate(friendValidation.friend), friendController.checkFriend);

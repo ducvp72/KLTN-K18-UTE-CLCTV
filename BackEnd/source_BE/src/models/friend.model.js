@@ -19,6 +19,14 @@ const friendSchema = mongoose.Schema(
 friendSchema.plugin(toJSONF);
 friendSchema.plugin(paginate);
 
+// friendSchema.virtual('value').get(function () {
+//   return this.friends.fullname;
+// });
+
+// friendSchema.virtual('key').get(function () {
+//   return this.friends.id;
+// });
+
 /**
  * @typedef Friend
  */

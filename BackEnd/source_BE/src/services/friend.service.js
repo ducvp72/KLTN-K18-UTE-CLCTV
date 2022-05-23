@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const { User, Friend, WaitingFriend } = require('../models');
 const ApiError = require('../utils/ApiError');
 const userService = require('./user.service');
+const changeName = require('../utils/sort');
 
 const checkUserValid = async (user, friendId) => {
   const check = userService.getUserById(friendId);
@@ -15,8 +16,8 @@ const checkUserValid = async (user, friendId) => {
   }
 };
 const isWaiting = async (userId, friendId) => {
-  console.log('user', userId);
-  console.log('user', friendId);
+  console.log('userId', userId);
+  console.log('friendId', friendId);
 
   await checkUserValid(userId, friendId);
   const checkWaitingFriend = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
@@ -110,6 +111,27 @@ const cancle = async (user, friendId) => {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err);
+  }
+};
+
+const deleteIvite = async (user, body) => {
+  await checkUserValid(user, body.friendId);
+
+  const check = await WaitingFriend.findOneAndRemove({
+    $or: [
+      {
+        waitingFriends: [user.id, body.friendId],
+      },
+      {
+        user: [user.id, body.friendId],
+      },
+    ],
+  });
+
+  console.log(check);
+
+  if (!check) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Can not find Invitaion!');
   }
 };
 
@@ -218,6 +240,7 @@ const unFriend = async (user, friendId) => {
 };
 
 const queryListFriend = async (userId, filter, options) => {
+  // eslint-disable-next-line no-param-reassign
   filter.user = userId;
 
   const find = await Friend.find({ user: userId }).populate({
@@ -228,14 +251,6 @@ const queryListFriend = async (userId, filter, options) => {
   if (!find) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'invalid User !');
   }
-
-  // if (friends.fullname === '') fullname = ' ';
-
-  if (filter.fullname) {
-    const find = await changeName(filter.fullname);
-    filter.friend.fullname = { $regex: find || ' ', $options: 'i' };
-  }
-  await Friend.paginate(filter, options);
 
   return find;
 };
@@ -252,4 +267,5 @@ module.exports = {
   queryListFriend,
   isFriend,
   acceptTest,
+  deleteIvite,
 };
