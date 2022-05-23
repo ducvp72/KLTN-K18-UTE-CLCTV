@@ -77,6 +77,12 @@ const getListFriend = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(rs);
 });
 
+const getWaitingList = catchAsync(async (req, res) => {
+  const rs = await friendService.getWaitingList(req.user.id);
+  // console.log('rs pro', rs);
+  res.status(httpStatus.OK).send(rs);
+});
+
 module.exports = {
   addFriend,
   unFriend,
@@ -89,4 +95,5 @@ module.exports = {
   getListFriend,
   addFriendTest,
   deleteIvite,
+  getWaitingList,
 };

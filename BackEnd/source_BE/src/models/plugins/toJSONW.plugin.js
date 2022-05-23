@@ -29,16 +29,15 @@ const toJSON = (schema) => {
       });
 
       ret.id = ret._id.toString();
+      ret.sender = ret.waitingFriends;
+      ret.receiver = ret.user;
 
-      ret.value = ret.friends.fullname.toString();
-      ret.key = ret.friends.id.toString();
-
+      delete ret.user;
+      delete ret.waitingFriends;
       delete ret._id;
       delete ret.__v;
-      delete ret.password;
-      delete ret.createdAt;
       delete ret.updatedAt;
-
+      // delete ret.createdAt;
       if (transform) {
         return transform(doc, ret, options);
       }

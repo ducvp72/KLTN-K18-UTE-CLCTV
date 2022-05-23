@@ -255,6 +255,12 @@ const queryListFriend = async (userId, filter, options) => {
   return find;
 };
 
+const getWaitingList = async (userId) => {
+  console.log('xyz', userId);
+  const rs = await WaitingFriend.find({ user: userId }).populate({ path: 'waitingFriends' });
+  return rs;
+};
+
 module.exports = {
   addFriend,
   isWaiting,
@@ -268,4 +274,5 @@ module.exports = {
   isFriend,
   acceptTest,
   deleteIvite,
+  getWaitingList,
 };

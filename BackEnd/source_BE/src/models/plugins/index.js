@@ -3,6 +3,8 @@ module.exports.toJSONM = require('./toJSONM.plugin');
 module.exports.toJSONS = require('./toJSONS.plugin');
 module.exports.toJSONF = require('./toJSONF.plugin');
 module.exports.toJSONG = require('./toJSONG.plugin');
+module.exports.toJSONW = require('./toJSONW.plugin');
+
 module.exports.toJSONMESS = require('./toJSONMESS.plugin');
 
 module.exports.paginate = require('./paginate.plugin');

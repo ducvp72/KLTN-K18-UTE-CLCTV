@@ -18,5 +18,6 @@ router.get('/check-isFriend', auth(), validate(friendValidation.friend), friendC
 router.get('/check-isWaiting', auth(), validate(friendValidation.friend), friendController.checkWaiting);
 router.get('/check-isBlockedFriend', auth(), validate(friendValidation.friend), friendController.checkisBlockedFriend);
 router.get('/getListFriend', auth(), validate(friendValidation.getListFriend), friendController.getListFriend);
+router.get('/getListWaiting', auth(), friendController.getWaitingList);
 
 module.exports = router;
