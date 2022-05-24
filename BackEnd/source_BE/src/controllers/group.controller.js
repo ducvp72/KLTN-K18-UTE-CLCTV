@@ -9,6 +9,11 @@ const createChat = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(chat);
 });
 
+const getQrGroup = catchAsync(async (req, res) => {
+  const rs = await groupService.getQrGroup(req.user, req.body.groupId);
+  res.status(httpStatus.OK).send(rs);
+});
+
 const createGroup = catchAsync(async (req, res) => {
   const result = await groupService.createGroup(req.user);
   res.status(httpStatus.CREATED).send(result);
@@ -151,4 +156,5 @@ module.exports = {
   adjustGroup,
   userJoinGroupByCode,
   setStatusGroup,
+  getQrGroup,
 };

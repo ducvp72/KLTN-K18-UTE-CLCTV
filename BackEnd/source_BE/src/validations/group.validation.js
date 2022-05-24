@@ -129,6 +129,12 @@ const joinGroupByCode = {
   }),
 };
 
+const getQRGroup = {
+  body: Joi.object().keys({
+    groupId: Joi.string().custom(objectId).required(),
+  }),
+};
+
 module.exports = {
   getListWaiting,
   createGroup,
@@ -148,4 +154,5 @@ module.exports = {
   setStatusGroup,
   joinGroupByCode,
   delMember,
+  getQRGroup,
 };

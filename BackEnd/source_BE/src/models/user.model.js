@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
+const QRCode = require('qrcode');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate, paginateClient, paginateUserGroup, paginateAdmin } = require('./plugins');
 const { roleTypes, genderTypes } = require('../config/myConfig');
-const QRCode = require('qrcode');
 
 const userSchema = new mongoose.Schema(
   {

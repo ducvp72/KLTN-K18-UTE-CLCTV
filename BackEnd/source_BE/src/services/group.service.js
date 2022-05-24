@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const moment = require('moment');
-const { Search, Group, UserGroup, WaitingGroup } = require('../models');
+const QRCode = require('qrcode');
+const { Search, Group, UserGroup, WaitingGroup, Code } = require('../models');
 const ApiError = require('../utils/ApiError');
 const changeName = require('../utils/sort');
 const { userService, friendService, codeService } = require('../services');
@@ -99,6 +100,9 @@ const createChat = async (admin, memberId) => {
     admin: admin.id,
     groupType: 'personal',
   });
+
+  await codeService.generateVerifyCodeGroup(chat.id);
+
   await UserGroup.create({
     groupId: chat.id,
     member: memberId,
@@ -244,12 +248,7 @@ const addMember = async (user, groupR) => {
 };
 
 const createGroup = async (user) => {
-  // groupR.memberId.push(user.id);
-  // console.log(groupR);
   let group;
-  // if (!groupR) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Please add your group name !');
-  // }
 
   await Group.create({
     isChangeName: false,
@@ -660,11 +659,58 @@ const userJoinGroupByCode = async (user, groupId, code) => {
   return findGroup;
 };
 
+const getQrGroup = async (user, groupId) => {
+  let qr;
+  const findGroup = await Group.findById(groupId);
+
+  console.log(findGroup);
+
+  if (!findGroup) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Group invalid');
+  }
+
+  if (JSON.stringify(findGroup.admin) !== `"${user.id}"`) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'You are not admin in this group');
+  }
+
+  const findCode = await Code.findOne({ group: groupId });
+  console.log(findCode);
+  const objGroup = {
+    code: findCode.code,
+    idGroup: findCode.group,
+  };
+
+  await QRCode.toDataURL(JSON.stringify(objGroup))
+    .then((res) => {
+      // console.log(res);
+      qr = res;
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log(err);
+    });
+  return { qr };
+};
+
 const setStatusGroup = async (user, groupId, status) => {
   let Res;
   const group = await Group.findById(groupId);
   if (!group) throw new ApiError(httpStatus.NOT_FOUND, 'Cant not find group');
   if (JSON.stringify(group.admin) !== `"${user.id}"`) throw new ApiError(httpStatus.BAD_REQUEST, 'You are not admin group');
+
+  if (status === 'close') {
+    const verificationCode = Math.floor(10000 + Math.random() * 9000);
+    await Code.findOneAndUpdate(
+      {
+        group: groupId,
+      },
+      { code: verificationCode },
+      {
+        new: true,
+        useFindAndModify: false,
+      }
+    );
+  }
 
   await Group.findByIdAndUpdate(
     groupId,
@@ -685,6 +731,7 @@ const setStatusGroup = async (user, groupId, status) => {
 };
 
 module.exports = {
+  getQrGroup,
   createChat,
   checkMember,
   getUserToAdd,
