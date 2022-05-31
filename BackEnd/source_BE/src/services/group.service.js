@@ -596,12 +596,9 @@ const adjustGroup = async (groupId, seen) => {
 
 const addToGroup = async (userId, groupId, GroupInfo) => {
   const item = { member: userId.id, groupId, admin: GroupInfo.admin.id };
-  console.log('item', item);
 
-  //Them user vao group
   await UserGroup.create(item);
 
-  //Kiem tra isChangeName
   let groupName = '';
 
   if (GroupInfo.isChangeName === false) {
@@ -663,8 +660,6 @@ const getQrGroup = async (user, groupId) => {
   let qr;
   const findGroup = await Group.findById(groupId);
 
-  console.log(findGroup);
-
   if (!findGroup) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Group invalid');
   }
@@ -674,7 +669,7 @@ const getQrGroup = async (user, groupId) => {
   }
 
   const findCode = await Code.findOne({ group: groupId });
-  console.log(findCode);
+
   const objGroup = {
     code: findCode.code,
     idGroup: findCode.group,
