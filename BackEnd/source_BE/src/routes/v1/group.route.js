@@ -7,7 +7,7 @@ const groupController = require('../../controllers/group.controller');
 const router = express.Router();
 const auth = require('../../middlewares/auth');
 
-router.get('/qrGroup', auth(), validate(groupValidation.getQRGroup), groupController.getQrGroup);
+router.get('/qrGroup/:groupId', auth(), validate(groupValidation.getGroupToJoin), groupController.getQrGroup);
 router.get('/getMyGroup', auth(), validate(groupValidation.getListGroup), groupController.getMyGroup);
 router.get('/getGroupPrivate', auth(), validate(groupValidation.getGroupPrivate), groupController.getGroupPrivate);
 router.put('/setStatusJoin', auth(), validate(groupValidation.setStatusGroup), groupController.setStatusGroup);

@@ -9,7 +9,7 @@ const createChat = catchAsync(async (req, res) => {
 });
 
 const getQrGroup = catchAsync(async (req, res) => {
-  const rs = await groupService.getQrGroup(req.user, req.body.groupId);
+  const rs = await groupService.getQrGroup(req.user, req.params.groupId);
   res.status(httpStatus.OK).send(rs);
 });
 

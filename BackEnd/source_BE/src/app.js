@@ -1,7 +1,5 @@
 const express = require('express');
 
-const QRCode = require('qrcode');
-
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -69,31 +67,6 @@ app.use(errorConverter);
 
 // handle error
 app.use(errorHandler);
-
-const userS = {
-  avatar: 'https://res.cloudinary.com/kltn-k18-dl/image/upload/v1645972871/myGallary/defaultAvatar.png.png',
-  role: 'user',
-  isActivated: true,
-  isBanned: false,
-  fullname: 'Vo Phu Duc',
-  birth: '06/06/2000',
-  gender: 'male',
-  username: 'test.user',
-  email: 'duclionel0702@gmail.com',
-  createdAt: '2022-05-14T06:12:04.521Z',
-  id: '627f4834897df13328c327e8',
-};
-
-const generatorQrcode = async (req) => {
-  QRCode.toDataURL(JSON.stringify(req), function (err, url) {
-    if (err) {
-      console.log(err);
-    }
-    console.log(url);
-  });
-};
-
-// generatorQrcode(userS);
 
 cloudinary.config({
   cloud_name: config.cloudinary.name,

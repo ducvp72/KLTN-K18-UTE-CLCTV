@@ -64,8 +64,9 @@ module.exports = {
   },
   email: {
     smtp: {
-      host: envVars.SMTP_HOST,
-      port: envVars.SMTP_PORT,
+      // host: envVars.SMTP_HOST,
+      // port: envVars.SMTP_PORT,
+      service: 'gmail',
       auth: {
         user: envVars.SMTP_USERNAME,
         pass: envVars.SMTP_PASSWORD,
