@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
     avatar: {
       path: {
         type: String,
-        default: 'https://res.cloudinary.com/kltn-k18-dl/image/upload/v1645972871/myGallary/defaultAvatar.png.png',
+        default: 'https://res.cloudinary.com/kltn-k18-dl/image/upload/v1654164139/myGallary/personal_nh91kw.png',
       },
       filename: {
         type: String,
