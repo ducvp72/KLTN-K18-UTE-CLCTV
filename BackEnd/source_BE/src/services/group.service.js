@@ -22,17 +22,24 @@ const autoUpdateNameGroup = async (groupId, userId) => {
   let group;
   const findMembers = await UserGroup.find({ groupId, member: { $nin: userId } }).populate('member');
   // eslint-disable-next-line prefer-const
+  console.log('aa', findMembers);
   let nameMember = [];
   // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < findMembers.length; i++) {
-    nameMember.push(findMembers[i].member.fullname);
+  if (findMembers.length <= 0) {
+    nameMember.push('Group need new name ');
+  } else {
+    for (let i = 0; i < findMembers.length; i++) {
+      nameMember.push(findMembers[i].member.fullname);
+    }
   }
-  console.log(nameMember);
+
   const groupName = nameMember.reduce((prev, curr) => {
     // eslint-disable-next-line prefer-template
     return `${prev}, ` + curr;
   });
+
   console.log(groupName.trim());
+
   const subName = await changeName(groupName);
   await Group.findByIdAndUpdate(
     groupId,
@@ -341,6 +348,7 @@ const leaveGroup = async (user, groupR) => {
 // };
 
 const deleteMember = async (user, GroupR) => {
+  console.log(GroupR);
   const group = await Group.findById(GroupR.groupId);
   if (JSON.stringify(group.admin) !== `"${user.id}"`) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You must be admin of group !');
