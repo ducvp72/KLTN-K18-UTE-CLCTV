@@ -4,8 +4,7 @@ const { friendService } = require('../services');
 const pick = require('../utils/pick');
 
 const checkFriend = catchAsync(async (req, res) => {
-  const check = await friendService.isFriend(req.user.id, req.body.friendId);
-
+  const check = await friendService.isFriend(req.user.id, req.params.friendId);
   res.status(httpStatus.OK).send(`${check}`);
 });
 

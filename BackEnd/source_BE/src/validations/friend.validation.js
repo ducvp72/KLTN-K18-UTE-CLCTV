@@ -18,7 +18,14 @@ const getListFriend = {
   }),
 };
 
+const isFriend = {
+  params: Joi.object().keys({
+    friendId: Joi.string().custom(objectId).required(),
+  }),
+};
+
 module.exports = {
   friend,
   getListFriend,
+  isFriend,
 };

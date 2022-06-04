@@ -23,7 +23,11 @@ const addMember = {
 const delMember = {
   body: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
-    memberId: Joi.array().custom(objectIdArrDel).required(),
+    userId: Joi.object().keys({
+      id: Joi.string().custom(objectId).required(),
+      name: Joi.string().required(),
+    }),
+    // memberId: Joi.array().custom(objectIdArrDel).required(),
   }),
 };
 

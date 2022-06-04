@@ -82,7 +82,12 @@ const getGroupInfo = async (groupId) => {
 };
 
 const findFirstGroup = async (adminId, memberId) => {
-  const find = UserGroup.findOne({ admin: adminId, member: memberId });
+  const find = UserGroup.findOne({ admin: adminId, member: memberId }).populate({
+    path: 'groupId',
+    populate: {
+      path: 'admin last',
+    },
+  });
   return find;
 };
 
@@ -91,8 +96,10 @@ const createChat = async (admin, memberId) => {
   if (!memberN) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not find User');
   }
-  if (await findFirstGroup(admin.id, memberId)) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You have aleady create personal chat with each other');
+  const firstgroup = await findFirstGroup(admin.id, memberId);
+
+  if (firstgroup) {
+    return firstgroup.groupId;
   }
   const chat = await Group.create({
     subName: await changeName(memberN.fullname),
@@ -310,27 +317,47 @@ const leaveGroup = async (user, groupR) => {
   await sendMess({ id: user.id }, mess);
 };
 
+// const deleteMember = async (user, GroupR) => {
+//   const group = await Group.findById(GroupR.groupId);
+//   if (JSON.stringify(group.admin) !== `"${user.id}"`) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, 'You must be admin of group !');
+//   }
+
+//   const userDel = GroupR.memberId.map((x) => x.userId);
+
+//   await UserGroup.deleteMany({ groupId: GroupR.groupId, member: { $in: userDel } });
+
+//   if (group.isChangeName === false) {
+//     await autoUpdateNameGroup(GroupR.groupId, user.id);
+//   }
+//   GroupR.memberId.forEach(async (item) => {
+//     const mess = {
+//       groupId: GroupR.groupId,
+//       text: `Admin deleted ${item.fullname}`,
+//       typeId: '0',
+//     };
+//     await sendMess({ id: user.id }, mess);
+//   });
+// };
+
 const deleteMember = async (user, GroupR) => {
   const group = await Group.findById(GroupR.groupId);
   if (JSON.stringify(group.admin) !== `"${user.id}"`) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You must be admin of group !');
   }
 
-  const userDel = GroupR.memberId.map((x) => x.userId);
-
-  await UserGroup.deleteMany({ groupId: GroupR.groupId, member: { $in: userDel } });
+  await UserGroup.deleteOne({ groupId: GroupR.groupId, member: GroupR.userId.id });
 
   if (group.isChangeName === false) {
     await autoUpdateNameGroup(GroupR.groupId, user.id);
   }
-  GroupR.memberId.forEach(async (item) => {
-    const mess = {
-      groupId: GroupR.groupId,
-      text: `Admin deleted ${item.fullname}`,
-      typeId: '0',
-    };
-    await sendMess({ id: user.id }, mess);
-  });
+
+  const mess = {
+    groupId: GroupR.groupId,
+    text: `Admin deleted ${GroupR.userId.name}`,
+    typeId: '0',
+  };
+  await sendMess({ id: user.id }, mess);
 };
 
 const checkAdminGroup = async (adminId, groupId) => {
