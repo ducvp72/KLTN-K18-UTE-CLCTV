@@ -56,7 +56,7 @@ const isFriend = async (userId, friendId) => {
   const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
   const checkWaitingMine = await WaitingFriend.findOne({ user: userId, waitingFriends: friendId });
   if (checkFriends) {
-    //Bạn hay chưa với nó
+    //Bạn
     find = 1;
   } else if (checkWaitingOther) {
     //Mình có trong danh sách chờ kết bạn của nó không
