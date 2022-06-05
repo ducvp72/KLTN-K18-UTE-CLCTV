@@ -731,7 +731,7 @@ const setStatusGroup = async (user, groupId, status) => {
   const expires = moment().add(config.code.verifyExpirationMinutesGroup, 'days');
   const find = await Code.findOne({ group: groupId });
   console.log(find);
-  if (status === 'close' || status === 'open') {
+  if (status === 'close') {
     const verificationCode = Math.floor(10000 + Math.random() * 9000);
     await Code.findOneAndUpdate(
       {
