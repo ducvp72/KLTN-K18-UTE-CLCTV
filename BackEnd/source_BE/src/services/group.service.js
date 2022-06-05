@@ -2,13 +2,13 @@ const httpStatus = require('http-status');
 const moment = require('moment');
 const QRCode = require('qrcode');
 const { Search, Group, UserGroup, WaitingGroup, Code } = require('../models');
+const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const changeName = require('../utils/sort');
 const { userService, friendService, codeService } = require('../services');
 const { sendMess } = require('../services/message.service.js');
 
 const checkMember = async (groupR) => {
-  console.log(groupR);
   const checkMem = await UserGroup.findOne({ groupId: groupR.groupId, member: groupR.userId }).populate([
     { path: 'groupId', model: 'Group', select: 'groupName subName groupType' },
     { path: 'member', model: 'User', select: 'avatar fullname username ' },
@@ -728,20 +728,22 @@ const setStatusGroup = async (user, groupId, status) => {
   if (!group) throw new ApiError(httpStatus.NOT_FOUND, 'Cant not find group');
   if (JSON.stringify(group.admin) !== `"${user.id}"`) throw new ApiError(httpStatus.BAD_REQUEST, 'You are not admin group');
 
-  if (status === 'close') {
+  const expires = moment().add(config.code.verifyExpirationMinutesGroup, 'days');
+  const find = await Code.findOne({ group: groupId });
+  console.log(find);
+  if (status === 'close' || status === 'open') {
     const verificationCode = Math.floor(10000 + Math.random() * 9000);
     await Code.findOneAndUpdate(
       {
         group: groupId,
       },
-      { code: verificationCode },
+      { code: verificationCode, expires },
       {
         new: true,
         useFindAndModify: false,
       }
     );
   }
-
   await Group.findByIdAndUpdate(
     groupId,
     { status },
