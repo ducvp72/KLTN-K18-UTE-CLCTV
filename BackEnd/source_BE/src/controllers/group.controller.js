@@ -14,7 +14,7 @@ const getQrGroup = catchAsync(async (req, res) => {
 });
 
 const createGroup = catchAsync(async (req, res) => {
-  const result = await groupService.createGroup(req.user);
+  const result = await groupService.createGroup(req.user, req.body.groupName);
   res.status(httpStatus.CREATED).send(result);
 });
 

@@ -16,7 +16,7 @@ router.post('/joinGroupByCode', auth(), validate(groupValidation.joinGroupByCode
 router.get('/getUserToAdd', auth(), validate(groupValidation.getUserToAdd), groupController.getUsersToAdd);
 router.post('/createChat', auth(), validate(groupValidation.member), groupController.createChat);
 router.get('/getGroupById/:groupId', auth(), validate(groupValidation.getGroupToJoin), groupController.getGroupById);
-router.post('/createGroup', auth(), groupController.createGroup);
+router.post('/createGroup', auth(), validate(groupValidation.createGroup), groupController.createGroup);
 router.post('/changeNameGroup', auth(), validate(groupValidation.changeNameGroup), groupController.changeNameGroup);
 router.delete('/deleteNameGroup', auth(), validate(groupValidation.deleteNameGroup), groupController.deleteNameGroup);
 router.delete('/deleteGroup', auth(), validate(groupValidation.deleteGroup), groupController.deleteGroup);

@@ -46,8 +46,8 @@ const deleteGroup = {
 
 const createGroup = {
   body: Joi.object().keys({
-    // groupName: Joi.string().required().min(5).max(100),
-    memberId: Joi.array().custom(objectIdArr),
+    groupName: Joi.string().required().min(1).max(100),
+    // memberId: Joi.array().custom(objectIdArr),
   }),
 };
 
