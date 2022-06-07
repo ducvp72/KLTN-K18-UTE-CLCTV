@@ -8,6 +8,12 @@ const changeName = require('../utils/sort');
 const { userService, friendService, codeService } = require('../services');
 const { sendMess } = require('../services/message.service.js');
 
+const timenotchange = {
+  new: true,
+  useFindAndModify: false,
+  timestamps: false,
+};
+
 const checkMember = async (groupR) => {
   const checkMem = await UserGroup.findOne({ groupId: groupR.groupId, member: groupR.userId }).populate([
     { path: 'groupId', model: 'Group', select: 'groupName subName groupType' },
@@ -47,10 +53,7 @@ const autoUpdateNameGroup = async (groupId, userId) => {
       groupName,
       subName,
     },
-    {
-      new: true,
-      useFindAndModify: false,
-    }
+    timenotchange
   )
     .then((res) => {
       group = res;
@@ -152,13 +155,16 @@ const deleteNameGroup = async (user, groupR) => {
     }
     groupName = groupName.trim().slice(0, -1);
     const subName = await changeName(groupName);
-    await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName, isChangeName: false });
+    await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName, isChangeName: false }, timenotchange);
   }
 };
 
 const changeNameGroup = async (admin, groupR) => {
-  const checkG = await getGroupById(admin.id, groupR.groupId);
   let groupN;
+  const checkG = await Group.findOne({ admin: admin.id, _id: groupR.groupId });
+  if (!checkG) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Group invalid');
+  }
   if (checkG.groupType === 'public' && JSON.stringify(checkG.admin) !== `"${admin.id}"`) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Only Admin can change name of group');
   }
@@ -169,7 +175,7 @@ const changeNameGroup = async (admin, groupR) => {
       groupName: groupR.groupName,
       isChangeName: true,
     },
-    { new: true, useFindModify: false }
+    timenotchange
   )
     .then((updateGroup) => {
       groupN = updateGroup;
@@ -253,7 +259,7 @@ const addMember = async (user, groupR) => {
 
     const subName = await changeName(groupName);
 
-    await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName });
+    await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName }, timenotchange);
   }
 };
 
@@ -308,7 +314,7 @@ const leaveGroup = async (user, groupR) => {
     }
     groupName = groupName.trim().slice(0, -1);
     const subName = await changeName(groupName);
-    await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName });
+    await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName }, timenotchange);
   }
   const mess = {
     groupId: groupR.groupId,
@@ -375,12 +381,9 @@ const setAdminGroup = async (user, groupR) => {
     {
       admin: groupR.userId,
     },
-    {
-      new: true,
-      useFindAndModify: false,
-    }
+    timenotchange
   )
-    .then(async (res) => {
+    .then(async () => {
       const options = { multi: true, upsert: true };
       // eslint-disable-next-line no-unused-expressions
       await UserGroup.updateMany(
@@ -606,10 +609,7 @@ const adjustGroup = async (groupId, seen) => {
     {
       seen,
     },
-    {
-      new: true,
-      useFindAndModify: false,
-    }
+    timenotchange
   )
     .populate({ path: 'last' })
     .then((res) => {
@@ -642,7 +642,7 @@ const addToGroup = async (userId, groupId, GroupInfo) => {
     groupName = groupName.trim().slice(0, -1);
     const subName = await changeName(groupName);
 
-    await Group.findByIdAndUpdate(groupId, { groupName, subName });
+    await Group.findByIdAndUpdate(groupId, { groupName, subName }, timenotchange);
     const mess = {
       groupId,
       text: `${userId.fullname} has join to group`,
