@@ -40,6 +40,11 @@ const deleteNameGroup = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(result);
 });
 
+const adminDeleteGroup = catchAsync(async (req, res) => {
+  await groupService.adminDeleteGroup(req.user, req.body.groupId);
+  res.status(httpStatus.OK).send();
+});
+
 const deleteGroup = catchAsync(async (req, res) => {
   await groupService.deleteGroup(req.user, req.body);
   res.status(httpStatus.OK).send();
@@ -139,6 +144,7 @@ module.exports = {
   createGroup,
   changeNameGroup,
   deleteGroup,
+  adminDeleteGroup,
   addMember,
   deleteMember,
   setAdminGroup,

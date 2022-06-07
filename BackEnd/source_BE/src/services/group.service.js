@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const moment = require('moment');
 const QRCode = require('qrcode');
-const { Search, Group, UserGroup, WaitingGroup, Code } = require('../models');
+const { Search, Group, UserGroup, WaitingGroup, Code, Message } = require('../models');
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const changeName = require('../utils/sort');
@@ -428,6 +428,7 @@ const acceptRequest = async (user, groupR) => {
     });
     // autoUpdateNameGroup(groupR.groupId, user.id);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
   }
 };
@@ -446,6 +447,7 @@ const cancleRequest = async (user, groupR) => {
 };
 
 const getMyGroup = async (user, filter, options) => {
+  // eslint-disable-next-line no-console
   console.log(filter, options, user.id);
   // const find = await UserGroup.find({ member: user.id }).populate([
   //   { path: 'groupId', model: 'Group', select: 'isChangeName subName groupName groupType' },
@@ -455,6 +457,21 @@ const getMyGroup = async (user, filter, options) => {
   const myGroup = find.map((item) => item.groupId);
   const rs = await Group.paginateGroup(myGroup, filter, options);
   return rs;
+};
+
+const adminDeleteGroup = async (user, groupId) => {
+  // eslint-disable-next-line no-console
+  console.log(user, `\n`, groupId);
+  const findGroup = await Group.findById(groupId);
+  if (!findGroup) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid Group');
+  }
+  // eslint-disable-next-line no-console
+  console.log(findGroup);
+  await UserGroup.deleteMany({ groupId });
+  await Message.deleteMany({ groupId });
+  await Code.deleteMany({ group: groupId });
+  await Group.findByIdAndDelete(groupId);
 };
 
 const deleteGroup = async (user, groupR) => {
@@ -618,6 +635,7 @@ const adjustGroup = async (groupId, seen) => {
     .catch((err) => {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
     });
+  // eslint-disable-next-line no-console
   console.log(rs);
   return rs;
 };
@@ -760,6 +778,7 @@ module.exports = {
   searchMember,
   createGroup,
   changeNameGroup,
+  adminDeleteGroup,
   deleteGroup,
   addMember,
   deleteMember,

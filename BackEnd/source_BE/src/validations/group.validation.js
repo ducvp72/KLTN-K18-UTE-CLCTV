@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { objectId, objectIdArr, objectIdArrDel } = require('./custom.validation');
+const { objectId, objectIdArr } = require('./custom.validation');
 
 const waitingMember = {
   body: Joi.object().keys({
