@@ -51,9 +51,9 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
 
   let m;
   let res;
-  console.log(groupId);
+
   // console.log(sender);
-  // console.log(typeMessage);
+  console.log(typeMessage);
 
   if (typeMessage === fileTypes.IMAGE) {
     console.log('IMG', typeMessage);
@@ -73,7 +73,7 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
     }
   }
 
-  if (typeMessage === fileTypes.READ || fileTypes.DOWNLOAD) {
+  if (typeMessage === fileTypes.READ || typeMessage === fileTypes.DOWNLOAD) {
     console.log('FILE', typeMessage);
     try {
       m = new Message({ groupId, sender, typeMessage, file: en });
