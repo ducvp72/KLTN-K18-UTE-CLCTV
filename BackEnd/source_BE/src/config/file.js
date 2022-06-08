@@ -35,6 +35,7 @@ function checkImageType(file, cb) {
   const filetypes = /jpeg|jpg|png|gif|mp4|mp3|zip|rar|document|docx|txt|pdf|xlsx|pptx|wav|text/;
   //check the file extention
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  // eslint-disable-next-line no-console
   console.log('Ex', path.extname(file.originalname).toLowerCase());
   // more importantly, check the mimetype
   // console.log('Info', file);
