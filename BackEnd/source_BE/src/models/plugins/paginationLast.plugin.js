@@ -81,16 +81,20 @@ const paginate = (schema) => {
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
         const userN = JSON.parse(JSON.stringify(i));
-        // console.log('userN: ' + JSON.stringify(userN));
-        delete userN.isChangeName;
-        userN._id = userN.id;
-        delete userN.id;
-        userN.last._id = userN.last.id;
-        // userN.last._id = userN.last.id;
-        delete userN.last.id;
-        userN.lastMessage = userN.last;
-        delete userN.last;
-        users.push(userN);
+        if (userN.last) {
+          // console.log('userN: ' + JSON.stringify(userN));
+          delete userN.isChangeName;
+          userN._id = userN.id;
+          delete userN.id;
+          userN.last._id = userN.last.id;
+          // userN.last._id = userN.last.id;
+          delete userN.last.id;
+          userN.lastMessage = userN.last;
+          delete userN.last;
+          users.push(userN);
+        }
+        // eslint-disable-next-line no-continue
+        continue;
       }
       results = users;
 

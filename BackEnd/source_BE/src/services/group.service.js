@@ -91,13 +91,19 @@ const getGroupInfo = async (groupId) => {
 };
 
 const findFirstGroup = async (adminId, memberId) => {
-  const find = UserGroup.findOne({ admin: adminId, member: memberId }).populate({
+  let rs;
+  const find = await UserGroup.find({ admin: { $in: [adminId] }, member: { $in: [memberId] } }).populate({
     path: 'groupId',
     populate: {
       path: 'admin last',
     },
   });
-  return find;
+  find.forEach((group) => {
+    if (group.groupId.groupType === 'personal') {
+      rs = group;
+    }
+  });
+  return rs;
 };
 
 const createChat = async (admin, memberId) => {
@@ -106,10 +112,15 @@ const createChat = async (admin, memberId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not find User');
   }
   const firstgroup = await findFirstGroup(admin.id, memberId);
+  const firstgroupTwo = await findFirstGroup(memberId, admin.id);
 
   if (firstgroup) {
     return firstgroup.groupId;
   }
+  if (firstgroupTwo) {
+    return firstgroupTwo.groupId;
+  }
+
   const chat = await Group.create({
     subName: await changeName(memberN.fullname),
     groupName: memberN.fullname,
@@ -130,8 +141,6 @@ const createChat = async (admin, memberId) => {
     member: admin.id,
     admin: admin.id,
   });
-
-  // await autoUpdateNameGroup();
 
   return chat;
 };
