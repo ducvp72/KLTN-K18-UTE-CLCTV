@@ -31,7 +31,7 @@ const sendFile = catchAsync(async (req, res) => {
   let typeMessage;
   const type = req.file.originalname.split('.').pop().toLowerCase();
   const getMine = req.file.mimetype.split('/')[0];
-  // console.log('type', type);
+  console.log('type', type);
   // console.log('getMine', getMine);
 
   if (getMine === 'image' || getMine === 'video' || getMine === 'audio') {

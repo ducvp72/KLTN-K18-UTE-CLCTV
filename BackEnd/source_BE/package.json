@@ -52,6 +52,7 @@
     "@joi/date": "^2.1.0",
     "@vonage/server-sdk": "^2.10.10",
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
     "cloudinary": "^1.28.1",
     "cloudinary-core": "^2.12.3",
     "compression": "^1.7.4",
