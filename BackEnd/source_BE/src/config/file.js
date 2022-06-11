@@ -46,11 +46,11 @@ const parser = multer({
     // ).toString();
 
     // Be xu li giai ma
-    const bytes = CryptoJS.AES.decrypt(file, '$2a$12$OQ8RAC218lNswEhYDLUKBO3hRzcpcVwyvA.XgKxuufu3.stOdkksu');
-    const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    // const bytes = CryptoJS.AES.decrypt(file, '$2a$12$OQ8RAC218lNswEhYDLUKBO3hRzcpcVwyvA.XgKxuufu3.stOdkksu');
+    // const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
     // eslint-disable-next-line no-use-before-define
-    checkImageType(decryptedData, cb);
+    checkImageType(file, cb);
   },
 });
 
