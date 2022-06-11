@@ -1,10 +1,10 @@
 const multer = require('multer');
 const httpStatus = require('http-status');
-const { parser } = require('../config/file');
+const { parserAvatar } = require('../config/file');
 // var FormData = require('form-data');
 
-const uploadFile = (req, res, next) => {
-  const uploadSV = parser.single('user-avatar');
+const uploadAvatar = (req, res, next) => {
+  const uploadSV = parserAvatar.single('user-avatar');
 
   uploadSV(req, res, function (err) {
     // if (!req.body.con) return res.status(400).send('text is null');
@@ -26,5 +26,5 @@ const uploadFile = (req, res, next) => {
 };
 
 module.exports = {
-  uploadFile,
+  uploadAvatar,
 };

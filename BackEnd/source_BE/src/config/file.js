@@ -7,7 +7,7 @@ const path = require('path');
 function checkImageType(file, cb) {
   // define a regex that includes the file types we accept
   const filetypes = /jpeg|jpg|png|gif|mp4|mp3|zip|rar|document|docx|txt|pdf|xlsx|pptx|wav|text/;
-  //check the file extention
+  // check the file extention
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   // eslint-disable-next-line no-console
   // console.log('File kind', path.extname(file.originalname).toLowerCase());
@@ -45,7 +45,7 @@ const parser = multer({
     //   '$2a$12$OQ8RAC218lNswEhYDLUKBO3hRzcpcVwyvA.XgKxuufu3.stOdkksu'
     // ).toString();
 
-    //Be xu li
+    // Be xu li giai ma
     const bytes = CryptoJS.AES.decrypt(file, '$2a$12$OQ8RAC218lNswEhYDLUKBO3hRzcpcVwyvA.XgKxuufu3.stOdkksu');
     const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
@@ -54,4 +54,16 @@ const parser = multer({
   },
 });
 
-module.exports = { parser };
+const parserAvatar = multer({
+  storage,
+  // limit the size to 5mb for any files coming in
+  limits: { fileSize: 50000000 },
+  // filer out invalid filetypes
+  // eslint-disable-next-line object-shorthand
+  fileFilter: function (req, file, cb) {
+    // eslint-disable-next-line no-use-before-define
+    checkImageType(file, cb);
+  },
+});
+
+module.exports = { parser, parserAvatar };

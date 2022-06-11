@@ -58,6 +58,7 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
     try {
       m = new Message({ groupId, sender, typeMessage, image: en });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -67,6 +68,7 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
     try {
       m = new Message({ groupId, sender, typeMessage, video: en });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -76,6 +78,7 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
     try {
       m = new Message({ groupId, sender, typeMessage, file: en });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -113,11 +116,11 @@ const uploadImage = async (file, user) => {
       { new: true, useFindAndModify: false }
     );
     cloudinary.uploader.destroy(user.avatar.filename, function (result) {
+      // eslint-disable-next-line no-console
       console.log(result);
     });
-
-    console.log(changeAvatarUser);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
   }
   return changeAvatarUser;
