@@ -1,0 +1,24 @@
+[
+      {
+        _id: 1,
+        text: 'Hello',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+        //   avatar: 'https://placeimg.com/140/140/any',
+        },
+        image: 'https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650004490/myGallary/ps6sr0lkyuvtdx9wsrq4.png'
+      },
+      {
+        _id: 2,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+        //   avatar: 'https://placeimg.com/140/140/any',
+        },
+        video: 'https://res.cloudinary.com/kltn-k18-dl/video/upload/v1650004452/myGallary/jjo1mibnbfb6nfbmvokw.mp4'
+      },
+    ]

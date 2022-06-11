@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">myMessage</string>
+    <!-- <string name="default_notification_channel_id" translatable="false">18110141-18110101</string> -->
+</resources>

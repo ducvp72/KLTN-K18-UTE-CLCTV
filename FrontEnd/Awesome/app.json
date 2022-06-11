@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "myMessage",
+    "slug": "Awesome",
+    "version": "1.0.0",
+    "splash": {
+      "image": "./assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#fff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "@notifee/react-native"
+    ]
+  }
+}

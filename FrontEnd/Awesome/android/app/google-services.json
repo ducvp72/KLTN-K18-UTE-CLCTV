@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1080783314144",
+    "project_id": "kltn-k18clctv",
+    "storage_bucket": "kltn-k18clctv.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080783314144:android:7321f2d63ec1fd41060485",
+        "android_client_info": {
+          "package_name": "com.awesome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1080783314144-2a34nci935l23100ta06aqvu3r4lfbpl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_nf26kzb9ltPH-JLsiMToJcgQ47gmEzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1080783314144-2a34nci935l23100ta06aqvu3r4lfbpl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
