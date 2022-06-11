@@ -45,9 +45,13 @@ const parser = multer({
     //   '$2a$12$OQ8RAC218lNswEhYDLUKBO3hRzcpcVwyvA.XgKxuufu3.stOdkksu'
     // ).toString();
 
+    // console.log(ciphertext);
+
     // Be xu li giai ma
     // const bytes = CryptoJS.AES.decrypt(file, '$2a$12$OQ8RAC218lNswEhYDLUKBO3hRzcpcVwyvA.XgKxuufu3.stOdkksu');
     // const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
+    // console.log(decryptedData);
 
     // eslint-disable-next-line no-use-before-define
     checkImageType(file, cb);
