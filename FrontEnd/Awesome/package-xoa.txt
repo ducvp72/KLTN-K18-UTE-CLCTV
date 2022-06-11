@@ -1,0 +1,6 @@
+    "react-native-bidirectional-infinite-scroll": "0.3.3", //
+    "react-native-button": "3.0.1", //
+    "@stream-io/flat-list-mvcp": "0.10.1", //
+    "@react-navigation/material-bottom-tabs": "5.3.19",
+    "react-native-datepicker": "1.7.2", //
+    "react-native-picker-select": "^8.0.4", //

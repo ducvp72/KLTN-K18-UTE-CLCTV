@@ -1,0 +1,338 @@
+import React, {useLayoutEffect, useState, useEffect} from 'react';
+import {ScrollView, StyleSheet, Text, View, ActivityIndicator,Image,FlatList} from 'react-native';
+// import { FlatList } from 'react-native-bidirectional-infinite-scroll';
+import { AppStyles} from '../../AppStyles';
+import {Configuration} from '../../Configuration';
+import { Searchbar } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import Spinner from 'react-native-loading-spinner-overlay';
+
+import {connect, useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import axios from 'axios';
+import Toast from 'react-native-simple-toast';
+
+function HomeScreen({navigation}) {
+  const auth = useSelector((state) => state.auth);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResult, setSearchResult] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPage, setTotalPage] = useState(1);
+
+  const baseUrl = 'https://kltn-ute-k18.herokuapp.com/v1'
+
+  const [accessToken, setAccessToken] = useState('')
+  const icon = 'eye-slash' 
+
+  useEffect(() => {
+    if(!auth.user) {
+      navigation.reset({
+        routes: [{ name: 'SignInStack' }]
+      });
+    } 
+  }, []);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: '',
+    });
+  }, []);
+
+  const onChangeSearch = (query) => {
+
+    console.log('search query: ', query)
+    setCurrentPage(0)
+    setTotalPage(1)
+    setIsSearching(false)
+    setLoading(false)
+    setSearchResult([])
+    setSearchQuery(query);
+  } 
+
+  const ItemView = ({ item }) => {
+    return (
+      // Flat List Item
+      
+      <View style={styles.itemStyle} onPress={() => getItem(item)}>
+        <Image source={{uri: item.avatar} }  
+        style={styles.userPhoto} 
+        onIconPress={() => getItem(item)}
+        />
+        <View style={styles.userInfo} >
+          <Text style={styles.userFullname} onPress={() => getItem(item)}>
+            {/* {'.'} */}
+            {item.fullname}
+          </Text>
+          <Text style={styles.userUsername} onPress={() => getItem(item)}>
+            {'@'}
+            {item.username}
+          </Text>
+        </View>
+        <Icon 
+          name={item.isFriend == 0 ? 'user-plus' : 'user-check'}
+          size={20}
+          color={item.isFriend == 1 ? AppStyles.color.tint : AppStyles.color.grey}
+          style={[styles.friendshipIcon]}
+          onPress={() => friendshipPress(item.isFriend)}
+        />
+      </View>
+    );
+  };
+
+  const ItemSeparatorView = () => {
+    return (
+      // Flat List Item Separator
+      
+      <View
+        style={{
+          width: '100%',
+          backgroundColor: '#fff',
+        }}
+      >
+      </View>
+    );
+  };
+
+  const getItem = (item) => {
+    // Function for click on an item
+    console.log('Id : ' + item.userId + ' Fullname : ' + item.fullname);
+    navigation.navigate('OtherUserProfile', { 
+      otherUserFullname: item.fullname,
+      otherUserEmail: item.email,
+      otherUserAvatar: item.avatar
+    });
+  };
+
+  const friendshipPress = (friendship) => {
+    console.log(friendship)
+  }
+
+  // const fetchMoreResult = async() => {
+  //   await queryMoreMessages(accessToken).then((results) => {
+  //     console.log('Kq: ' + results)
+  //   })
+  //   setSearchResult()
+  // }
+  
+  const queryMoreMessages = async(token) => {
+    return new Promise(function (resolve) {
+        const newResults = [];
+          
+        axios({
+          method: 'get',
+          url: `${baseUrl}/sort/getUserClient?key=`+searchQuery+'&page='+(currentPage+1),
+          headers: {"Authorization" : `Bearer ${token}`}, 
+          data: {}
+        })
+        .then(function (response) {
+          // setCurrentPage(currentPage + 1)
+          setCurrentPage(response.data.page)
+          setTotalPage(response.data.totalPages)
+          if(response.data.totalResults != 0){
+            response.data.results.forEach(element => {
+              newResults.push(element)
+            });
+            setSearchResult((kq) => {
+              return kq.concat(newResults)
+            })
+            console.log('Trang: ' + response.data.page +' tim duoc ' + response.data.totalResults)
+            setLoading(false)
+    
+          } else {
+            setLoading(false)
+            setIsSearching(false)
+            console.log('Khong tim duoc ', response.data.totalResults)
+          }
+        })
+        .catch(function (error) {
+            setLoading(false)
+            setIsSearching(false)
+            const { message } = error;
+            console.log(message);
+        });
+
+        // Lets resolve after 500 ms, to simulate network latency.
+        setTimeout(function () {
+            resolve(newResults);
+        }, 100);
+    });
+  };
+
+  const onSearch = async() => {
+      if(currentPage == totalPage) {
+        console.log('Day la trang cuoi')
+        return
+      }
+      console.log('Da tim kiem ', searchQuery)
+      if(searchQuery.length >= 0)
+      {
+        await AsyncStorage.getItem('@loggedInUserID:access').then((response) => {
+          setAccessToken(response)
+          setIsSearching(true)
+          setLoading(true)
+
+          queryMoreMessages(response).then((results) => {
+            console.log('Kq: ' + results)
+          })
+
+          // axios({
+          //   method: 'get',
+          //   url: `${baseUrl}/sort/getUserClient?key=`+searchQuery,
+          //   headers: {"Authorization" : `Bearer ${response}`}, 
+          //   data: {}
+          // })
+          // .then(function (response) {
+          //   if(response.data.totalResults != 0){
+          //     setSearchResult(response.data.results)
+          //     console.log('Tim duoc ', response.data.totalResults)
+          //     setLoading(false)
+      
+          //   } else {
+          //     setLoading(false)
+          //     setIsSearching(false)
+          //     console.log('Khong tim duoc ', response.data.totalResults)
+          //   }
+          // })
+          // .catch(function (error) {
+          //     setLoading(false)
+          //     setIsSearching(false)
+          //     const { message } = error;
+          //     console.log(message);
+          // });
+        })
+
+      }
+  }
+
+  return (
+      < >
+        <Searchbar style={styles.searchbar}
+          placeholder="Search"
+          onChangeText={onChangeSearch}
+          value={searchQuery}
+          onIconPress={onSearch}
+          onSubmitEditing={onSearch}
+          onBlur={() => setIsSearching(false)}
+        />
+        { isSearching ? (loading ? (
+          <View>
+            {/* <ActivityIndicator
+            size="large"
+            animating={loading}
+            color={AppStyles.color.tint}
+            /> */}
+            <Spinner
+              color={AppStyles.color.tint}
+              // overlayColor='#fff'
+              //visibility of Overlay Loading Spinner
+              visible={loading}
+              // textContent={'Searching...'}
+              // textStyle={styles.spinnerTextStyle}
+            />
+          </View>
+        ) : (
+          <FlatList
+          data={searchResult}
+          onEndReached={onSearch}
+          onEndReachedThreshold={0}
+          // keyExtractor={(item, index) => index.toString()}
+          ItemSeparatorComponent={ItemSeparatorView}
+          renderItem={ItemView}
+          
+          />
+        )) : (
+          <ScrollView style={styles.container}>
+            <Text style={styles.title}>Welcome {auth.user?.fullname ?? 'User'}</Text>
+          </ScrollView>
+        )}
+        
+      </>
+  );
+}
+
+const styles = StyleSheet.create({
+  searchbar: {
+    marginBottom: 0,
+    borderColor: '#B6B6B4',
+    borderWidth: 1,
+    borderRadius: 0,
+    
+  },
+  container: {
+    backgroundColor: 'white',
+    flex: 1,
+    padding: Configuration.home.listing_item.offset,
+  },
+  title: {
+    fontWeight: 'bold',
+    color: AppStyles.color.title,
+    fontSize: 25,
+  },
+  itemStyle: {
+    padding: 10,
+    // margin: 0,
+    backgroundColor: '#fff',
+    flex:1,
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#B6B6B4',
+  },
+  spinnerTextStyle: {
+    color: AppStyles.color.tint
+  },
+  userPhoto: {
+    width: 20,
+    height: 50,
+    margin: 5,
+    borderRadius: 100,
+    borderWidth: 1,
+    // borderColor: '#B6B6B4',
+    alignSelf:'center',
+    flexGrow: 1,
+    resizeMode: 'contain',
+    backgroundColor: 'transparent'
+  },
+  friendshipIcon: {
+    margin: 5,
+    // borderRadius: 100,
+    // borderWidth: 1,
+    // borderColor: '#B6B6B4',
+    alignSelf:'center',
+    alignItems: 'center',
+    flexGrow: 1,
+    backgroundColor: 'transparent',
+    flex: 1,
+  },
+  userInfo: {
+    flexGrow: 8,
+    flex: 1,
+    flexDirection: 'column',
+  },
+  userFullname: {
+    // marginTop: 1,
+    // borderWidth: 1,
+    // borderColor: '#B6B6B4',
+    flexGrow: 6,
+    fontSize: 20,
+    color: '#000',
+    flexDirection: 'row',
+    alignItems: 'center',
+
+  },
+  userUsername: {
+    // borderWidth: 1,
+    // borderColor: '#B6B6B4',
+    flexGrow: 4,
+    fontSize: 13,
+    flexDirection: 'row',
+    alignItems: 'center',
+  }
+});
+
+const mapStateToProps = (state) => ({
+  user: state.auth.user,
+});
+
+export default connect(mapStateToProps)(HomeScreen);

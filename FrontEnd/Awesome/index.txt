@@ -1,0 +1,60 @@
+import { registerRootComponent } from 'expo';
+import { AppState, Platform } from 'react-native';
+import PushNotification from 'react-native-push-notification'
+import App from './App';
+
+PushNotification.configure({
+    onRegister: function(token) {
+        console.log('Generate push token:', token);
+    },
+    onNotification: onNotification,
+    popInitialNotification: true,
+    requestPermissions: Platform.OS === 'ios'
+});
+
+const appStateListener = (state) => {
+    console.log('STATE: ' + state)
+	if (state === 'active') {
+		// PushNotification.popInitialNotification(notification => {
+		// 	if (notification) {
+		// 		onNotification(notification)
+		// 	}
+		// });
+	}
+
+    if (state === 'background') {
+        PushNotification.localNotification({
+            channelId: '18110141-18110101',
+            autoCancel: true,
+            bigText: 'name',
+            title: 'title',
+            message: 'message',
+            vibrate: true,
+            vibration: 300,
+            playSound: true,
+            soundName: 'default',
+            showWhen: true,
+            when: new Date().getTime(),
+            invokeApp: true,
+          //   actions: '["Yes", "No"]'
+          })
+		// PushNotification.popInitialNotification(notification => {
+		// 	if (notification) {
+		// 		onNotification(notification)
+		// 	}
+		// });
+    }
+};
+
+const onNotification = (notification) => {
+    console.log('NOTI: ' + notification)
+    if (notification.userInteraction) { console.log('User clicked notification') }
+    else { console.log('User received notification') }
+}
+
+AppState.addEventListener('change', appStateListener);
+
+// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
+// It also ensures that whether you load the app in Expo Go or in a native build,
+// the environment is set up appropriately
+registerRootComponent(App);
