@@ -6,7 +6,7 @@ const path = require('path');
 
 function checkImageType(file, cb) {
   // define a regex that includes the file types we accept
-  const filetypes = /jpeg|jpg|png|gif|mp4|mp3|zip|rar|document|docx|txt|pdf|xlsx|pptx|wav|text/;
+  const filetypes = /jpeg|jpg|png|gif|mp4|mp3|zip|rar|document|docx|txt|pdf|xlsx|pptx|wav|text|m4a/;
   // check the file extention
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   // eslint-disable-next-line no-console

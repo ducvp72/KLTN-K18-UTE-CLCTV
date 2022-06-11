@@ -56,7 +56,7 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
   if (typeMessage === fileTypes.IMAGE) {
     // console.log('IMG', typeMessage);
     try {
-      m = new Message({ groupId, sender, typeMessage, image: en });
+      m = new Message({ groupId, sender, typeMessage, image: en, typeId: -1 });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -66,17 +66,28 @@ const upLoadFile = async (sender, file, typeMessage, groupId) => {
   if (typeMessage === fileTypes.VIDEO) {
     // console.log('VIDEO', typeMessage);
     try {
-      m = new Message({ groupId, sender, typeMessage, video: en });
+      m = new Message({ groupId, sender, typeMessage, video: en, typeId: -1 });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
+  //File excel/ pdf.,....
   if (typeMessage === fileTypes.READ || typeMessage === fileTypes.DOWNLOAD) {
     // console.log('FILE', typeMessage);
     try {
-      m = new Message({ groupId, sender, typeMessage, file: en });
+      m = new Message({ groupId, sender, typeMessage, file: en, typeId: -1 });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  if (typeMessage === fileTypes.AUDIO) {
+    // console.log('FILE', typeMessage);
+    try {
+      m = new Message({ groupId, sender, typeMessage, voice: en, typeId: -1 });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

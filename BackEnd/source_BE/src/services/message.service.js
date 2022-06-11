@@ -109,13 +109,14 @@ const sendMess = async (user, req) => {
       sender: user.id,
       typeMessage: fileTypes.TEXT,
       text: req.text,
-      typeId: req.typeId,
+      typeId: -1,
     });
     await autoUpdateDate(req.groupId);
     await Group.findByIdAndUpdate(req.groupId, {
       last: m.id,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
   }
 
@@ -157,6 +158,41 @@ const sendMess = async (user, req) => {
   // });
 
   // return newM;
+};
+
+const sendLocation = async (user, req) => {
+  console.log(req.location);
+  // await checkMem(user.id, req.groupId);
+  // const hashMess = generateMessage(user.id, req.groupId, req.text);
+  // console.log('hash', hashMess);
+  // const decode = await decodeMessage(hashMess);
+  // console.log('decode', decode.sub);
+  let m;
+  try {
+    m = new Message({
+      groupId: req.groupId,
+      sender: user.id,
+      typeMessage: fileTypes.TEXT,
+      location: req.location,
+      typeId: -1,
+    });
+    await autoUpdateDate(req.groupId);
+    await Group.findByIdAndUpdate(req.groupId, {
+      last: m.id,
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
+
+  return m.save().then((item) =>
+    item
+      .populate({
+        path: 'sender',
+        select: 'fullname avatar',
+      })
+      .execPopulate()
+  );
 };
 
 const getDowladFile = async (user, file, req) => {
@@ -251,4 +287,5 @@ module.exports = {
   getDowladFile,
   autoUpdateDate,
   getListMess,
+  sendLocation,
 };

@@ -7,6 +7,7 @@ const ApiError = require('../utils/ApiError');
 const changeName = require('../utils/sort');
 const { userService, friendService, codeService } = require('../services');
 const { sendMess } = require('../services/message.service.js');
+const { encrypt } = require('./media.service');
 
 const timenotchange = {
   new: true,
@@ -291,11 +292,16 @@ const createGroup = async (user, groupName) => {
         // group = await autoUpdateNameGroup(res._id, user.id);
         await codeService.generateVerifyCodeGroup(res.id);
 
+        const tn = await encrypt(`${user.fullname} `, res.id);
+        //tao group 0
+        //vao gr 1
+        //xoa tv 2
+        //roi nhom 3
         const xxx = {
           groupId: res.id,
           sender: user.id,
           typeMessage: 'TEXT',
-          text: `${user.fullname} `,
+          text: tn,
           typeId: 0,
         };
         await sendMess(user, xxx);
@@ -325,10 +331,14 @@ const leaveGroup = async (user, groupR) => {
     const subName = await changeName(groupName);
     await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName }, timenotchange);
   }
+
+  const tn = await encrypt(`${user.fullname} has left  group`, groupR.groupId);
+
+  //roi nhom
   const mess = {
     groupId: groupR.groupId,
-    text: `${user.fullname} has left  group`,
-    typeId: '0',
+    text: tn,
+    typeId: 3,
   };
   await sendMess({ id: user.id }, mess);
 };
@@ -368,10 +378,13 @@ const deleteMember = async (user, GroupR) => {
     await autoUpdateNameGroup(GroupR.groupId, user.id);
   }
 
+  const tn = await encrypt(`Admin deleted ${GroupR.userId.name}`, GroupR.groupId);
+
+  //xoa thanh vien
   const mess = {
     groupId: GroupR.groupId,
-    text: `Admin deleted ${GroupR.userId.name}`,
-    typeId: '0',
+    text: tn,
+    typeId: 2,
   };
   await sendMess({ id: user.id }, mess);
 };
@@ -495,14 +508,17 @@ const deleteGroup = async (user, groupR) => {
   try {
     await UserGroup.deleteMany({ member: user.id, groupId: { $in: groupR.groupId } });
 
-    groupR.groupId.forEach(async (id) => {
-      const mess = {
-        groupId: id,
-        text: `${user.fullname} has left  group`,
-        typeId: '0',
-      };
-      await sendMess({ id: user.id }, mess);
-    });
+    // const tn = await encrypt(`${user.fullname} has left  group`, groupR.groupId);
+
+    //ko can thiet
+    // groupR.groupId.forEach(async (id) => {
+    //   const mess = {
+    //     groupId: id,
+    //     text: tn,
+    //     typeId: '0',
+    //   };
+    //   await sendMess({ id: user.id }, mess);
+    // });
 
     const groupS = await Group.find({ _id: { $in: groupR.groupId } });
 
@@ -670,10 +686,14 @@ const addToGroup = async (userId, groupId, GroupInfo) => {
     const subName = await changeName(groupName);
 
     await Group.findByIdAndUpdate(groupId, { groupName, subName }, timenotchange);
+
+    const tn = await encrypt(`${userId.fullname} has join to group`, groupId);
+
+    //vao nhom
     const mess = {
       groupId,
-      text: `${userId.fullname} has join to group`,
-      typeId: '0',
+      text: tn,
+      typeId: 1,
     };
     await sendMess({ id: userId.id }, mess);
   }

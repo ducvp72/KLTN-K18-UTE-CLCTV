@@ -27,6 +27,11 @@ const sendMess = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(kq);
 });
 
+const sendLocation = catchAsync(async (req, res) => {
+  const kq = await messageService.sendLocation(req.user, req.body);
+  res.status(httpStatus.CREATED).send(kq);
+});
+
 const sendFile = catchAsync(async (req, res) => {
   let typeMessage;
   const type = req.file.originalname.split('.').pop().toLowerCase();
@@ -111,4 +116,5 @@ module.exports = {
   deleteRecall,
   getLastMess,
   getLastMessGroup,
+  sendLocation,
 };

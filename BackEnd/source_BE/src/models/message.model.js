@@ -37,6 +37,14 @@ const messageSchema = new Schema(
       type: String,
       default: 'null',
     },
+    voice: {
+      type: String,
+      default: 'null',
+    },
+    location: {
+      type: Object,
+      default: 'null',
+    },
     typeId: {
       type: String,
       default: 'null',

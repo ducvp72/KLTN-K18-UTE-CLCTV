@@ -1,11 +1,17 @@
 const Joi = require('joi');
-const { objectId, objectIdArr } = require('./custom.validation');
+const { objectId } = require('./custom.validation');
 
 const sendText = {
   body: Joi.object().keys({
     groupId: Joi.string().custom(objectId).required(),
     text: Joi.string().required(),
-    typeId: Joi.string().required(),
+  }),
+};
+
+const sendLocation = {
+  body: Joi.object().keys({
+    groupId: Joi.string().custom(objectId).required(),
+    location: Joi.object().required(),
   }),
 };
 
@@ -54,4 +60,4 @@ const getListLast = {
   }),
 };
 
-module.exports = { groupId, sendText, getFileById, getFile, getMessagesFromConversation, getListLast };
+module.exports = { sendLocation, groupId, sendText, getFileById, getFile, getMessagesFromConversation, getListLast };

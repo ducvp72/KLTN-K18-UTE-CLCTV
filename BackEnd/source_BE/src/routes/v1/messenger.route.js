@@ -11,6 +11,7 @@ const auth = require('../../middlewares/auth');
 router.get('/ListLast', auth(), validate(messageValidation.getListLast), messageController.getLastMessGroup);
 
 router.post('/sendMess', auth(), validate(messageValidation.sendText), messageController.sendMess);
+router.post('/location', auth(), validate(messageValidation.sendLocation), messageController.sendLocation);
 router.post('/sendFile', auth(), fileMiddleware.uploadFile, validate(messageValidation.groupId), messageController.sendFile);
 // router.get('/getLastMess/:groupId', auth(), validate(messageValidation.getFileById), messageController.getLastMess);
 router.get('/getFile/:id', auth(), validate(messageValidation.getFile), messageController.getFile);
