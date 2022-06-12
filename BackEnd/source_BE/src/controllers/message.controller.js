@@ -36,6 +36,7 @@ const sendFile = catchAsync(async (req, res) => {
   let typeMessage;
   const type = req.file.originalname.split('.').pop().toLowerCase();
   const getMine = req.file.mimetype.split('/')[0];
+  // eslint-disable-next-line no-console
   console.log('type', type);
   // console.log('getMine', getMine);
 
@@ -48,7 +49,7 @@ const sendFile = catchAsync(async (req, res) => {
     }
     if (type === 'mp4') typeMessage = fileTypes.VIDEO;
   } else {
-    if (type === 'docx' || type === 'xlsx' || type === 'pdf' || type === 'pptx') {
+    if (type === 'docx' || type === 'doc' || type === 'xlsx' || type === 'pdf' || type === 'pptx') {
       typeMessage = fileTypes.READ;
     }
     if (type === 'rar' || type === 'zip' || type === 'rar4' || type === 'txt') {

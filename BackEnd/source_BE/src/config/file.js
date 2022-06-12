@@ -1,12 +1,11 @@
 const cloudinary = require('cloudinary').v2;
-const CryptoJS = require('crypto-js');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const path = require('path');
 
 function checkImageType(file, cb) {
   // define a regex that includes the file types we accept
-  const filetypes = /jpeg|jpg|png|gif|mp4|mp3|zip|rar|document|docx|txt|pdf|xlsx|pptx|wav|text|m4a/;
+  const filetypes = /jpeg|jpg|png|gif|mp4|mp3|zip|rar|document|docx|doc|txt|pdf|xlsx|pptx|wav|text|m4a/;
   // check the file extention
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   // eslint-disable-next-line no-console
@@ -34,7 +33,7 @@ const storage = new CloudinaryStorage({
 
 const parser = multer({
   storage,
-  // limit the size to 5mb for any files coming in
+  // limit the size to 25mb for any files coming in
   limits: { fileSize: 50000000 },
   // filer out invalid filetypes
   // eslint-disable-next-line object-shorthand
