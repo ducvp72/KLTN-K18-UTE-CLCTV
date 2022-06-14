@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const { User, Friend, WaitingFriend } = require('../models');
 const ApiError = require('../utils/ApiError');
 const userService = require('./user.service');
+const { createChat } = require('./group.service');
 const changeName = require('../utils/sort');
 
 const checkUserValid = async (user, friendId) => {
@@ -152,6 +153,7 @@ const accept = async (user, friendId) => {
     //addFriend of User
     try {
       await firstAddFriend(user.id, friendId);
+      await createChat(user, friendId);
     } catch (err) {
       console.log(err);
     }
