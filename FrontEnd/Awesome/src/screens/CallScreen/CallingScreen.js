@@ -39,6 +39,8 @@ const CallingScreen = (props) => {
   const { CameraManager } = Voximplant.Hardware
   const camera = CameraManager.getInstance()
 
+  // const calling = new Voximplant.Call;
+
   const goBack = () => {
     props.navigation.goBack()
   };
@@ -64,21 +66,17 @@ const CallingScreen = (props) => {
     }
   }, []);
 
+  const callSettings = {
+    video: {
+      sendVideo: videoCall,
+      receiveVideo: videoCall,
+    },
+  };
+
   useEffect(() => {
     if (!permissionGranted) {
       return;
     }
-
-    const callSettings = {
-      // video: {
-      //   sendVideo: videoCall == true ? true : false,
-      //   receiveVideo: videoCall == true ? true : false,
-      // },
-      video: {
-        sendVideo: true,
-        receiveVideo: true,
-      },
-    };
 
     const makeCall = async () => {
        
@@ -96,7 +94,7 @@ const CallingScreen = (props) => {
       //   console.log('Video size: ' + mediaRenderer.videoSize)
       // })
       subscribeToEndpointEvent();
-      call.current.answer(callSettings);
+      call.current.answer();
     };
 
     const subscribeToCallEvents = () => {
@@ -171,11 +169,14 @@ const CallingScreen = (props) => {
   }
 
   const toggleVideo = () => {
+    if(!videoCall) return
     if(sendVideo==true) {
       setSendVideo(false)
+      // calling.sendVideo(false)
       call.current.sendVideo(false)
     } else {
       setSendVideo(true)
+      // calling.sendVideo(true)
       call.current.sendVideo(true)
     }
     
@@ -195,7 +196,7 @@ const CallingScreen = (props) => {
   return (
     <View style={styles.page}>
       <Pressable onPress={goBack} style={styles.backButton}>
-        <Ionicons name="chevron-back" color="white" size={25} />
+        <Ionicons name="chevron-back" color="black" size={25} />
       </Pressable>
 
       <Voximplant.VideoView
@@ -250,13 +251,13 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
     marginTop: 50,
     marginBottom: 15,
   },
   phoneNumber: {
     fontSize: 20,
-    color: 'white',
+    color: 'black',
   },
   backButton: {
     position: 'absolute',

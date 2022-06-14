@@ -49,10 +49,14 @@ export function GroupMemberList(props) {
   }
 
   const removeMember = async(memberId) => {
+    console.log('removeMember 1')
+    console.log('removeMember memberList > ', memberList)
     let filteredArray = await memberList.filter((item) => {
       item.userId != memberId
     })
-    setMemberList({memberList: filteredArray});
+    console.log('removeMember filteredArray > ', filteredArray)
+    setMemberList(filteredArray);
+    setSearchedList(filteredArray);
   }
 
   const deleteMember = (memberId, mmeberFullname) => {
@@ -62,19 +66,17 @@ export function GroupMemberList(props) {
       headers: {"Authorization" : `Bearer ${auth.tokens.access.token}`}, 
       data: {
         groupId: groupId,
-        memberId: [
-          {
-            userId: memberId,
-            fullname: mmeberFullname
+        userId: {
+            id: memberId,
+            name: mmeberFullname
           }
-        ]
       }
     })
     .then((response) => {
       if(response) 
       {
-        toggleLoad()
         removeMember(memberId)
+        toggleLoad()
         console.log('deleteMember complete!')
       }
     })
@@ -85,6 +87,7 @@ export function GroupMemberList(props) {
   }
 
   const SearchItemView = ({item}) => {
+    if(item)
     return (
       <TouchableRipple onPress={() => getItem(item.fullname, item.email, item.avatar.path, item.isFriend, item.userId)}>
       <View style={[styles.itemStyle, {backgroundColor: backgroundColor}]} >
@@ -124,8 +127,9 @@ export function GroupMemberList(props) {
         }
       </View>
       </TouchableRipple>
-
     );
+
+    return <></>
   };
 
   const ItemSeparatorView = () => {
@@ -155,7 +159,7 @@ export function GroupMemberList(props) {
 
     setSearchQuery(searchText)
     let text = searchText.toLowerCase()
-    let trucks = friendReqList
+    let trucks = memberList
     let filteredName = trucks.filter((item) => {
       return item.fullname.toLowerCase().match(text) 
       || item.subname.toLowerCase().match(text)
@@ -169,28 +173,28 @@ export function GroupMemberList(props) {
 
   return (
       <>
-        <Searchbar style={[styles.searchbar, {backgroundColor: backgroundColor}]}
-          placeholder={t('common:search')}
-          onChangeText={(query) => onSearch(query)}
-          value={searchQuery}
-          onIconPress={onSearch}
-          onSubmitEditing={onSearch}
-          // onBlur={() => setIsSearching(false)}
-          // onFocus={(query) => onChangeSearch(query)}
-        />
+      {
+        (searchedList.length <= 0 || searchedList == null || searchedList == undefined) ? <></> :
+        <>
+          <Searchbar style={[styles.searchbar, {backgroundColor: backgroundColor}]}
+            placeholder={t('common:search')}
+            onChangeText={(query) => onSearch(query)}
+            value={searchQuery}
+            onIconPress={onSearch}
+            onSubmitEditing={onSearch}
+          />
           <View style={{height: 371}}>
-            <FlatList
+          <FlatList
             data={searchedList}
             // onEndReached={onSearch}
             // onEndReachedThreshold={0.1}
             // keyExtractor={(item, index) => index.toString()}
             ItemSeparatorComponent={ItemSeparatorView}
             renderItem={SearchItemView}
-            // getItemLayout={(data, index) => (
-            //   {length: 100, offset: 100 * index, index}
-            // )}
             />      
           </View>
+        </>
+      }
       </>
   );
 }

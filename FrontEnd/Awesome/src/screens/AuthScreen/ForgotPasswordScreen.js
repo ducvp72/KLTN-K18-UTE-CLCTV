@@ -4,63 +4,49 @@ import {
   Text,
   TextInput,
   View,
-  Alert,
-  ActivityIndicator,
-  SafeAreaView
+  ToastAndroid,
+  Keyboard
 } from 'react-native';
-// import Button from 'react-native-button'
+import { validEmail } from '../../utils/RegexConfig';
 import { AppStyles } from '../../utils/AppStyles';
 import { baseUrl } from '../../utils/Configuration';
 import { Button, useTheme } from 'react-native-paper';
 import axios from 'axios';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { useDispatch } from 'react-redux';
-
-import { login } from '../../reducers';
 import { useTranslation } from 'react-i18next';
 
 function ForgotPasswordScreen({navigation}) {
-  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const { t } = useTranslation() 
-  const dispatch = useDispatch();
   const theme = useTheme()
-  const onPressEmail = () => {
+
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
+
+  const onPressEmail = async() => {
     if (email.length <= 0) {
-      Alert.alert('Please fill out the required fields.');
+      ToastAndroid.show(t('common:fillRequiredField'), 3);
       return;
     }
-    console.log('email: ', email)
-    Alert.alert('email', email)
-    navigation.navigate('ChangePassword', { email: email });
-    // axios({
-    //   method: 'post',
-    //   url: `${baseUrl}/auth/login`,
-    //   headers: {}, 
-    //   data: {
-    //     email: email, 
-    //     password: password
-    //   }
-    // })
-    // .then(function (response) {
-    //   if(response.data.user){
-    //     console.log('id: ', response.data.user.id);
-    //     AsyncStorage.setItem('@loggedInUserID:id', response.data.user.id);
-    //     AsyncStorage.setItem('@loggedInUserID:key', response.data.user.email);
-    //     AsyncStorage.setItem('@loggedInUserID:access', response.data.tokens.access.token);
-    //     AsyncStorage.setItem('@loggedInUserID:refresh', response.data.tokens.refresh.token);
-    //     dispatch(login(response.data.user));
-    //     navigation.navigate('SignedIn');
-    //   } else {
-    //     Alert.alert('User does not exist. Please try again.');
-    //   }
-    // })
-    // .catch(function (error) {
-    //     const { message } = error;
-    //     Alert.alert(message);
-    // });
+
+    if(validEmail.test(email) === false) {
+      ToastAndroid.show(t('common:email') + ' ' + t('common:invalid'), 2);
+      return
+    } 
+
+    await axios({
+      method: 'post',
+      url: `${baseUrl}/auth/send-to-forgot-password`,
+      data: {
+        email: email, 
+      }
+    })
+    .then(function (response) {
+      navigation.navigate('ChangePassword', { email: email });
+    })
+    .catch(function (error) {
+      ToastAndroid.show(t('common:errorOccured'), 3);
+    });
     
   };
 

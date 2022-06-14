@@ -21,8 +21,7 @@ export const logout = (user) => ({
 });
 
 function auth(state = initialAuthState, action) {
-  const { removeSocketContext } = React.useContext(PreferencesContext);
-  const voximplant = Voximplant.getInstance();
+  // const voximplant = Voximplant.getInstance();
   switch (action.type) {
     case LOGIN:
       return {...state, isLoggedIn: true, user: action.user, tokens: action.tokens, qr: action.qr};
@@ -34,8 +33,6 @@ function auth(state = initialAuthState, action) {
       AsyncStorage.removeItem('@loggedInUserID:messageToken');
       AsyncStorage.removeItem('@loggedInUserID:contacts');
       AsyncStorage.removeItem('user-language');
-      removeSocketContext()
-      voximplant.disconnect();
       // messaging().deleteToken()
       return {...state, isLoggedIn: false, user: {}, tokens: {}, qr: {}};
     default:

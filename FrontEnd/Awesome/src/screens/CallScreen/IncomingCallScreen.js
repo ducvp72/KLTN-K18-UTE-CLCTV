@@ -1,16 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, ImageBackground, Pressable} from 'react-native';
 // import bg from '../../../assets/images/ios_bg.png';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
-import {useRoute, useNavigation} from '@react-navigation/native';
 import {Voximplant} from 'react-native-voximplant';
 
 const IncomingCallScreen = (props) => {
   const [caller, setCaller] = useState('');
-  const route = useRoute();
-  const navigation = useNavigation();
   const { call } =  props.route.params;
 
   useEffect(() => {
@@ -26,12 +21,15 @@ const IncomingCallScreen = (props) => {
   }, []);
 
   const onDecline = () => {
+    // console.log('CALL >> ', call)
     call.decline();
   };
 
   const onAccept = () => {
+
     props.navigation.navigate('CallingScreen', {
-      call,
+      videoCall: true,
+      call: call,
       isIncomingCall: true,
     });
   };

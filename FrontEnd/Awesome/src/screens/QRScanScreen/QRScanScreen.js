@@ -4,35 +4,34 @@ import {
   Text,
   View,
   Alert,
+  ToastAndroid
 } from 'react-native';
 import { Button, useTheme } from 'react-native-paper';
 import * as Clipboard from 'expo-clipboard';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from '../../utils/AppStyles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { launchImageLibrary } from 'react-native-image-picker';
-// import QRCodeScanner from 'react-native-qrcode-scanner'; //
-// import { RNCamera } from 'react-native-camera' //
 import {useSelector} from 'react-redux';
 import axios from 'axios';
 import { baseUrl } from '../../utils/Configuration';
-// import RNQRGenerator from 'rn-qr-generator'; //
-// import { QRreader } from "react-native-qr-decode-image-camera"; //
-// import QrCodeReader from 'qrcode-reader'; //
-// import { Buffer } from 'buffer'; //
+import { useTranslation } from 'react-i18next';
 import { BarCodeScanner } from 'expo-barcode-scanner'
+import { PreferencesContext } from '../../context/PreferencesContext';
 
 export default QRScanScreen = (props) => {
     const auth = useSelector((state) => state.auth);
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const theme = useTheme()
+    const {t} = useTranslation()
+    const { toggleLoad } =  React.useContext(PreferencesContext);
 
     useEffect(() => {
       (async () => {
         const { status } = await BarCodeScanner.requestPermissionsAsync();
         setHasPermission(status === 'granted');
         if (hasPermission === false) {
-          return <Text>No access to camera</Text>;
+          ToastAndroid.show(t('common:permissionError'), 3)
         }
       })();
     }, [hasPermission]);
@@ -90,20 +89,30 @@ export default QRScanScreen = (props) => {
             }
           })
           .then((response) => {
-            Alert.alert('Join Group','Join group successfull!')
+            toggleLoad()
+            Alert.alert('QR Code',t('common:complete'))
           })
           .catch((response) => {
-            Alert.alert('Join Group','Join group failure!')
+            Alert.alert('QR Code', data, [{
+              text: t('common:copy'), 
+              onPress: () => Clipboard.setString(data), 
+              style: t('common:cancel')
+            }, 
+            {
+              text: t('common:confirm'), 
+              style: t('common:cancel')
+            }], 
+            {cancelable: true});
           });
         } else {
           Alert.alert('QR Code', data, [{
-            text: 'COPY', 
+            text: t('common:copy'), 
             onPress: () => Clipboard.setString(data), 
-            style: 'cancel'
+            style: t('common:cancel')
           }, 
           {
-            text: 'OK', 
-            style: 'cancel'
+            text: t('common:confirm'), 
+            style: t('common:cancel')
           }], 
           {cancelable: true});
         }

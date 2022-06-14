@@ -12,6 +12,8 @@ export default {
     signOut: 'Sign out',
     getCode: 'Get code',
     verify: 'Verify',
+    isBanned: 'User is banned!',
+    isActivated: 'Please verify your account!',
 
     profile: 'Profile',
     preferences: 'Preferences',
@@ -44,9 +46,29 @@ export default {
     createGroup: 'Create group',
     deleteGroup: 'Delete group',
     leaveGroup: 'Leave group',
+    empty: 'Empty...',
+    complete: 'Complete!',
+    under10MB: 'File too large (>10MB)!',
+    errorOccured: 'Error occured!',
+
+    fillRequiredField: 'Please fill out the required fields',
+    invalid: 'Invalid...',
+    permissionError: 'Permissions not granted!',
+    startRecording: 'Start recording...',
+    stopRecording: 'Stop recording!',
+    replay: 'Replay...',
+
+    selectPhoto: 'Select Photo',
+    takePhoto: 'Take Photo',
+    recordVideo: 'Record Video',
+    selectFile: 'Select File',
+    voiceChat: 'Voice Chat',
+    sendLocation: 'Send Current Location',
 
     confirm: 'Confirm',
     cancel: 'Cancel',
+    lastPage: 'This is last result...',
+    copy: 'Copy',
 
     fullname: 'Fullname',
     username:'Username',

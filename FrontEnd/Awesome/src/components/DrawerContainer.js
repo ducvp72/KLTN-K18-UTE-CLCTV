@@ -33,7 +33,7 @@ export function DrawerContainer(props) {
     return i18n.changeLanguage(code);
   };
 
-  const { rtl, theme, toggleRTL, toggleTheme } =
+  const { rtl, theme, toggleRTL, toggleTheme, removeSocketContext } =
     React.useContext(PreferencesContext);
   // const translateX = Animated.interpolate(props.progress, {
   //   inputRange: [0, 0.5, 0.7, 0.8, 1],
@@ -112,8 +112,9 @@ export function DrawerContainer(props) {
             )}
             label={t('common:signOut')}
             onPress={() => {
-              props.navigation.closeDrawer();
+              removeSocketContext()
               dispatch(logout());
+              props.navigation.closeDrawer();
               props.navigation.reset({
                 routes: [{ name: 'SignInStack' }]
               });

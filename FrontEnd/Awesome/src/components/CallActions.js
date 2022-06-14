@@ -30,7 +30,7 @@ const CallActions = ({onHangupPress, onChangeCamera, toggleVideo, toggleMicropho
 
       <Pressable onPress={onToggleCamera} style={styles.iconButton}>
         <MaterialIcons
-          name={isCameraOn ? 'camera-off' : 'camera'}
+          name={isCameraOn ? 'camera' : 'camera-off'}
           size={30}
           color={'white'}
         />
@@ -38,7 +38,7 @@ const CallActions = ({onHangupPress, onChangeCamera, toggleVideo, toggleMicropho
 
       <Pressable onPress={onToggleMicrophone} style={styles.iconButton}>
         <MaterialIcons
-          name={isMicOn ? 'microphone-off' : 'microphone'}
+          name={isMicOn ? 'microphone' : 'microphone-off'}
           size={30}
           color={'white'}
         />

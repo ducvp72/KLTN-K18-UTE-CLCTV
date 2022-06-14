@@ -1,12 +1,9 @@
-import React, {useLayoutEffect, useState, useEffect} from 'react';
-import {ScrollView, StyleSheet, Text, View,Image,FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, Text, View,Image, ToastAndroid, Keyboard} from 'react-native';
 import { baseUrl } from '../../utils/Configuration';
 import { Searchbar, useTheme, TouchableRipple } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import Spinner from 'react-native-loading-spinner-overlay';
-import { CommonActions } from '@react-navigation/native';
-import {connect, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useSelector} from 'react-redux';
 import axios from 'axios';
 // import Toast from 'react-native-simple-toast';
 import overlay from "../../utils/overlay";
@@ -21,9 +18,12 @@ export function ContactScreen(props) {
   const auth = useSelector((state) => state.auth);
   const [searchedList, setSearchedList] = useState([]);
   const [friendList, setFriendList] = useState([]);
-  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('');
   const { load } =  React.useContext(PreferencesContext);
+
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
 
   useEffect(() => {
     getFriendList()
@@ -50,17 +50,6 @@ export function ContactScreen(props) {
     );
   };
 
-  // const ItemSeparatorView = () => {
-  //   return (
-  //     <View
-  //       style={{
-  //         width: '100%',
-  //         backgroundColor: backgroundColor,
-  //       }}>
-  //     </View>
-  //   );
-  // };
-
   const getItem = (fullname, email, avatar, isFriend, id) => {
     props.navigation.navigate('OtherUserProfile', { 
       otherUserFullname: fullname,
@@ -70,31 +59,9 @@ export function ContactScreen(props) {
       otherUserId: id
     });
   };
-
-  // const transformSingleData = (data) => {
-  //   data.value = data.friends.fullname
-  //   data.key = data.friends.id
-  //   return data
-  // }
-
-  // const transformData = (data) => {
-  //   if (data && data.length !== 0) {
-  //     const transformData = [];
-  //     for (const singleData of data) {
-  //       if (singleData) {
-  //         singleData.value = singleData.friends.fullname
-  //         singleData.key = singleData.friends.id
-  //         transformData.push(singleData);
-  //       }
-  //     }
-
-  //     return transformData
-  //   }
-  //   return [];
-  // }
   
-  const getFriendList = () => {
-    axios({
+  const getFriendList = async() => {
+    await axios({
       method: 'get',
       url: `${baseUrl}/friend/getListFriend`,
       headers: {"Authorization" : `Bearer ${auth.tokens.access.token}`}, 
@@ -105,31 +72,27 @@ export function ContactScreen(props) {
         setFriendList(response.data)
         setSearchedList(response.data)
       } else {
-        console.log('Khong co ban be ')
+        ToastAndroid.show(t('common:empty'), 3)
       }
     })
     .catch(function (error) {
-        const { message } = error;
-        console.log(message);
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
   };
 
   const onSearch = (searchText) => {
-        if(searchText == '' || searchText == null)
-          return
-        setSearchQuery(searchText)
-        let text = searchText.toLowerCase()
-        let trucks = friendList
-        let filteredName = trucks.filter((item) => {
-          return item.friends.fullname.toLowerCase().match(text) 
-          // || item.friends.subname.toLowerCase().match(text)
-          // || item.friends.username.toLowerCase().match(text)
-        })
-        console.log(filteredName)
-        if(filteredName)
-          setSearchedList(filteredName)
-        else
-          setSearchedList(friendList)
+    setSearchQuery(searchText)
+    let text = searchText.toLowerCase()
+    let trucks = friendList
+    let filteredName = trucks.filter((item) => {
+      return item.friends.fullname.toLowerCase().match(text) 
+      || item.friends.username.toLowerCase().match(text)
+    })
+
+    if(searchText)
+      setSearchedList(filteredName)
+    else
+      setSearchedList(friendList)
   }
 
   const renderSectionHeader = (section) => {
@@ -146,10 +109,8 @@ export function ContactScreen(props) {
           placeholder={t('common:search')}
           onChangeText={(query) => onSearch(query)}
           value={searchQuery}
-          onIconPress={onSearch}
-          onSubmitEditing={onSearch}
-          // onBlur={() => setIsSearching(false)}
-          // onFocus={(query) => onChangeSearch(query)}
+          onIconPress={() => onSearch(searchQuery)}
+          onSubmitEditing={() => onSearch(searchQuery)}
         />
           <View style={[styles.friendReqContainer, {backgroundColor: backgroundColor, maxHeight: 60}]}
           >
@@ -168,14 +129,6 @@ export function ContactScreen(props) {
             </Text>
           </View>
           <View style={{height: 371}}>
-            {/* <FlatList
-            data={searchedList}
-            // onEndReached={onSearch}
-            // onEndReachedThreshold={0.1}
-            // keyExtractor={(item, index) => index.toString()}
-            ItemSeparatorComponent={ItemSeparatorView}
-            renderItem={SearchItemView}
-            />       */}
             <AlphabetList
               data={searchedList}
               renderItem={(item) => SearchItemView(item)}

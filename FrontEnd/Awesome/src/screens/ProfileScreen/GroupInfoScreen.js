@@ -5,12 +5,12 @@ import {
   View,
   ScrollView,
   Image,
+  ToastAndroid
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { SCREEN_HEIGHT, AppIcon } from '../../utils/AppStyles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import Toast from 'react-native-simple-toast';
 import axios from 'axios';
 import {useSelector} from 'react-redux';
 import { useTheme, Switch, TouchableRipple, Portal } from 'react-native-paper';
@@ -33,7 +33,7 @@ function GroupInfoScreen(props) {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [leaveVisible, setLeaveVisible] = useState(false);
-  const { load} =  React.useContext(PreferencesContext); 
+  const { load, toggleLoad} =  React.useContext(PreferencesContext); 
 
   useEffect(() => {
     getGroupProfile()
@@ -53,16 +53,15 @@ function GroupInfoScreen(props) {
     })
       .then((response) => {
         if(response.data) {
-            setGroup(response.data)
-            setJoinStatus(response.data.status)
-            setLoading(false)
+          setGroup(response.data)
+          setJoinStatus(response.data.status)
+          setLoading(false)
         } else {
-            console.log("GROUP INFO >>> NOT FOUND");
+          ToastAndroid.show(t('common:empty'), 3);
         }
       })
       .catch(function (error) {
-        const { message } = error;
-        console.log("GROUP INFO >>> " + message);
+        ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -75,14 +74,13 @@ function GroupInfoScreen(props) {
     })
       .then((response) => {
         if(response.data) {
-            props.navigation.navigate('GroupMemberList', { memberList: response.data.results, groupId: group._id, isAdmin: (group.admin.username == auth.user.username)});
+          props.navigation.navigate('GroupMemberList', { memberList: response.data.results, groupId: group._id, isAdmin: (group.admin.username == auth.user.username)});
         } else {
-            console.log("GROUP MEMBER >>> NOT FOUND");
+          ToastAndroid.show(t('common:empty'), 3);
         }
       })
       .catch(function (error) {
-        const { message } = error;
-        console.log("GROUP MEMBER >>> " + message);
+        ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -97,12 +95,11 @@ function GroupInfoScreen(props) {
         if(response.data) {
             props.navigation.navigate('QRProfileScreen', { groupQR: response.data.qr, groupName: group.groupName});
         } else {
-            console.log("GROUP QR >>> NOT FOUND");
+          ToastAndroid.show(t('common:empty'), 3);
         }
       })
       .catch(function (error) {
-        const { message } = error;
-        console.log("GROUP QR >>> " + message);
+        ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -122,15 +119,14 @@ function GroupInfoScreen(props) {
       })
       .then(function(response) {
         if(response.data) {
-            console.log("JOIN STATUS >>>> " + response.data.status)
+          ToastAndroid.show(t('common:complete'), 3);
             setJoinStatus(response.data.status)
         } else {
-            console.log("JOIN STATUS >>> NOT FOUND");
+          ToastAndroid.show(t('common:empty'), 3);
         }
       })
       .catch(function (error) {
-        const { message } = error;
-        console.log("GROUP INFO >>> " + message);
+        ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -151,14 +147,15 @@ function GroupInfoScreen(props) {
     })
     .then(response => {
       if(response.data ) {
+        ToastAndroid.show(t('common:complete'), 3);
         setCreateGroupName('')
         getGroupProfile()
       } else {
-        console.log("changeNameGroup >>> " + response)
+        ToastAndroid.show(t('common:empty'), 3);
       }
     })
     .catch(err => {
-      console.log("changeNameGroup >>> " + err)
+      ToastAndroid.show(t('common:errorOccured'), 3);
     })
   }
 
@@ -187,12 +184,14 @@ function GroupInfoScreen(props) {
       }
     })
     .then(response => {
+      toggleLoad()
+      ToastAndroid.show(t('common:complete'), 3);
       props.navigation.reset({
         routes: [{ name: 'Messages', params: auth.user.id}],
       });
     })
     .catch(err => {
-      console.log("deleteGroup >>> " + err)
+      ToastAndroid.show(t('common:errorOccured'), 3);
     })
   }
 
@@ -207,12 +206,14 @@ function GroupInfoScreen(props) {
       }
     })
     .then(response => {
+      toggleLoad()
+      ToastAndroid.show(t('common:complete'), 3);
       props.navigation.reset({
         routes: [{ name: 'Messages', params: auth.user.id}],
       });
     })
     .catch(err => {
-      console.log("leaveGroup >>> " + err)
+      ToastAndroid.show(t('common:errorOccured'), 3);
     })
   }
 

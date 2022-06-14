@@ -12,6 +12,8 @@ export default {
   signOut: '退出',
   getCode: '获取代码',
   verify: '核实',
+  isBanned: 'User is banned!',
+  isActivated: 'Hãy kích hoạt tài khoản!',
 
   profile: '个人资料',
   preferences: '偏好',
@@ -44,9 +46,29 @@ export default {
   createGroup: '创建组',
   deleteGroup: '删除组',
   leaveGroup: '离开组',
+  empty: 'Empty...',
+  complete: 'Complete!',
+  under10MB: 'File too large (>10MB)!',
+  errorOccured: 'Error occured!',
+
+  fillRequiredField: 'Please fill out the required fields',
+  invalid: 'Invalid...',
+  permissionError: 'Permissions not granted!',
+  startRecording: 'Start recording...',
+  stopRecording: 'Stop recording!',
+  replay: 'Replay...',
+
+  selectPhoto: 'Chọn hình ảnh',
+  takePhoto: 'Chụp ảnh',
+  recordVideo: 'Quay phim',
+  selectFile: 'Chọn tệp tin',
+  voiceChat: 'Tin nhắn âm thanh',
+  sendLocation: 'Gửi vị trí hiện tại',
 
   confirm: '确认',
   cancel: '取消',
+  lastPage: 'This is last result...',
+  copy: 'Copy',
 
   fullname: '全名',
   username: '用户名',

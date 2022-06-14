@@ -4,65 +4,69 @@ import {
   Text,
   TextInput,
   View,
-  Alert,
-  ActivityIndicator,
-  SafeAreaView
+  Keyboard,
+  ToastAndroid
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { AppStyles } from '../../utils/AppStyles';
 
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../reducers';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { baseUrl } from '../../utils/Configuration';
 
 function ChangePasswordScreen({route, navigation}) {
-  const [loading, setLoading] = useState(false);
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
   const {t} = useTranslation()
-  const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth);
   const { email } = route.params;
 
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
+
   const onPressChangePassword = () => {
     if (code.length <= 0 || newPassword.length <= 0 ) {
-      Alert.alert('Please fill out the required fields.');
+      ToastAndroid.show(t('common:fillRequiredField'), 3);
       return;
     }
-    console.log('code: ', code)
-    console.log('newpassword: ', newPassword)
-    Alert.alert('email: ' + email, 'code: ' + code + '\nnew password: ' + newPassword)
-    // axios({
-    //   method: 'post',
-    //   url: `${baseUrl}/auth/login`,
-    //   headers: {}, 
-    //   data: {
-    //     email: email, 
-    //     password: password
-    //   }
-    // })
-    // .then(function (response) {
-    //   if(response.data.user){
-    //     console.log('id: ', response.data.user.id);
-    //     AsyncStorage.setItem('@loggedInUserID:id', response.data.user.id);
-    //     AsyncStorage.setItem('@loggedInUserID:key', response.data.user.email);
-    //     AsyncStorage.setItem('@loggedInUserID:access', response.data.tokens.access.token);
-    //     AsyncStorage.setItem('@loggedInUserID:refresh', response.data.tokens.refresh.token);
-    //     dispatch(login(response.data.user));
-    //     navigation.navigate('SignedIn');
-    //   } else {
-    //     Alert.alert('User does not exist. Please try again.');
-    //   }
-    // })
-    // .catch(function (error) {
-    //     const { message } = error;
-    //     Alert.alert(message);
-    // });
-    
+
+    if(auth.user) {
+      axios({
+        method: 'put',
+        url: `${baseUrl}/profile/change-password`,
+        headers: {"Authorization" : `Bearer ${auth.tokens.access.token}`}, 
+        data: {
+          oldPassword: code, 
+          password: newPassword,
+        }
+      })
+      .then(function (response) {
+        ToastAndroid.show(t('common:complete'), 3);
+      })
+      .catch(function (error) {
+        ToastAndroid.show(t('common:errorOccured'), 3);
+      });
+    } else {
+      axios({
+        method: 'post',
+        url: `${baseUrl}/auth/reset-password`,
+        headers: {}, 
+        data: {
+          email: email, 
+          password: newPassword,
+          code: code
+        }
+      })
+      .then(function (response) {
+        ToastAndroid.show(t('common:complete'), 3);
+      })
+      .catch(function (error) {
+        ToastAndroid.show(t('common:errorOccured'), 3);
+      });
+    }
   };
 
   return (
@@ -74,7 +78,7 @@ function ChangePasswordScreen({route, navigation}) {
           placeholder={auth.user?.fullname ? t('common:oldPassword') : t('common:inputCode')}
           onChangeText={setCode}
           value={code}
-          keyboardType = 'number-pad'
+          keyboardType = {auth.user?.fullname ? 'default' : 'number-pad'}
           placeholderTextColor={AppStyles.color.grey}
           underlineColorAndroid="transparent"
         />

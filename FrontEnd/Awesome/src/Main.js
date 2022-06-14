@@ -4,7 +4,7 @@ import {
   DefaultTheme,
   DarkTheme,
 } from "react-native-paper";
-import { I18nManager, LogBox, Text, useColorScheme } from "react-native";
+import { I18nManager, useColorScheme } from "react-native";
 import { Updates } from "expo";
 // import { useColorScheme } from 'react-native-appearance';
 
@@ -18,6 +18,7 @@ import { PreferencesContext } from "./context/PreferencesContext";
 import { RootNavigator } from './navigations/RootNavigator';
 import { enableScreens } from 'react-native-screens';
 import {AppStyles} from './utils/AppStyles'
+import {Voximplant} from 'react-native-voximplant';
 enableScreens();
 
 
@@ -26,22 +27,31 @@ enableScreens();
 const store = createStore(AppReducer, applyMiddleware(thunk));
 
 export const Main = () => {
-
+  const voximplant = Voximplant.getInstance();
   const colorScheme = useColorScheme();
   const [theme, setTheme] = useState(colorScheme === "dark" ? "dark" : "light");
   const [rtl] = useState(I18nManager.isRTL);
   const [load, setLoad] = useState(true)
-  const [socketContext, setSocketContext] = useState(undefined);
+  const [socketContext, setSocketContext] = useState();
 
-  const removeSocketContext = () => {
-    setSocketContext(undefined)
+  const removeSocketContext = async() => {
+    await voximplant.disconnect()
+    await socketContext.off('connect')
+    await socketContext.off('disconnect')
+    await socketContext.off('connect_error')
+    await socketContext.off('room:chat')
+    await socketContext.removeAllListeners('connect','disconnect','connect_error','room:chat')
+    await socketContext.removeAllListeners()
+    await socketContext.disconnect()
+    setSocketContext()
   }
 
-  const createSocketContext = (userId) => {
-    console.log('createSocketContext >> userId >> ' + userId)
-    setSocketContext(io(socketUrl, {
+  const createSocketContext = async(userId) => {
+    // console.log('createSocketContext >> userId >> ' + userId)
+    setSocketContext(await io(socketUrl, {
       auth: {
-        userId: userId
+        userId: userId,
+        forceNew: true,
       },
     }))
   }

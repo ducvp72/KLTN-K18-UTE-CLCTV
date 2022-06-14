@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useLayoutEffect} from 'react';
-import { StyleSheet, Text, View,Image,FlatList} from 'react-native';
-import { Searchbar, useTheme, Menu, TouchableRipple, Dialog, Portal, Button } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View,Image,FlatList, ToastAndroid, Keyboard} from 'react-native';
+import { Searchbar, useTheme, TouchableRipple, Portal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { CommonActions } from '@react-navigation/native';
 import {connect, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios';
 // import Toast from 'react-native-simple-toast';
 import overlay from "../../utils/overlay";
 import { useTranslation } from 'react-i18next';
 import { PreferencesContext } from '../../context/PreferencesContext';
-import { baseUrl, socketUrl } from '../../utils/Configuration';
+import { baseUrl } from '../../utils/Configuration';
 import { onDisplayNotification, sendSingleDeviceNotification } from '../../utils/notificationFCM'
 import {Voximplant} from 'react-native-voximplant';
 import { AppIcon } from '../../utils/AppStyles';
@@ -19,12 +18,15 @@ import { AppIcon } from '../../utils/AppStyles';
 // import Dialog from "react-native-dialog";
 // import { Dialog } from '../../components/Dialog';
 // import { Header } from '../../navigations/StackNavigator';
-import { ConfirmDialog, InputDialog } from '../../components/Dialog';
+import {  InputDialog } from '../../components/Dialog';
 
 function HomeScreen(props) {
   var CryptoJS = require("crypto-js");
-  // console.log('PROPS: ' + props.user.id)
-  const { load, socketContext, createSocketContext } =  React.useContext(PreferencesContext);
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
+
+  const { load, toggleLoad, socketContext, createSocketContext } =  React.useContext(PreferencesContext);
 
   // const [socket, setSocket] = useState(io(socketUrl, {
   //   auth: {
@@ -43,8 +45,6 @@ function HomeScreen(props) {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPage, setTotalPage] = useState(1);
   const [lastMessages, setLastMessages] = useState([])
-  const [id, setId] = useState('')
-  const [visible, setVisible] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const voximplant = Voximplant.getInstance();
   const [createGroupName, setCreateGroupName] = useState('')
@@ -71,12 +71,6 @@ function HomeScreen(props) {
         })
       );
     } else {
-      AsyncStorage.getItem('@loggedInUserID:id').then((response) => {
-        if(response) {
-          setId(response)
-
-        }
-      })
       loadLastMess()
     }
 
@@ -107,27 +101,30 @@ function HomeScreen(props) {
       console.log('socketContext ON CONNECT - HOME')
     });
     socketContext.on('disconnect', () => {
-      createSocketContext(auth.user.id)
+      socketContext.socket.connect()
+      // createSocketContext(auth.user.id)
+    });
+    socketContext.on('connect_error', () => {
+      socketContext.socket.connect()
+      // createSocketContext(auth.user.id)
     });
   }, [socketContext]);
 
   useEffect(() => {
     socketContext.on('room:chat', (message) => {
-      if(message)
-        console.log('ON ROOM:CHAT ' + props.user.fullname + ' RECEIVE ' + JSON.stringify(message))
-
+      toggleLoad()
+      if(message.groupId) {
+        // console.log('ON ROOM:CHAT ' + auth.user.fullname + ' RECEIVE ' + JSON.stringify(message))
         const nofiText = (message.text ? (CryptoJS.AES.decrypt(message.text, message.groupId)).toString(CryptoJS.enc.Utf8) : 'Media message')
         const nofiGroup = (message.groupType != "personal" ? message.groupName : message.user.name)
         const nofiMessage = (message.groupType === "personal" ? '' : `${message.user.name}: `) + `${nofiText}`
-        console.log('nofiText >>> ' + nofiText)
+        // console.log('nofiText >>> ' + nofiText)
         onDisplayNotification(message.groupId, nofiGroup, nofiMessage)
-        // AsyncStorage.getItem('@loggedInUserID:messageToken').then((response) => {
-        //   sendSingleDeviceNotification(nofiGroup, nofiMessage, response, message.groupId)
-        // })
 
         setTimeout(() => {
           loadLastMess()
         },1000)
+      }
 
     });
 
@@ -138,32 +135,30 @@ function HomeScreen(props) {
   }, [load])
 
   const loadLastMess = () => {
-    console.log('LOAD LAST MESS ' + props.user.fullname)
-    AsyncStorage.getItem('@loggedInUserID:access').then((response) => {
-      axios({
-        method: 'get',
-        url: `${baseUrl}/message/ListLast?key`,
-        headers: {"Authorization" : `Bearer ${response}`}, 
-        data: {}
-      })
-      .then(function(res) {
-  
-        if(res.data)
-          setLastMessages(res.data.sort(function (a, b) {
-            return new Date(b.updatedAt) - new Date(a.updatedAt);
-          }));  
-        setLoading(false)
-      })
-      .catch(function(err) {
-        const { message } = error;
-        Alert.alert(message);
-        setLoading(false)
-      })
+    console.log('LOAD LAST MESS ' + auth.user.fullname)
+
+    axios({
+      method: 'get',
+      url: `${baseUrl}/message/ListLast?key`,
+      headers: {"Authorization" : `Bearer ${auth.tokens.access.token}`}, 
+      data: {}
+    })
+    .then(function(res) {
+
+      if(res.data)
+        setLastMessages(res.data.sort(function (a, b) {
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+        }));  
+      setLoading(false)
+    })
+    .catch(function(err) {
+      ToastAndroid.show(t('common:errorOccured'), 3)
+      setLoading(false)
     })
   }
 
   const onChangeSearch = (query) => {
-    console.log('search query: ', query)
+    // console.log('search query: ', query)
     setCurrentPage(0)
     setTotalPage(1)
     setIsSearching(false)
@@ -187,13 +182,14 @@ function HomeScreen(props) {
     .then(response => {
       if(response.data ) {
         setCreateGroupName('')
-        loadLastMess()
+        toggleLoad()
+        ToastAndroid.show(t('common:complete'),3)
       } else {
-        console.log("createGroup >>> " + response)
+        ToastAndroid.show(t('common:invalid'),3)
       }
     })
     .catch(err => {
-      console.log("createGroup >>> " + err)
+      ToastAndroid.show(t('common:errorOccured'),3)
     })
   }
 
@@ -217,7 +213,7 @@ function HomeScreen(props) {
           size={20}
           color={item.isFriend == 1 ? theme.colors.primary : theme.colors.text}
           style={[styles.friendshipIcon]}
-          onPress={() => friendshipPress(item.isFriend)}
+          // onPress={() => friendshipPress(item.isFriend)}
         />
       </View>
       </TouchableRipple>
@@ -242,8 +238,8 @@ function HomeScreen(props) {
     let groupName
     if(item.groupType === 'personal')
     {
-      member = item.member[0].id == id? item.member[1] : item.member[0]
-      groupName = item.member[0].id == id? item.member[1].fullname : item.member[0].fullname
+      member = item.member[0].id == auth.user.id? item.member[1] : item.member[0]
+      groupName = item.member[0].id == auth.user.id? item.member[1].fullname : item.member[0].fullname
     } else {
       member = item.admin
       groupName = item.groupName
@@ -263,8 +259,9 @@ function HomeScreen(props) {
             {groupName}
           </Text>
           <View style={styles.userMessage}>
-            <Text numberOfLines={1} style={[styles.userUsername, {color: theme.colors.text }]} >
-              {item.lastMessage.sender == id ? `${t('common:you')}: ` : ''}
+            <Text numberOfLines={1} style={[styles.userUsername, { color: theme.colors.text, 
+            fontWeight: (item.lastMessage.user._id == auth.user.id ? 'normal' : (item.seen ? 'normal' : 'bold')) }]} >
+              {item.lastMessage.sender == auth.user.id ? `${t('common:you')}: ` : ''}
               {item.lastMessage.text != 'null' ? (CryptoJS.AES.decrypt(item.lastMessage.text, item._id)).toString(CryptoJS.enc.Utf8) : 'Media message'}
             </Text>
             <Text style={[styles.userMessageTime, {color: theme.colors.text }]} >
@@ -272,26 +269,6 @@ function HomeScreen(props) {
             </Text>
           </View>
         </View>
-        {/* {item.groupType === 'public' ?
-        <Menu
-          visible={item._id == visible}
-          onDismiss={() => setVisible(false)}
-          anchor={
-            item.groupType === 'public' ?
-            <View style={{justifyContent: 'center',alignItems: 'center',flex:1}}>
-              <Icon 
-                name='ellipsis-h'
-                size={20}
-                color={theme.colors.text}
-                style={[styles.friendshipIcon]}
-                onPress={() => setVisible(item._id)}
-              />
-            </View> : <></>
-          }>
-          <Menu.Item onPress={() => {}} title={t('common:deleteChat')} />
-        </Menu> : <></>
-        } */}
-
       </View>
       </TouchableRipple>
     );
@@ -309,7 +286,6 @@ function HomeScreen(props) {
   };
 
   const getItem = (fullname, email, avatar, isFriend, id) => {
-    // console.log('Id : ' + item.userId + ' Fullname : ' + item.fullname);
     props.navigation.navigate('OtherUserProfile', { 
       otherUserFullname: fullname,
       otherUserEmail: email,
@@ -320,7 +296,6 @@ function HomeScreen(props) {
   };
 
   const getMessage = (groupName, groupId, admin, groupType, friendId) => {
-    // console.log(item)
 
     props.navigation.navigate('Chat', { 
       groupName: groupName,
@@ -328,23 +303,22 @@ function HomeScreen(props) {
       groupAdmin: admin,
       groupType: groupType,
       friendId: friendId,
-      userId: id,
-      // socket: socket
+      userId: auth.user.id,
     });
   };
 
-  const friendshipPress = (friendship) => {
-    console.log(friendship)
-  }
+  // const friendshipPress = (friendship) => {
+  //   console.log(friendship)
+  // }
   
-  const queryMoreMessages = async(token) => {
+  const queryMoreMessages = () => {
     return new Promise(function (resolve) {
         const newResults = [];
           
         axios({
           method: 'get',
           url: `${baseUrl}/sort/getUserClient?key=`+searchQuery+'&page='+(currentPage+1),
-          headers: {"Authorization" : `Bearer ${token}`}, 
+          headers: {"Authorization" : `Bearer ${auth.tokens.access.token}`}, 
           data: {}
         })
         .then(function (response) {
@@ -358,20 +332,19 @@ function HomeScreen(props) {
             setSearchResult((kq) => {
               return kq.concat(newResults)
             })
-            console.log('Trang: ' + response.data.page +' tim duoc ' + response.data.totalResults)
+            // console.log('Trang: ' + response.data.page +' tim duoc ' + response.data.totalResults)
             setLoading(false)
     
           } else {
             setLoading(false)
             setIsSearching(false)
-            console.log('Khong tim duoc ', response.data.totalResults)
+            ToastAndroid.show(t('common:empty'), 3)
           }
         })
         .catch(function (error) {
             setLoading(false)
             setIsSearching(false)
-            const { message } = error;
-            console.log(message);
+            ToastAndroid.show(t('common:errorOccured'), 3)
         });
 
         setTimeout(function () {
@@ -380,24 +353,21 @@ function HomeScreen(props) {
     });
   };
 
-  const onSearch = async() => {
-      if(searchQuery.length <= 0) return
-      if(currentPage == totalPage) {
-        console.log('Day la trang cuoi')
+  const onSearch = () => {
+      if(searchQuery.length <= 0) 
         return
+      if(currentPage == totalPage) {
+        ToastAndroid.show(t('common:lastPage'), 3)
+        // return
       }
-      console.log('Da tim kiem ', searchQuery)
+      ToastAndroid.show(t('common:search') + ' ' + searchQuery, 3)
       if(searchQuery.length >= 0)
       {
-        await AsyncStorage.getItem('@loggedInUserID:access').then((response) => {
-          setIsSearching(true)
-          setLoading(true)
-
-          queryMoreMessages(response).then((results) => {
-            console.log('Kq: ' + results)
-          })
+        setIsSearching(true)
+        setLoading(true)
+        queryMoreMessages().then(result => {
+          ToastAndroid.show(t('common:complete'), 3)
         })
-
       }
   }
 
@@ -416,7 +386,7 @@ function HomeScreen(props) {
           value={searchQuery}
           onIconPress={onSearch}
           onSubmitEditing={onSearch}
-          onBlur={() => setIsSearching(false)}
+          // onBlur={() => setIsSearching(false)}
           // onFocus={(query) => onChangeSearch(query)}
         />
         { isSearching ? (

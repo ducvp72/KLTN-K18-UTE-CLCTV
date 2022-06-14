@@ -1,14 +1,9 @@
-import React, {useLayoutEffect, useState, useEffect} from 'react';
-import {ScrollView, StyleSheet, Text, View,Image,FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {Keyboard, StyleSheet, Text, View,Image,FlatList} from 'react-native';
 import { baseUrl } from '../../utils/Configuration';
 import { Searchbar, useTheme, TouchableRipple } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import Spinner from 'react-native-loading-spinner-overlay';
-import { CommonActions } from '@react-navigation/native';
-import {connect, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import {useSelector} from 'react-redux';
 import axios from 'axios';
-// import Toast from 'react-native-simple-toast';
 import overlay from "../../utils/overlay";
 import { useTranslation } from 'react-i18next';
 import { PreferencesContext } from '../../context/PreferencesContext';
@@ -20,11 +15,12 @@ export function FriendRequestScreen(props) {
   const auth = useSelector((state) => state.auth);
   const [searchedList, setSearchedList] = useState([]);
   const [friendReqList, setFriendReqList] = useState([]);
-  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('');
-  const [id, setId] = useState('')
-  const [accessToken, setAccessToken] = useState('')
   const { load } =  React.useContext(PreferencesContext);
+
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
 
   useEffect(() => {
       getFriendReqList()
@@ -115,19 +111,18 @@ export function FriendRequestScreen(props) {
   };
 
   const onSearch = (searchText) => {
-        setSearchQuery(searchText)
-        let text = searchText.toLowerCase()
-        let trucks = friendReqList
-        let filteredName = trucks.filter((item) => {
-          return item.sender.fullname.toLowerCase().match(text) 
-          || item.sender.subname.toLowerCase().match(text)
-          || item.sender.username.toLowerCase().match(text)
-        })
-        console.log(filteredName)
-        if(searchText)
-          setSearchedList(filteredName)
-        else
-          setSearchedList(friendReqList)
+    setSearchQuery(searchText)
+    let text = searchText.toLowerCase()
+    let trucks = friendReqList
+    let filteredName = trucks.filter((item) => {
+      return item.sender.fullname.toLowerCase().match(text) 
+      || item.sender.username.toLowerCase().match(text)
+    })
+    console.log(filteredName)
+    if(searchText)
+      setSearchedList(filteredName)
+    else
+      setSearchedList(friendReqList)
   }
 
   return (
@@ -136,8 +131,8 @@ export function FriendRequestScreen(props) {
           placeholder={t('common:search')}
           onChangeText={(query) => onSearch(query)}
           value={searchQuery}
-          onIconPress={onSearch}
-          onSubmitEditing={onSearch}
+          onIconPress={() => onSearch(searchQuery)}
+          onSubmitEditing={() => onSearch(searchQuery)}
           // onBlur={() => setIsSearching(false)}
           // onFocus={(query) => onChangeSearch(query)}
         />

@@ -4,23 +4,22 @@ import {
     Text,
     TextInput,
     View,
-    Alert,
+    Keyboard,
     ScrollView,
-    Pressable
+    Pressable,
+    ToastAndroid
   } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
-
+import { validEmail, validUsername } from '../../utils/RegexConfig';
 import { Button, useTheme } from 'react-native-paper';
 import { AppStyles } from '../../utils/AppStyles';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { baseUrl } from '../../utils/Configuration';
 import axios from 'axios'
-import { useDispatch } from 'react-redux';
-import { login } from '../../reducers';
 import { useTranslation } from 'react-i18next';
 
 function SignUpScreen({navigation}) {
@@ -30,31 +29,32 @@ function SignUpScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('')
-  const dispatch = useDispatch();
   const { t } = useTranslation() 
   const theme = useTheme()
+
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
 
   const [hidePass, setHidePass] = useState(false);
   const icon = !hidePass ? 'eye-slash' : 'eye';
 
-  const onLogRegister = () => {
-    if (email.length <= 0 || password.length <= 0 || fullname.length <= 0
-        || birth.length <= 0 || gender.length <= 0 || username.length <= 0) {
-        Alert.alert('Please fill out the required fields.');
-        return;
-    }
-    Alert.alert('info', 'fullname: ' + fullname + '\nbirth: ' + birth
-    + '\ngender: ' + gender + '\nemail: ' + email + '\npassword: ' + password)
-    navigation.navigate('VerifyCode', { accessToken: 'day la access token' });
-
-  }
-
   const onRegister = () => {
     if (email.length <= 0 || password.length <= 0 || fullname.length <= 0
       || birth.length <= 0 || gender.length <= 0 || username.length <= 0) {
-      Alert.alert('Please fill out the required fields.');
+      ToastAndroid.show(t('common:fillRequiredField'), 3);
       return;
     }
+
+    if(validUsername.test(username) === false) {
+      ToastAndroid.show(t('common:username') + ' ' + t('common:invalid'), 2);
+      return
+    } 
+
+    if(validEmail.test(email) === false) {
+      ToastAndroid.show(t('common:email') + ' ' + t('common:invalid'), 2);
+      return
+    } 
 
     axios({
         method: 'post',
@@ -71,17 +71,15 @@ function SignUpScreen({navigation}) {
       })
       .then(function (response) {
         if(response.data.user){
-          console.log('id: ', response.data.user.id);
-          dispatch(login(response.data.user));
-          const accessToken = response.data.tokens.access.token;
-          navigation.navigate('VerifyCode', { accessToken });
+          // console.log('id: ', response.data.user.id);
+          // dispatch(login(response.data.user));
+          navigation.navigate('VerifyCode', { accessToken: response.data.tokens.access.token });
         } else {
-          Alert.alert('User does not exist. Please try again.');
+          ToastAndroid.show(t('common:errorOccured'), 3);
         }
       })
       .catch(function (error) {
-          const { message } = error;
-          Alert.alert(message);
+        ToastAndroid.show(t('common:errorOccured'), 3);
       });
 
   };
@@ -204,7 +202,7 @@ function SignUpScreen({navigation}) {
                     mode='text'
                     style={[styles.signupButton]}
                     labelStyle={styles.signupButtonText}
-                    onPress={() => onLogRegister()}>
+                    onPress={() => onRegister()}>
                     {t('common:register')}
                 </Button>
             </ScrollView>
@@ -230,7 +228,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: AppStyles.color.tint,
     marginTop: 20,
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   leftTitle: {
     alignSelf: 'stretch',

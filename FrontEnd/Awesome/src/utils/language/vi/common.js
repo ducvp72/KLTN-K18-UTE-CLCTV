@@ -12,6 +12,8 @@ export default {
     signOut: 'Đăng xuất',
     getCode: 'Lấy mã xác nhận',
     verify: 'Xác thực',
+    isBanned: 'Tài khoản của bạn bị khóa!',
+    isActivated: 'Hãy kích hoạt tài khoản!',
 
     profile: 'Hồ sơ',
     preferences: 'Tùy chỉnh',
@@ -44,9 +46,29 @@ export default {
     createGroup: 'Tạo nhóm',
     deleteGroup: 'Xóa nhóm',
     leaveGroup: 'Rời khỏi nhóm',
+    empty: 'Trống rỗng...',
+    complete: 'Thành công!',
+    under10MB: 'Tệp tin quá lớn (hơn 10MB)!',
+    errorOccured: 'Có lỗi xảy ra!',
+
+    fillRequiredField: 'Hãy điền đầy đủ thông tin',
+    invalid: 'Không hợp lệ...',
+    permissionError: 'Chưa được cấp quyền!',
+    startRecording: 'Bắt đầu ghi...',
+    stopRecording: 'Đã dừng ghi!',
+    replay: 'Đang phát lại...',
+
+    selectPhoto: 'Chọn hình ảnh',
+    takePhoto: 'Chụp ảnh',
+    recordVideo: 'Quay phim',
+    selectFile: 'Chọn tệp tin',
+    voiceChat: 'Tin nhắn âm thanh',
+    sendLocation: 'Gửi vị trí hiện tại',
 
     confirm: 'Xác nhận',
     cancel: 'Hủy',
+    lastPage: 'Đây là kết quả cuối...',
+    copy: 'Sao chép',
 
     fullname: 'Họ và tên',
     username: 'Tên người dùng',

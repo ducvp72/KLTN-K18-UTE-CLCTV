@@ -58,7 +58,7 @@ const SignUpStack = () => (
   </Stack.Navigator>
 );
 
-export const Header = ({ scene, previous, navigation, friendId, groupName, groupType, groupId, showDialog }) => {
+export const Header = ({ scene, previous, navigation, friendId, groupName, groupType, groupId, callBuzz }) => {
   const auth = useSelector((state) => state.auth);
   const { options } = scene.descriptor;
   const theme = useTheme();
@@ -127,12 +127,14 @@ export const Header = ({ scene, previous, navigation, friendId, groupName, group
       <Appbar.Action icon='phone-forward' color={theme.colors.text}
         onPress={() => {
           navigation.navigate('CallingScreen', { friendId: friendId, groupName: groupName, videoCall: false })
+          callBuzz()
         }} 
       /> : <></>}
       {(route.name == 'Chat' && groupType === 'personal') ? 
       <Appbar.Action icon='video' color={theme.colors.text}
         onPress={() => {
           navigation.navigate('CallingScreen', { friendId: friendId, groupName: groupName, videoCall: true })
+          callBuzz()
         }} 
       /> : <></>}
       {(route.name == 'Chat' && groupType === 'public') ? 

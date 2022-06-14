@@ -1,31 +1,22 @@
-import React, {useEffect, useState, useLayoutEffect} from 'react';
+import React, { useState} from 'react';
 import {
   StyleSheet,
   Text,
-  TextInput,
   View,
-  Alert,
-  ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   Image,
-  TouchableOpacity,
+  ToastAndroid
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { AppStyles, SCREEN_HEIGHT } from '../../utils/AppStyles';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import Toast from 'react-native-simple-toast';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {connect, useSelector} from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { login } from '../../reducers';
+import {useSelector} from 'react-redux';
 import { useTheme, Menu } from 'react-native-paper';
 import overlay from '../../utils/overlay';
 import { useTranslation } from 'react-i18next';
 import { baseUrl } from '../../utils/Configuration';
-import { CommonActions } from '@react-navigation/native';
 import { PreferencesContext } from '../../context/PreferencesContext';
 
 export function OtherUserProfileScreen(props) {
@@ -33,7 +24,6 @@ export function OtherUserProfileScreen(props) {
   const backgroundColor = overlay(2, theme.colors.surface);
   const { t } = useTranslation()
   const auth = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
   const [visible, setVisible] = React.useState(false);
   const [isFriend, setIsFriend] = useState(props.route.params.isFriend)
   const { otherUserFullname, otherUserEmail, otherUserAvatar, otherUserId} = props.route.params;
@@ -53,12 +43,11 @@ export function OtherUserProfileScreen(props) {
       {
         setIsFriend(2);
         toggleLoad()
-        console.log('Send Req complete!')
+        ToastAndroid.show(t('common:complete'), 3);
       }
     })
     .catch(function (error) {
-      const { message } = error;
-      console.log("Send Req >>> "  + message);
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -76,12 +65,11 @@ export function OtherUserProfileScreen(props) {
       {
         toggleLoad()
         setIsFriend(1);
-        console.log('Accept complete!')
+        ToastAndroid.show(t('common:complete'), 3);
       }
     })
     .catch(function (error) {
-      const { message } = error;
-      console.log("Accept >>> " + message);
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -99,12 +87,11 @@ export function OtherUserProfileScreen(props) {
       {
         toggleLoad()
         setIsFriend(0);
-        console.log('Delete Req complete!')
+        ToastAndroid.show(t('common:complete'), 3);
       }
     })
     .catch(function (error) {
-      const { message } = error;
-      console.log("Delete Req >>> " + message);
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -122,12 +109,11 @@ export function OtherUserProfileScreen(props) {
       {
         toggleLoad()
         setIsFriend(0);
-        console.log('Unfriend complete!')
+        ToastAndroid.show(t('common:complete'), 3);
       }
     })
     .catch(function (error) {
-      const { message } = error;
-      console.log("Unfriend >>> " + message);
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 
@@ -166,8 +152,7 @@ export function OtherUserProfileScreen(props) {
       }
     })
     .catch(function (error) {
-      const { message } = error;
-      console.log("createMessage >>> " +  otherUserId + ' >>> '+ message);
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 

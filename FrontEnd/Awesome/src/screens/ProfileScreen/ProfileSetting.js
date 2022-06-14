@@ -7,17 +7,18 @@ import {
     Alert,
     ScrollView,
     Pressable,
+    Keyboard, ToastAndroid
   } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
+import { validFullname } from '../../utils/RegexConfig';
 import { AppStyles, SCREEN_WIDTH } from '../../utils/AppStyles';
 import { useTheme, Button } from 'react-native-paper';
 import { baseUrl } from '../../utils/Configuration';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { login } from '../../reducers';
 import { useTranslation } from 'react-i18next';
 
@@ -31,11 +32,21 @@ function ProfileSetting(props) {
   const [birth, setBirth] = useState(auth.user?.birth ?? '');
   const [gender, setGender] = useState(auth.user?.gender ?? 'Male');
 
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
+
   const SaveChange = () => {
     if (fullname.length <= 0 || birth.length <= 0 || gender.length <= 0) {
-        Alert.alert('Please fill out the required fields.');
-        return;
+      ToastAndroid.show(t('common:fillRequiredField'), 3)
+      return;
     }
+
+    if(validFullname.test(fullname) === false) {
+      ToastAndroid.show(t('common:fullname') + ' ' + t('common:invalid'), 2);
+      return
+    } 
+
     axios({
       method: 'put',
       url: `${baseUrl}/profile/change-profile`,
@@ -48,15 +59,15 @@ function ProfileSetting(props) {
     })
     .then((response) => {
       if(response.data.user){
-        console.log('id: ', response.data.user.id);
-        dispatch(login(response.data.user));
+        // console.log('id: ', response.data.user.id);
+        dispatch(login(response.data.user, auth.tokens, auth.qr));
+        ToastAndroid.show(t('common:complete'), 3)
       } else {
-        Alert.alert('User does not exist. Please try again.');
+        ToastAndroid.show(t('common:invalid'), 3)
       }
     })
     .catch((error) => {
-        const { message } = error;
-        Alert.alert(message);
+      ToastAndroid.show(t('common:errorOccured'), 3)
     });
   };
 

@@ -5,11 +5,11 @@ import {
   View,
   ScrollView,
   Image,
+  ToastAndroid
 } from 'react-native';
 import { AppIcon, SCREEN_HEIGHT } from '../../utils/AppStyles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import Toast from 'react-native-simple-toast';
 import axios from 'axios';
 import {useSelector, useDispatch} from 'react-redux';
 import { login } from '../../reducers';
@@ -21,7 +21,7 @@ import FormData from 'form-data'
 import { baseUrl } from '../../utils/Configuration';
 
 function ProfileScreen(props) {
-  var CryptoJS = require("crypto-js");
+  // var CryptoJS = require("crypto-js");
   const theme = useTheme()
   const backgroundColor = overlay(2, theme.colors.surface);
   const auth = useSelector((state) => state.auth);
@@ -59,17 +59,6 @@ function ProfileScreen(props) {
 
   const sendMedia = file => {
     const formData = new FormData();
-    // const image = {
-    //   uri: file.uri,
-    //   type: file.type,
-    //   name: file.name,
-    // }
-    
-    // var cipherImage = CryptoJS.AES.encrypt(JSON.stringify({
-    //   uri: file.uri,
-    //   type: file.type,
-    //   name: file.name,
-    // }), '$2a$12$OQ8RAC218lNswEhYDLUKBO3hRzcpcVwyvA.XgKxuufu3.stOdkksu').toString();
 
     formData.append("user-avatar", {
       uri: file.uri,
@@ -89,15 +78,14 @@ function ProfileScreen(props) {
     })
     .then(response => {
       if(response.data){
-        console.log('UPLOAD AVATAR >>>> ' + JSON.stringify(response.data))
+        ToastAndroid.show(t('common:complete'), 3);
         dispatch(login(response.data.user));
       } else {
-        console.log('UPLOAD AVATAR >>>> EMPTY RES')
+        ToastAndroid.show(t('common:errorOccured'), 3);
       }
     })
     .catch(function (error) {
-        const { message } = error;
-        console.log('UPLOAD AVATAR ERROR >>>> ' + message)
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
   }
 

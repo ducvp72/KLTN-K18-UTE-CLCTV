@@ -2,7 +2,6 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppearanceProvider } from 'react-native-appearance';
 import { Main } from './src/Main'
-import { CallScreen } from './src/screens/CallScreen/CallScreen'
 import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import './src/context/Localize'

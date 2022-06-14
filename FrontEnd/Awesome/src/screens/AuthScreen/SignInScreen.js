@@ -6,12 +6,13 @@ import {
   View,
   Alert,
   ScrollView,
+  ToastAndroid,
+  Keyboard
 } from 'react-native';
 import { Button as PaperButton, useTheme } from 'react-native-paper';
 import { AppStyles } from '../../utils/AppStyles';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import Toast from 'react-native-simple-toast';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import { validEmail } from '../../utils/RegexConfig';
@@ -33,8 +34,13 @@ function SignInScreen({props, navigation}) {
   const { createSocketContext, removeSocketContext } = React.useContext(PreferencesContext);
   const voximplant = Voximplant.getInstance();
   const dispatch = useDispatch();
+
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
+
   useEffect(() => {
-    removeSocketContext()
+    // removeSocketContext()
     dispatch(logout());
     checkBatteryOptimization()
     checkPowerManagement()   
@@ -43,22 +49,24 @@ function SignInScreen({props, navigation}) {
   }, [])
 
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('duclionel0702@gmail.com');
+  const [email, setEmail] = useState('builam66@gmail.com');
   const [password, setPassword] = useState('123456@User');
 
   const [hidePass, setHidePass] = useState(false);
   const icon = !hidePass ? 'eye-slash' : 'eye';
 
   const onPressLogin = async() => {
+    requestPermission();
+    voximplantConnect();
     setLoading(true)
     if (email.length <= 0 || password.length <= 0) {
       setLoading(false)
-      Toast.show('Please fill out the required fields.');
+      ToastAndroid.show(t('common:fillRequiredField'), 3);
       return;
     }
     if(validEmail.test(email) === false) {
       setLoading(false)
-      Toast.show('Invalid email!');
+      ToastAndroid.show(t('common:invalid'), 2);
       return
     } 
 
@@ -74,47 +82,52 @@ function SignInScreen({props, navigation}) {
     })
     .then(function (response) {
       if(response.data.user){
+        if(response.data.user.isBanned == true) {
+          ToastAndroid.show(t('common:isBanned'),3)
+          setLoading(false)
+          return
+        }
+
+        if(response.data.user.isActivated == false) {
+          ToastAndroid.show(t('common:isActivated'),3)
+          setLoading(false)
+          navigation.navigate('VerifyCode', { accessToken: response.data.tokens.access.token });
+          return
+        }
+
         AsyncStorage.setItem('@loggedInUserID:id', response.data.user.id);
         AsyncStorage.setItem('@loggedInUserID:key', response.data.user.email);
         AsyncStorage.setItem('@loggedInUserID:access', response.data.tokens.access.token);
         AsyncStorage.setItem('@loggedInUserID:refresh', response.data.tokens.refresh.token);
-
         dispatch(login(response.data.user, response.data.tokens, response.data.qr));
-        // Alert.alert('id: ', response.data.user.id + '\n' + 'active: ' + response.data.user.isActivated);
-        if(response.data.user.isActivated == true)
-        {
-          getFCMToken();
-          voximplantSignIn(response.data.user.id)
-          setLoading(false)
-          createSocketContext(response.data.user.id)
-          navigation.reset({
-            routes: [{ name: 'Messages', params: response.data.user.id}],
-          });
+        getFCMToken();
+        voximplantSignIn(response.data.user.id)
+        createSocketContext(response.data.user.id)
+        setLoading(false)
+        navigation.reset({
+          routes: [{ name: 'Messages', params: response.data.user.id}],
+        });
           // navigation.navigate('Messages', { params: response.data.user.id });
-        } else {
-          setLoading(false)
-          navigation.navigate('VerifyCode', { accessToken: response.data.tokens.access.token });
-        }
         
       } else {
         setLoading(false)
-        Alert.alert('User does not exist. Please try again.');
+        ToastAndroid.show(t('common:invalid'),3)
       }
     })
     .catch(function (error) {
         setLoading(false)
-        const { message } = error;
-        Alert.alert(message);
+        // const { message } = error;
+        ToastAndroid.show(t('common:errorOccured'),3)
     });
   };
 
   const voximplantConnect = async () => {
     await voximplant.disconnect();
     const status = await voximplant.getClientState();
-    console.log('voximplantConnect status 1: ' + status)
+    // console.log('voximplantConnect status 1: ' + status)
     if (status === Voximplant.ClientState.DISCONNECTED) {
       await voximplant.connect();
-      console.log('voximplantConnect status 2: ' + await voximplant.getClientState())
+      // console.log('voximplantConnect status 2: ' + await voximplant.getClientState())
     } 
     // else if (status === Voximplant.ClientState.LOGGED_IN) {
     //   redirectHome();
@@ -122,12 +135,13 @@ function SignInScreen({props, navigation}) {
   };
 
   const voximplantSignIn = async (userId) => {
+    const user = `${userId}@${APP_NAME}.${ACC_NAME}.voximplant.com`
     try {
-      const fqUsername = `${userId}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
-      await voximplant.login(fqUsername, password);
+      await voximplant.login(user, password);
     } catch (e) {
-      console.log(e);
-      Alert.alert(e.name, `Error code: ${e.code}`);
+      // console.log(e);
+      await voximplant.login(user, password);
+      ToastAndroid.show(`${t('common:errorOccured')}: ${e.code}`, 2);
     }
   };
 
@@ -156,7 +170,7 @@ function SignInScreen({props, navigation}) {
             },
             {
               text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
+              // onPress: () => console.log("Cancel Pressed"),
               style: "cancel"
             },
           ],
@@ -178,7 +192,7 @@ function SignInScreen({props, navigation}) {
             },
             {
               text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
+              // onPress: () => console.log("Cancel Pressed"),
               style: "cancel"
             },
           ],

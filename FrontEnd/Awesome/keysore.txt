@@ -1,0 +1,9 @@
+get debugkeystore:
+- cd android -> cd app
+- keytool -list -v -keystore <./debug.keystore> -alias <androiddebugkey>
+- pass: android (build.gradle)
+create keystore:
+- cd android cd app
+- keytool -genkey -v -keystore <mykeystore.keystore> -alias <mykeyalias> -keyalg RSA -keysize 2048 -validity 365000
+- pass: android
+current GG Map API key: AIzaSyBsC7N_pq1YcTVbcJtD8U7YuLAVgfL_E2U

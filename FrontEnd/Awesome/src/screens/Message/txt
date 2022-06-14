@@ -22,3 +22,60 @@
         video: 'https://res.cloudinary.com/kltn-k18-dl/video/upload/v1650004452/myGallary/jjo1mibnbfb6nfbmvokw.mp4'
       },
     ]
+
+
+      // const onSend = useCallback((messagess = []) => {
+  //   console.log('TYPE: ' + messagess[0]._id)
+  //   // const [messageToSend] = messages;
+  //   // messagess[0].sent = false;
+  //   // messagess[0].pending = true
+    
+  //   setMessages(previousMessages => GiftedChat.append(previousMessages, messagess))
+
+  //   if(messagess[0]) {
+  //     socket.emit('room:chat',{
+  //       roomId : groupId,
+  //       message : messagess[0]
+  //     })
+  //   }
+
+  //   AsyncStorage.getItem('@loggedInUserID:access').then((response) => {
+  //     axios({
+  //       method: 'post',
+  //       url: `${baseUrl}/message/sendMess`,
+  //       headers: {"Authorization" : `Bearer ${response}`}, 
+  //       data: {
+  //         groupId: groupId,
+  //         text: messagess[0].text,
+  //         typeId: messagess[0]._id
+  //       }
+  //     })
+  //     .then(function(res) {
+        
+  //         console.log('RES: ' + res.data.typeId)
+  //         test = res.data.typeId
+  //       // if(res.data) {
+  //       //   socket.emit('room:chat',{
+  //       //     roomId : groupId,
+  //       //     message : res.data
+  //       //   })
+  //       // }
+
+  //       // console.log('TEST RES: ' + test)
+  //       // 
+  //       // setMessages(previousMessages => {
+  //       //   // console.log('LAST: ' + storedMessages.current[0].typeId)
+  //       //   // console.log('LAST-1: ' + storedMessages.current[1].typeId)
+  //       //   console.log('INDEX: ' + previousMessages.findIndex(message => message.typeId === res.data.typeId))
+  //       //   const newArr = [...previousMessages];
+  //       //   // newArr[index] = res.data;
+  //       //   // console.log('NEW ARR INDEX: ' + newArr[index])
+  //       //   return newArr;
+  //       // });
+  //     })
+  //     .catch(function(err) {
+  //       console.log(err)
+  //     })
+  //   })
+    
+  // }, [])

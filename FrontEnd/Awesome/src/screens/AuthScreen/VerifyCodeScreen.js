@@ -1,72 +1,81 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
   View,
-  Alert,
-  ActivityIndicator,
-  SafeAreaView
+  ToastAndroid,
+  Keyboard
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { AppStyles } from '../../utils/AppStyles';
 import { baseUrl } from '../../utils/Configuration';
 import axios from 'axios';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../reducers';
 import { useTranslation } from 'react-i18next';
 
 function VerifyCodeScreen({route, navigation}) {
-  const [loading, setLoading] = useState(false);
   const [code, setCode] = useState('');
-  const auth = useSelector((state) => state.auth);
   const { accessToken } = route.params;
   const { t } = useTranslation()
-  const dispatch = useDispatch();
 
-  const onPressVerify = () => {
+  const [time, setTime] = useState(60);
+  const timerRef = useRef(time);
+
+  Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.dismiss();
+  });
+
+  const initTimer = () => {
+    const timerId = setInterval(() => {
+      timerRef.current -= 1;
+      if (timerRef.current < 0) {
+        clearInterval(timerId);
+        setTime(60)
+      } else {
+        setTime(timerRef.current);
+      }
+    }, 1000);
+    return () => {
+      clearInterval(timerId);
+      setTime(60)
+    };
+  }
+
+  const sendCode = async() => {
+    initTimer()
+    await axios({
+      method: 'post',
+      url: `${baseUrl}/auth/send-verification-email`,
+      headers: {"Authorization" : `Bearer ${accessToken}`}, 
+      data: {}      
+    })
+    .then(function (response) {
+      ToastAndroid.show(t('common:complete'), 3);
+    })
+    .catch(function (error) {
+      ToastAndroid.show(t('common:errorOccured'), 3);
+    });
+  }
+
+  const onPressVerify = async() => {
     if (code.length <= 0) {
-      Alert.alert('Please fill out the required fields.');
+      ToastAndroid.show(t('common:fillRequiredField'), 3);
       return;
     }
-    console.log('token: ', accessToken)
-    console.log('code: ', code)
-    Alert.alert('Da xac minh', 'token: ' + accessToken + '\ncode: ' + code)
 
-    axios({
+    await axios({
       method: 'post',
       url: `${baseUrl}/auth/verify-email/${code}`,
       headers: {"Authorization" : `Bearer ${accessToken}`}, 
       data: {}      
     })
     .then(function (response) {
-      if(response.data.user){
-        if(auth.user) {
-          navigation.reset({
-            routes: [{ name: 'Messages', params: response.data.user.id}],
-          });
-        } else {
-          navigation.navigate('SignInStack')
-        }
-        // console.log('id: ', response.data.user.id);
-        // AsyncStorage.setItem('@loggedInUserID:id', response.data.user.id);
-        // AsyncStorage.setItem('@loggedInUserID:key', response.data.user.email);
-        // AsyncStorage.setItem('@loggedInUserID:access', response.data.tokens.access.token);
-        // AsyncStorage.setItem('@loggedInUserID:refresh', response.data.tokens.refresh.token);
-        // dispatch(login(response.data.user));
-        // navigation.navigate('SignedIn');
-      } else {
-        Alert.alert('User does not exist. Please try again.');
-      }
+      ToastAndroid.show(t('common:complete'), 3);
+      navigation.navigate('SignInStack')
     })
     .catch(function (error) {
-        const { message } = error;
-        Alert.alert(message);
+      ToastAndroid.show(t('common:errorOccured'), 3);
     });
-    
   };
 
   return (
@@ -83,6 +92,16 @@ function VerifyCodeScreen({route, navigation}) {
           underlineColorAndroid="transparent"
         />
       </View>
+      <Button
+        uppercase={false}
+        mode="text" 
+        disabled={(time == 60) ? false : true}
+        style={styles.loginContainer}
+        labelStyle={styles.loginText}
+        onPress={() => sendCode()}
+        >
+        {t('common:getCode')}{((time == 60) ?  '' : ('    ' + time))}
+      </Button>
       <Button
         uppercase={false}
         mode="text" 
