@@ -6,7 +6,7 @@ const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const changeName = require('../utils/sort');
 const { userService, friendService, codeService } = require('../services');
-const { sendMess } = require('../services/message.service.js');
+const { sendMessHT } = require('../services/message.service.js');
 const { encrypt } = require('./media.service');
 
 const timenotchange = {
@@ -304,7 +304,7 @@ const createGroup = async (user, groupName) => {
           text: tn,
           typeId: 0,
         };
-        await sendMess(user, xxx);
+        await sendMessHT(user, xxx);
       }
     })
     .catch((err) => {
@@ -340,7 +340,7 @@ const leaveGroup = async (user, groupR) => {
     text: tn,
     typeId: 3,
   };
-  await sendMess({ id: user.id }, mess);
+  await sendMessHT({ id: user.id }, mess);
 };
 
 // const deleteMember = async (user, GroupR) => {
@@ -386,7 +386,7 @@ const deleteMember = async (user, GroupR) => {
     text: tn,
     typeId: 2,
   };
-  await sendMess({ id: user.id }, mess);
+  await sendMessHT({ id: user.id }, mess);
 };
 
 const checkAdminGroup = async (adminId, groupId) => {
@@ -507,18 +507,6 @@ const deleteGroup = async (user, groupR) => {
   }
   try {
     await UserGroup.deleteMany({ member: user.id, groupId: { $in: groupR.groupId } });
-
-    // const tn = await encrypt(`${user.fullname} has left  group`, groupR.groupId);
-
-    //ko can thiet
-    // groupR.groupId.forEach(async (id) => {
-    //   const mess = {
-    //     groupId: id,
-    //     text: tn,
-    //     typeId: '0',
-    //   };
-    //   await sendMess({ id: user.id }, mess);
-    // });
 
     const groupS = await Group.find({ _id: { $in: groupR.groupId } });
 
@@ -695,7 +683,7 @@ const addToGroup = async (userId, groupId, GroupInfo) => {
       text: tn,
       typeId: 1,
     };
-    await sendMess({ id: userId.id }, mess);
+    await sendMessHT({ id: userId.id }, mess);
   }
 };
 

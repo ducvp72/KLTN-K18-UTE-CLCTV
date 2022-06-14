@@ -50,6 +50,7 @@ const getListMess = async (user, filter, options) => {
     path: 'admin',
   });
   const myGroup = find.map((item) => item.groupId);
+  console.log('MY GROUP', myGroup);
   const rs = await Group.paginateLast(myGroup, filter, options);
   const results = [];
   const { page, limit, totalPages, totalResults } = rs;
@@ -158,6 +159,40 @@ const sendMess = async (user, req) => {
   // });
 
   // return newM;
+};
+
+const sendMessHT = async (user, req) => {
+  // await checkMem(user.id, req.groupId);
+  // const hashMess = generateMessage(user.id, req.groupId, req.text);
+  // console.log('hash', hashMess);
+  // const decode = await decodeMessage(hashMess);
+  // console.log('decode', decode.sub);
+  let m;
+  try {
+    m = new Message({
+      groupId: req.groupId,
+      sender: user.id,
+      typeMessage: fileTypes.TEXT,
+      text: req.text,
+      typeId: req.typeId,
+    });
+    await autoUpdateDate(req.groupId);
+    await Group.findByIdAndUpdate(req.groupId, {
+      last: m.id,
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
+
+  return m.save().then((item) =>
+    item
+      .populate({
+        path: 'sender',
+        select: 'fullname avatar',
+      })
+      .execPopulate()
+  );
 };
 
 const sendLocation = async (user, req) => {
@@ -288,4 +323,5 @@ module.exports = {
   autoUpdateDate,
   getListMess,
   sendLocation,
+  sendMessHT,
 };
