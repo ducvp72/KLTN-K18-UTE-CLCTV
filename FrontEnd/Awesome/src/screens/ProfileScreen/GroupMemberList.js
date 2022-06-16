@@ -154,48 +154,42 @@ export function GroupMemberList(props) {
   };
 
   const onSearch = (searchText) => {
-    if(searchText == '' || searchText == null)
-    return
-
     setSearchQuery(searchText)
     let text = searchText.toLowerCase()
     let trucks = memberList
     let filteredName = trucks.filter((item) => {
       return item.fullname.toLowerCase().match(text) 
-      || item.subname.toLowerCase().match(text)
       || item.username.toLowerCase().match(text)
     })
-    if(filteredName)
+    if(searchText)
       setSearchedList(filteredName)
     else
       setSearchedList(memberList)
   }
 
   return (
-      <>
-      {
-        (searchedList.length <= 0 || searchedList == null || searchedList == undefined) ? <></> :
         <>
           <Searchbar style={[styles.searchbar, {backgroundColor: backgroundColor}]}
             placeholder={t('common:search')}
             onChangeText={(query) => onSearch(query)}
             value={searchQuery}
-            onIconPress={onSearch}
-            onSubmitEditing={onSearch}
+            onIconPress={() => onSearch}
+            onSubmitEditing={() => onSearch}
           />
           <View style={{height: 371}}>
-          <FlatList
-            data={searchedList}
-            // onEndReached={onSearch}
-            // onEndReachedThreshold={0.1}
-            // keyExtractor={(item, index) => index.toString()}
-            ItemSeparatorComponent={ItemSeparatorView}
-            renderItem={SearchItemView}
-            />      
+            {
+              (searchedList.length <= 0 || searchedList == null || searchedList == undefined) ? <></> :
+              <FlatList
+              data={searchedList}
+              // onEndReached={onSearch}
+              // onEndReachedThreshold={0.1}
+              // keyExtractor={(item, index) => index.toString()}
+              ItemSeparatorComponent={ItemSeparatorView}
+              renderItem={SearchItemView}
+              />      
+            }
           </View>
         </>
-      }
-      </>
   );
 }
 

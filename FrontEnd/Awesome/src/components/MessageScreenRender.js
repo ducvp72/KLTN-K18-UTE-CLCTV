@@ -341,7 +341,7 @@ const OpenURLButton = ({ url, children }) => {
 const renderCustomView = props => {
     if (props?.currentMessage?.file && props?.currentMessage?.file != 'null') {
         return (
-            <View style={styles.voiceContainer}>
+            <View style={[styles.voiceContainer]}>
                 <OpenURLButton url={props.currentMessage.file}>File message</OpenURLButton>
             </View>        
         )

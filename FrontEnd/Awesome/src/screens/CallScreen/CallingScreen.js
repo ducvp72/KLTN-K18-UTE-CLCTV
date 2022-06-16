@@ -132,9 +132,10 @@ const CallingScreen = (props) => {
     };
 
     const showError = reason => {
-      Alert.alert('Call failed', `Reason: ${reason}`, [
+      // Reason: ${reason}
+      Alert.alert('Call failed', ``, [
         {
-          text: 'Ok',
+          text: 'OK',
           onPress: props.navigation.goBack(),
         },
       ]);
@@ -155,7 +156,12 @@ const CallingScreen = (props) => {
   }, [permissionGranted]);
 
   const onHangupPress = () => {
-    call.current.hangup();
+    try {
+      call.current.hangup();
+    } catch {
+      props.navigation.goBack()
+    }
+ 
   };
 
   const onChangeCamera = () => {
