@@ -353,7 +353,7 @@ const leaveGroup = async (user, groupR) => {
     await Group.findByIdAndUpdate(groupR.groupId, { groupName, subName }, timenotchange);
   }
 
-  const tn = await encrypt(`${user.fullname} has left  group`, groupR.groupId);
+  const tn = await encrypt(`${user.fullname}`, groupR.groupId);
 
   //roi nhom
   const mess = {
@@ -376,7 +376,7 @@ const deleteMember = async (user, GroupR) => {
     await autoUpdateNameGroup(GroupR.groupId, user.id);
   }
 
-  const tn = await encrypt(`Admin deleted ${GroupR.userId.name}`, GroupR.groupId);
+  const tn = await encrypt(`${GroupR.userId.name}`, GroupR.groupId);
 
   //xoa thanh vien
   const mess = {
@@ -506,7 +506,7 @@ const deleteGroup = async (user, groupR) => {
   try {
     await UserGroup.deleteMany({ member: user.id, groupId: { $in: groupR.groupId } });
 
-    const tn = await encrypt(`${user.fullname} has left  group`, groupR.groupId[0]);
+    const tn = await encrypt(`${user.fullname}`, groupR.groupId[0]);
 
     //roi nhom
     const mess = {
@@ -683,7 +683,7 @@ const addToGroup = async (userId, groupId, GroupInfo) => {
 
     await Group.findByIdAndUpdate(groupId, { groupName, subName }, timenotchange);
 
-    const tn = await encrypt(`${userId.fullname} has join to group`, groupId);
+    const tn = await encrypt(`${userId.fullname}`, groupId);
 
     //vao nhom
     const mess = {
@@ -714,7 +714,7 @@ const userJoinGroupByCode = async (user, groupId, code) => {
   await codeService.verifyCodeJoinGroup(code, groupId).then(async () => {
     await addToGroup(user, groupId, findGroup);
 
-    const tn = await encrypt(`${user.fullname} has join to group`, groupId);
+    const tn = await encrypt(`${user.fullname}`, groupId);
 
     //vao nhom
     const mess = {
