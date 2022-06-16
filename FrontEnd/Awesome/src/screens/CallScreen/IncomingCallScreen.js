@@ -8,6 +8,8 @@ const IncomingCallScreen = (props) => {
   const [caller, setCaller] = useState('');
   const { call } =  props.route.params;
 
+  // console.log('props.route.params >> ', props.route.params.call.getEndpoints()[0])
+
   useEffect(() => {
     setCaller(call.getEndpoints()[0].displayName);
 
@@ -25,10 +27,10 @@ const IncomingCallScreen = (props) => {
     call.decline();
   };
 
-  const onAccept = () => {
+  const onAccept = (isVideoCall) => {
 
     props.navigation.navigate('CallingScreen', {
-      videoCall: true,
+      videoCall: isVideoCall,
       call: call,
       isIncomingCall: true,
     });
@@ -49,10 +51,18 @@ const IncomingCallScreen = (props) => {
         </Pressable>
 
         {/* Accept Button */}
-        <Pressable onPress={onAccept} style={styles.iconContainer}>
+        <Pressable onPress={() => onAccept(false)} style={styles.iconContainer}>
           <View
             style={[styles.iconButtonContainer, {backgroundColor: '#2e7bff'}]}>
             <Feather name="check" color="white" size={40} />
+          </View>
+          <Text style={styles.iconText}>Accept</Text>
+        </Pressable>
+
+        <Pressable onPress={() => onAccept(true)} style={styles.iconContainer}>
+          <View
+            style={[styles.iconButtonContainer, {backgroundColor: '#2e7bff'}]}>
+            <Feather name="video" color="white" size={40} />
           </View>
           <Text style={styles.iconText}>Accept</Text>
         </Pressable>

@@ -56,7 +56,7 @@ function SignInScreen({ props, navigation }) {
   const [hidePass, setHidePass] = useState(false);
   const icon = !hidePass ? "eye-slash" : "eye";
 
-  const onPressLogin = async () => {
+  const onPressLogin =  () => {
     requestPermission();
     voximplantConnect();
     setLoading(true);
@@ -80,7 +80,7 @@ function SignInScreen({ props, navigation }) {
         password: password,
       },
     })
-      .then(function (response) {
+      .then((response) => {
         if (response.data.user) {
           if (response.data.user.isBanned == true) {
             ToastAndroid.show(t("common:isBanned"), 3);
@@ -97,6 +97,10 @@ function SignInScreen({ props, navigation }) {
             return;
           }
 
+          getFCMToken();
+          voximplantSignIn(response.data.user.id);
+          createSocketContext(response.data.user.id);
+
           AsyncStorage.setItem("@loggedInUserID:id", response.data.user.id);
           AsyncStorage.setItem("@loggedInUserID:key", response.data.user.email);
           AsyncStorage.setItem(
@@ -110,9 +114,7 @@ function SignInScreen({ props, navigation }) {
           dispatch(
             login(response.data.user, response.data.tokens, response.data.qr)
           );
-          getFCMToken();
-          voximplantSignIn(response.data.user.id);
-          createSocketContext(response.data.user.id);
+
           setLoading(false);
           navigation.reset({
             routes: [{ name: "Messages", params: response.data.user.id }],
@@ -144,6 +146,7 @@ function SignInScreen({ props, navigation }) {
   };
 
   const voximplantSignIn = async (userId) => {
+    await voximplantConnect();
     const user = `${userId}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
     try {
       await voximplant.login(user, password);

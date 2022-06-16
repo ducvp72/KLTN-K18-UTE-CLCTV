@@ -295,7 +295,7 @@ export function Chat(props) {
 
   const buzzMessage = [
     {
-      _id: new Date().getMilliseconds(),
+      _id: new Date().getTime(),
       text: "📞 BUZZ!!!!",
       createdAt: new Date(),
       user: {

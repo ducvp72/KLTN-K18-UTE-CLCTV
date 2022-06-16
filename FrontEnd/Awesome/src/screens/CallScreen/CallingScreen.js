@@ -80,7 +80,12 @@ const CallingScreen = (props) => {
 
     const makeCall = async () => {
        
-      call.current = await voximplant.call(friendId, callSettings);
+      call.current = await voximplant.call(friendId, {
+        video: {
+          sendVideo: videoCall,
+          receiveVideo: videoCall,
+        },
+      });
       subscribeToCallEvents();
     };
 
@@ -94,7 +99,12 @@ const CallingScreen = (props) => {
       //   console.log('Video size: ' + mediaRenderer.videoSize)
       // })
       subscribeToEndpointEvent();
-      call.current.answer();
+      call.current.answer({
+        video: {
+          sendVideo: videoCall,
+          receiveVideo: videoCall,
+        },
+      });
     };
 
     const subscribeToCallEvents = () => {
@@ -155,8 +165,20 @@ const CallingScreen = (props) => {
     };
   }, [permissionGranted]);
 
+  const setupEndpointListeners = (endpoint, on) => {
+    Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
+        const callbackName = `_onEndpoint${eventName}`;
+        if (typeof this[callbackName] !== 'undefined') {
+            endpoint[(on) ? 'on' : 'off'](eventName, this[callbackName]);
+        }
+    });
+  }
+
   const onHangupPress = () => {
     try {
+      call.current.getEndpoints().forEach(endpoint => {
+        setupEndpointListeners(endpoint, false);
+      })
       call.current.hangup();
     } catch {
       props.navigation.goBack()
@@ -191,10 +213,10 @@ const CallingScreen = (props) => {
   const toggleMicrophone = () => {
     if(microphone==true) {
       setMicrophone(false)
-      call.current.muteMicrophone();
+      call.current.sendAudio(false);
     } else {
       setMicrophone(true)
-      call.current.unmuteMicrophone();
+      call.current.sendAudio(true);
     }
     
   }
