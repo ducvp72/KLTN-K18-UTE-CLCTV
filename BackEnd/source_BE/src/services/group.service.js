@@ -1,18 +1,41 @@
 const httpStatus = require('http-status');
 const moment = require('moment');
 const QRCode = require('qrcode');
-const { Search, Group, UserGroup, WaitingGroup, Code, Message } = require('../models');
+const { Search, Group, UserGroup, WaitingGroup, Code, Message, Friend, WaitingFriend } = require('../models');
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const changeName = require('../utils/sort');
-const { userService, friendService, codeService } = require('../services');
+const { userService, codeService } = require('../services');
 const { sendMessHT } = require('../services/message.service.js');
 const { encrypt } = require('./media.service');
+
+// tao group 0
+// vao gr 1
+// xoa tv 2
+// roi nhom 3
 
 const timenotchange = {
   new: true,
   useFindAndModify: false,
   timestamps: false,
+};
+
+const isFriendTwo = async (userId, friendId) => {
+  let find = 0;
+  const checkFriends = await Friend.findOne({ user: userId, friends: friendId });
+  const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });
+  const checkWaitingMine = await WaitingFriend.findOne({ user: userId, waitingFriends: friendId });
+  if (checkFriends) {
+    // Bạn
+    find = 1;
+  } else if (checkWaitingOther) {
+    // Mình có trong danh sách chờ kết bạn của nó không
+    find = 2;
+  } else if (checkWaitingMine) {
+    // Nó có trong danh sách chờ kết bạn của mình không
+    find = 3;
+  } else find = 0;
+  return find;
 };
 
 const checkMember = async (groupR) => {
@@ -217,7 +240,7 @@ const getUserToAdd = async (userR, filter, options) => {
     // eslint-disable-next-line prefer-destructuring
     const avatar = item.user.avatar;
     // eslint-disable-next-line no-await-in-loop
-    const isFriend = await friendService.isFriend(userR.id, userId);
+    const isFriend = await isFriendTwo(userR.id, userId);
     // console.log(isFriend);
     results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
   }
@@ -293,10 +316,8 @@ const createGroup = async (user, groupName) => {
         await codeService.generateVerifyCodeGroup(res.id);
 
         const tn = await encrypt(`${user.fullname} `, res.id);
+
         //tao group 0
-        //vao gr 1
-        //xoa tv 2
-        //roi nhom 3
         const xxx = {
           groupId: res.id,
           sender: user.id,
@@ -342,29 +363,6 @@ const leaveGroup = async (user, groupR) => {
   };
   await sendMessHT({ id: user.id }, mess);
 };
-
-// const deleteMember = async (user, GroupR) => {
-//   const group = await Group.findById(GroupR.groupId);
-//   if (JSON.stringify(group.admin) !== `"${user.id}"`) {
-//     throw new ApiError(httpStatus.BAD_REQUEST, 'You must be admin of group !');
-//   }
-
-//   const userDel = GroupR.memberId.map((x) => x.userId);
-
-//   await UserGroup.deleteMany({ groupId: GroupR.groupId, member: { $in: userDel } });
-
-//   if (group.isChangeName === false) {
-//     await autoUpdateNameGroup(GroupR.groupId, user.id);
-//   }
-//   GroupR.memberId.forEach(async (item) => {
-//     const mess = {
-//       groupId: GroupR.groupId,
-//       text: `Admin deleted ${item.fullname}`,
-//       typeId: '0',
-//     };
-//     await sendMess({ id: user.id }, mess);
-//   });
-// };
 
 const deleteMember = async (user, GroupR) => {
   const group = await Group.findById(GroupR.groupId);
@@ -508,6 +506,16 @@ const deleteGroup = async (user, groupR) => {
   try {
     await UserGroup.deleteMany({ member: user.id, groupId: { $in: groupR.groupId } });
 
+    const tn = await encrypt(`${user.fullname} has left  group`, groupR.groupId[0]);
+
+    //roi nhom
+    const mess = {
+      groupId: groupR.groupId[0],
+      text: tn,
+      typeId: 3,
+    };
+    await sendMessHT({ id: user.id }, mess);
+
     const groupS = await Group.find({ _id: { $in: groupR.groupId } });
 
     // eslint-disable-next-line no-plusplus
@@ -542,7 +550,7 @@ const searchMember = async (userR, filter, options) => {
     // eslint-disable-next-line prefer-destructuring
     const avatar = item.user.avatar;
     // eslint-disable-next-line no-await-in-loop
-    const isFriend = await friendService.isFriend(userR.id, userId);
+    const isFriend = await isFriendTwo(userR.id, userId);
     results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
   }
   return { results, page, limit, totalPages, totalResults };
@@ -567,7 +575,7 @@ const getListToAccept = async (userR, filter, options) => {
     // eslint-disable-next-line prefer-destructuring
     const avatar = item.user.avatar;
     // eslint-disable-next-line no-await-in-loop
-    const isFriend = await friendService.isFriend(userR.id, userId);
+    const isFriend = await isFriendTwo(userR.id, userId);
     // console.log(isFriend);
     results.push(Object.assign(newUser, { userId, fullname, username, avatar, email, isFriend }));
   }
@@ -703,14 +711,19 @@ const userJoinGroupByCode = async (user, groupId, code) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Group is full');
   }
 
-  await codeService
-    .verifyCodeJoinGroup(code, groupId)
-    .then(async () => {
-      await addToGroup(user, groupId, findGroup);
-    })
-    .catch((err) => {
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
-    });
+  await codeService.verifyCodeJoinGroup(code, groupId).then(async () => {
+    await addToGroup(user, groupId, findGroup);
+
+    const tn = await encrypt(`${user.fullname} has join to group`, groupId);
+
+    //vao nhom
+    const mess = {
+      groupId,
+      text: tn,
+      typeId: 1,
+    };
+    await sendMessHT({ id: user.id }, mess);
+  });
 
   return findGroup;
 };

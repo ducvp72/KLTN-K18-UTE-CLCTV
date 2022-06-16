@@ -20,7 +20,6 @@ const paginate = (schema) => {
   // eslint-disable-next-line no-param-reassign
   schema.statics.paginateLast = async function (groupArray, filter, options) {
     // eslint-disable-next-line no-param-reassign
-    console.log('GROUP ARR', groupArray);
     options.populate = 'last.sender admin';
 
     let sort = '';
@@ -58,7 +57,7 @@ const paginate = (schema) => {
     })
       .sort(sort)
       .skip(skip)
-      .limit(1000);
+      .limit(10000);
 
     if (options.populate) {
       options.populate.split(',').forEach((populateOption) => {
@@ -76,12 +75,12 @@ const paginate = (schema) => {
     return Promise.all([countPromise, docsPromise]).then((values) => {
       // eslint-disable-next-line prefer-const
       let [totalResults, results] = values;
-      results.map((i) => console.log(i.id));
+      // results.map((i) => console.log(i));
       const users = [];
       // eslint-disable-next-line no-restricted-syntax
       for (const i of results) {
         const userN = JSON.parse(JSON.stringify(i));
-        console.log('userN: ' + JSON.stringify(userN.groupName) + `\n`);
+        // console.log('userN: ' + JSON.stringify(userN.groupName) + `\n`);
         if (userN.last) {
           // console.log('userN: ' + JSON.stringify(userN.id) + `\n`);
           delete userN.isChangeName;

@@ -44,14 +44,6 @@ const checkFriend = async (userId, friendId) => {
 };
 
 const isFriend = async (userId, friendId) => {
-  // console.log('checkFriend', userId, '/n', friendId);
-  // let find = false;
-  // const checkWaitingFriend = await Friend.findOne({ user: userId, friends: friendId });
-  // if (checkWaitingFriend) {
-  //   find = true;
-  // }
-  // return find;
-  // console.log('checkFriend', userId, '/n', friendId);
   let find = 0;
   const checkFriends = await Friend.findOne({ user: userId, friends: friendId });
   const checkWaitingOther = await WaitingFriend.findOne({ user: friendId, waitingFriends: userId });

@@ -63,14 +63,15 @@ const verifyCodeResetPassword = async (code, email) => {
 
 const verifyCodeJoinGroup = async (code, group) => {
   const codeDoc = await Code.findOne({ code, group, blacklisted: false });
+  if (!codeDoc) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Code expired');
+  }
   const countExpire = codeDoc.expires - Date.now();
   // eslint-disable-next-line no-console
   if (countExpire <= 0) {
-    throw new Error('Code expired');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Code expired');
   }
-  if (!codeDoc) {
-    throw new Error('Code not found');
-  }
+
   return codeDoc;
 };
 
