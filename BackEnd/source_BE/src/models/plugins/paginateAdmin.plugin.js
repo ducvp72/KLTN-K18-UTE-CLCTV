@@ -80,6 +80,7 @@ const paginate = (schema) => {
       // eslint-disable-next-line no-restricted-syntax
       for (let i = 0; i < results.length; i++) {
         const userN = JSON.parse(JSON.stringify(results[i]));
+        console.log(userN);
         userN.key = i;
         userN.fullname = userN.user.fullname;
         userN.avatar = userN.user.avatar;
