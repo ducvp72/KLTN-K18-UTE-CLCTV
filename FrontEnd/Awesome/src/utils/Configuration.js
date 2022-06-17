@@ -1,7 +1,7 @@
 import moment from "moment";
 
 export const baseUrl = "http://chatapp-api.eastasia.cloudapp.azure.com:5000/v1";
-// export const baseUrl = "192.168.1.10:5000/v1";
+// export const baseUrl = "192.168.180.2:5000/v1";
 export const socketUrl = "http://chatapp-api.eastasia.cloudapp.azure.com:8000";
 export const APP_NAME = "videocalling";
 export const ACC_NAME = "builam66";

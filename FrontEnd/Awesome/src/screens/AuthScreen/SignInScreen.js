@@ -46,7 +46,11 @@ function SignInScreen({ props, navigation }) {
     // checkPowerManagement()
     dispatch(logout());
     requestPermission();
-    voximplantConnect();
+    (async () => {
+      await voximplant.connect();
+    })();
+
+    // voximplantConnect();
   }, []);
 
   const [loading, setLoading] = useState(false);
@@ -58,7 +62,6 @@ function SignInScreen({ props, navigation }) {
 
   const onPressLogin = () => {
     requestPermission();
-    voximplantConnect();
     setLoading(true);
     if (email.length <= 0 || password.length <= 0) {
       setLoading(false);
@@ -98,104 +101,27 @@ function SignInScreen({ props, navigation }) {
           }
 
           getFCMToken();
-          // voximplantSignIn(response.data.user.id);
+          voximplantSignIn(response.data.user.id);
           createSocketContext(response.data.user.id);
-          (async () => {
-            try {
-              const status = await voximplant.getClientState();
-              if (status === Voximplant.ClientState.DISCONNECTED) {
-                await voximplant.connect();
-              }
-              if (
-                status === Voximplant.ClientState.CONNECTING ||
-                status === Voximplant.ClientState.LOGGING_IN
-              ) {
-                await voximplant.disconnect();
-                setLoading(false);
-                return;
-              }
-              const vToken = await voximplant.login(
-                `${response.data.user.id}@${APP_NAME}.${ACC_NAME}.voximplant.com`,
-                password
-              );
-              console.log("VTokens >> ", vToken);
-              if (vToken.tokens !== null) {
-                AsyncStorage.setItem(
-                  "@loggedInUserID:id",
-                  response.data.user.id
-                );
-                AsyncStorage.setItem(
-                  "@loggedInUserID:key",
-                  response.data.user.email
-                );
-                AsyncStorage.setItem(
-                  "@loggedInUserID:access",
-                  response.data.tokens.access.token
-                );
-                AsyncStorage.setItem(
-                  "@loggedInUserID:refresh",
-                  response.data.tokens.refresh.token
-                );
-                dispatch(
-                  login(
-                    response.data.user,
-                    response.data.tokens,
-                    response.data.qr
-                  )
-                );
 
-                setLoading(false);
-                navigation.reset({
-                  routes: [{ name: "Messages", params: response.data.user.id }],
-                });
-              } else {
-                ToastAndroid.show(`${t("common:errorOccured")}: ${e.code}`, 2);
-                setLoading(false);
-                return;
-              }
-            } catch (e) {
-              const vToken = await voximplant.login(
-                `${response.data.user.id}@${APP_NAME}.${ACC_NAME}.voximplant.com`,
-                password
-              );
-              console.log("VTokens >> ", vToken);
-              if (vToken.tokens !== null) {
-                AsyncStorage.setItem(
-                  "@loggedInUserID:id",
-                  response.data.user.id
-                );
-                AsyncStorage.setItem(
-                  "@loggedInUserID:key",
-                  response.data.user.email
-                );
-                AsyncStorage.setItem(
-                  "@loggedInUserID:access",
-                  response.data.tokens.access.token
-                );
-                AsyncStorage.setItem(
-                  "@loggedInUserID:refresh",
-                  response.data.tokens.refresh.token
-                );
-                dispatch(
-                  login(
-                    response.data.user,
-                    response.data.tokens,
-                    response.data.qr
-                  )
-                );
+          AsyncStorage.setItem("@loggedInUserID:id", response.data.user.id);
+          AsyncStorage.setItem("@loggedInUserID:key", response.data.user.email);
+          AsyncStorage.setItem(
+            "@loggedInUserID:access",
+            response.data.tokens.access.token
+          );
+          AsyncStorage.setItem(
+            "@loggedInUserID:refresh",
+            response.data.tokens.refresh.token
+          );
+          dispatch(
+            login(response.data.user, response.data.tokens, response.data.qr)
+          );
 
-                setLoading(false);
-                navigation.reset({
-                  routes: [{ name: "Messages", params: response.data.user.id }],
-                });
-              } else {
-                ToastAndroid.show(`${t("common:errorOccured")}: ${e.code}`, 2);
-                setLoading(false);
-                return;
-              }
-            }
-          })();
           setLoading(false);
+          navigation.reset({
+            routes: [{ name: "Messages", params: response.data.user.id }],
+          });
           // navigation.navigate('Messages', { params: response.data.user.id });
         } else {
           setLoading(false);
@@ -215,17 +141,33 @@ function SignInScreen({ props, navigation }) {
     // console.log('voximplantConnect status 1: ' + status)
     if (status === Voximplant.ClientState.DISCONNECTED) {
       await voximplant.connect();
+      // console.log('voximplantConnect status 2: ' + await voximplant.getClientState())
+    }
+    // else if (status === Voximplant.ClientState.LOGGED_IN) {
+    //   redirectHome();
+    // }
+  };
+
+  const voximplantSignIn = async (userId) => {
+    const status = await voximplant.getClientState();
+    if (status === Voximplant.ClientState.DISCONNECTED) {
+      await voximplant.connect();
     }
     if (
       status === Voximplant.ClientState.CONNECTING ||
       status === Voximplant.ClientState.LOGGING_IN
     ) {
+      ToastAndroid.show("Login is in process...", 2);
       return;
     }
-  };
-
-  const voximplantSignIn = async (userId) => {
-    // await voximplantConnect();
+    const user = `${userId}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
+    try {
+      const authResult = await voximplant.login(user, password);
+    } catch (e) {
+      // console.log(e);
+      const authResult = await voximplant.login(user, password);
+      ToastAndroid.show(`${t("common:errorOccured")}: ${e.code}`, 2);
+    }
   };
 
   const getFCMToken = () => {

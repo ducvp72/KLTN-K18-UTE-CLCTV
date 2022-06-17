@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -7,11 +7,11 @@ import {
   PermissionsAndroid,
   Alert,
   Platform,
-} from 'react-native';
-import CallActions from '../../components/CallActions';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+} from "react-native";
+import CallActions from "../../components/CallActions";
+import Ionicons from "react-native-vector-icons/Ionicons";
 // import {useNavigation, useRoute} from '@react-navigation/core';
-import {Voximplant} from 'react-native-voximplant';
+import { Voximplant } from "react-native-voximplant";
 
 const permissions = [
   PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
@@ -20,46 +20,52 @@ const permissions = [
 
 const CallingScreen = (props) => {
   const [permissionGranted, setPermissionGranted] = useState(false);
-  const [callStatus, setCallStatus] = useState('Initializing...');
-  const [localVideoStreamId, setLocalVideoStreamId] = useState('');
-  const [remoteVideoStreamId, setRemoteVideoStreamId] = useState('');
-  const [sendVideo, setSendVideo] = useState(true)
-  const [microphone, setMicrophone] = useState(true)
-  const [frontCamera, setFrontCamera] = useState(true)
+  const [callStatus, setCallStatus] = useState("Initializing...");
+  const [localVideoStreamId, setLocalVideoStreamId] = useState("");
+  const [remoteVideoStreamId, setRemoteVideoStreamId] = useState("");
+  const [sendVideo, setSendVideo] = useState(true);
+  const [microphone, setMicrophone] = useState(true);
+  const [frontCamera, setFrontCamera] = useState(true);
   // const navigation = useNavigation();
   // const route = useRoute();
 
-  const {friendId, groupName, videoCall, call: incomingCall, isIncomingCall} = props.route.params;
-  console.log('Friend ID Call Screen => ' + friendId + ' ' + groupName)
+  const {
+    friendId,
+    groupName,
+    videoCall,
+    call: incomingCall,
+    isIncomingCall,
+  } = props.route.params;
+  console.log("Friend ID Call Screen => " + friendId + " " + groupName);
   const voximplant = Voximplant.getInstance();
 
   const call = useRef(incomingCall);
   const endpoint = useRef(null);
-  
-  const { CameraManager } = Voximplant.Hardware
-  const camera = CameraManager.getInstance()
+
+  const { CameraManager } = Voximplant.Hardware;
+  const camera = CameraManager.getInstance();
 
   // const calling = new Voximplant.Call;
 
   const goBack = () => {
-    props.navigation.goBack()
+    props.navigation.navigate("Messages");
   };
 
   useEffect(() => {
     const getPermissions = async () => {
       const granted = await PermissionsAndroid.requestMultiple(permissions);
       const recordAudioGranted =
-        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] === 'granted';
+        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] === "granted";
       const cameraGranted =
-        granted[PermissionsAndroid.PERMISSIONS.CAMERA] === 'granted';
+        granted[PermissionsAndroid.PERMISSIONS.CAMERA] === "granted";
       if (!cameraGranted || !recordAudioGranted) {
-        Alert.alert('Permissions not granted');
+        Alert.alert("Permissions not granted");
       } else {
         setPermissionGranted(true);
       }
     };
 
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       getPermissions();
     } else {
       setPermissionGranted(true);
@@ -79,7 +85,6 @@ const CallingScreen = (props) => {
     }
 
     const makeCall = async () => {
-       
       call.current = await voximplant.call(friendId, {
         video: {
           sendVideo: videoCall,
@@ -91,7 +96,7 @@ const CallingScreen = (props) => {
 
     const answerCall = async () => {
       subscribeToCallEvents();
-      endpoint.current = call.current.getEndpoints()[0]
+      endpoint.current = call.current.getEndpoints()[0];
       // ((endpoint) => {
       //   const mediaRenderer = endpoint.mediaRenderer;
       //   mediaRenderer.enabled();
@@ -108,25 +113,25 @@ const CallingScreen = (props) => {
     };
 
     const subscribeToCallEvents = () => {
-      call.current.on(Voximplant.CallEvents.Failed, callEvent => {
+      call.current.on(Voximplant.CallEvents.Failed, (callEvent) => {
         showError(callEvent.reason);
       });
-      call.current.on(Voximplant.CallEvents.ProgressToneStart, callEvent => {
-        setCallStatus('Calling...');
+      call.current.on(Voximplant.CallEvents.ProgressToneStart, (callEvent) => {
+        setCallStatus("Calling...");
       });
-      call.current.on(Voximplant.CallEvents.Connected, callEvent => {
-        setCallStatus('Connected');
+      call.current.on(Voximplant.CallEvents.Connected, (callEvent) => {
+        setCallStatus("Connected");
       });
-      call.current.on(Voximplant.CallEvents.Disconnected, callEvent => {
-        props.navigation.goBack();
+      call.current.on(Voximplant.CallEvents.Disconnected, (callEvent) => {
+        props.navigation.navigate("Messages");
       });
       call.current.on(
         Voximplant.CallEvents.LocalVideoStreamAdded,
-        callEvent => {
+        (callEvent) => {
           setLocalVideoStreamId(callEvent.videoStream.id);
-        },
+        }
       );
-      call.current.on(Voximplant.CallEvents.EndpointAdded, callEvent => {
+      call.current.on(Voximplant.CallEvents.EndpointAdded, (callEvent) => {
         endpoint.current = callEvent.endpoint;
         subscribeToEndpointEvent();
       });
@@ -135,18 +140,18 @@ const CallingScreen = (props) => {
     const subscribeToEndpointEvent = async () => {
       endpoint.current.on(
         Voximplant.EndpointEvents.RemoteVideoStreamAdded,
-        endpointEvent => {
+        (endpointEvent) => {
           setRemoteVideoStreamId(endpointEvent.videoStream.id);
-        },
+        }
       );
     };
 
-    const showError = reason => {
+    const showError = (reason) => {
       // Reason: ${reason}
-      Alert.alert('Call failed', ``, [
+      Alert.alert("Call failed", ``, [
         {
-          text: 'OK',
-          onPress: props.navigation.goBack(),
+          text: "OK",
+          onPress: props.navigation.navigate("Messages"),
         },
       ]);
     };
@@ -167,59 +172,61 @@ const CallingScreen = (props) => {
 
   const setupEndpointListeners = (endpoint, on) => {
     Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
-        const callbackName = `_onEndpoint${eventName}`;
-        if (typeof this[callbackName] !== 'undefined') {
-            endpoint[(on) ? 'on' : 'off'](eventName, this[callbackName]);
-        }
+      const callbackName = `_onEndpoint${eventName}`;
+      if (typeof this[callbackName] !== "undefined") {
+        endpoint[on ? "on" : "off"](eventName, this[callbackName]);
+      }
     });
-  }
+  };
 
   const onHangupPress = () => {
     try {
-      call.current.getEndpoints().forEach(endpoint => {
+      call.current.getEndpoints().forEach((endpoint) => {
         setupEndpointListeners(endpoint, false);
-      })
+      });
       call.current.hangup();
+      props.navigation.navigate("Messages");
     } catch {
-      props.navigation.goBack()
+      call.current.getEndpoints().forEach((endpoint) => {
+        setupEndpointListeners(endpoint, false);
+      });
+      call.current.hangup();
+      props.navigation.navigate("Messages");
     }
- 
   };
 
   const onChangeCamera = () => {
-    if(frontCamera==true) {
-      setFrontCamera(false)
-      camera.switchCamera(Voximplant.Hardware.CameraType.BACK)
+    if (frontCamera == true) {
+      setFrontCamera(false);
+      camera.switchCamera(Voximplant.Hardware.CameraType.BACK);
     } else {
-      setFrontCamera(true)
-      camera.switchCamera(Voximplant.Hardware.CameraType.FRONT)
+      setFrontCamera(true);
+      camera.switchCamera(Voximplant.Hardware.CameraType.FRONT);
     }
-  }
+  };
 
   const toggleVideo = () => {
-    if(!videoCall) return
-    if(sendVideo==true) {
-      setSendVideo(false)
+    if (!videoCall) return;
+    if (sendVideo == true) {
+      setSendVideo(false);
       // calling.sendVideo(false)
-      call.current.sendVideo(false)
+      call.current.sendVideo(false);
     } else {
-      setSendVideo(true)
+      setSendVideo(true);
       // calling.sendVideo(true)
-      call.current.sendVideo(true)
+      call.current.sendVideo(true);
     }
-    
-  }
+  };
 
   const toggleMicrophone = () => {
-    if(microphone==true) {
-      setMicrophone(false)
+    if (microphone == true) {
+      setMicrophone(false);
       call.current.sendAudio(false);
     } else {
-      setMicrophone(true)
+      setMicrophone(true);
       call.current.sendAudio(true);
     }
-    
-  }
+  };
 
   return (
     <View style={styles.page}>
@@ -242,35 +249,40 @@ const CallingScreen = (props) => {
         <Text style={styles.phoneNumber}>{callStatus}</Text>
       </View>
 
-      <CallActions onHangupPress={onHangupPress} onChangeCamera={onChangeCamera} toggleVideo={toggleVideo} toggleMicrophone={toggleMicrophone}/>
+      <CallActions
+        onHangupPress={onHangupPress}
+        onChangeCamera={onChangeCamera}
+        toggleVideo={toggleVideo}
+        toggleMicrophone={toggleMicrophone}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   page: {
-    height: '100%',
-    backgroundColor: 'transparent',
+    height: "100%",
+    backgroundColor: "transparent",
   },
   cameraPreview: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 10,
     paddingHorizontal: 10,
   },
   localVideo: {
     width: 100,
     height: 150,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderRadius: 10,
-    position: 'absolute',
+    position: "absolute",
     right: 10,
     top: 10,
   },
   remoteVideo: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderRadius: 10,
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
@@ -278,17 +290,17 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: 'black',
+    fontWeight: "bold",
+    color: "black",
     marginTop: 50,
     marginBottom: 15,
   },
   phoneNumber: {
     fontSize: 20,
-    color: 'black',
+    color: "black",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     left: 10,
     zIndex: 10,
