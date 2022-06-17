@@ -197,10 +197,14 @@ export function Chat(props) {
           message.text,
           groupId
         ).toString(CryptoJS.enc.Utf8);
-        if (message.typeId != -1) {
+        if (message.typeId != -1 && message.typeId != "-1") {
           transformedMessage.system = true;
           switch (message.typeId) {
             case "0": //tao
+              transformedMessage.text =
+                transformedMessage.text + t("common:sysCreate");
+              break;
+            case 0: //tao
               transformedMessage.text =
                 transformedMessage.text + t("common:sysCreate");
               break;
@@ -208,7 +212,15 @@ export function Chat(props) {
               transformedMessage.text =
                 transformedMessage.text + t("common:sysJoin");
               break;
+            case 1: //vao
+              transformedMessage.text =
+                transformedMessage.text + t("common:sysJoin");
+              break;
             case "2": //xoa tv
+              transformedMessage.text =
+                t("common:sysDel") + transformedMessage.text;
+              break;
+            case 2: //xoa tv
               transformedMessage.text =
                 t("common:sysDel") + transformedMessage.text;
               break;
