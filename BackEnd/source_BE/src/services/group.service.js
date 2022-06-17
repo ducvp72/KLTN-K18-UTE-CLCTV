@@ -116,18 +116,30 @@ const getGroupInfo = async (groupId) => {
 
 const findFirstGroup = async (adminId, memberId) => {
   let rs;
-  const find = await UserGroup.find({ admin: { $in: [adminId] }, member: { $in: [memberId] } }).populate({
+  const find = await UserGroup.find({ admin: adminId, member: memberId }).populate({
     path: 'groupId',
     populate: {
       path: 'admin last',
     },
   });
-  find.forEach((group) => {
-    if (group.groupId.groupType === 'personal') {
-      rs = group;
-    }
-  });
-  return rs;
+
+  console.log(find.length);
+
+  if (find.length <= 0) {
+    return 0;
+  }
+
+  if (find.length > 0) {
+    console.log('vo');
+    find.forEach((group) => {
+      // console.log('group', group);
+      if (group.groupId.groupType === 'personal') {
+        rs = group;
+      }
+    });
+    // console.log('Rs', rs);
+    return rs;
+  }
 };
 
 const createChat = async (admin, memberId) => {
@@ -137,7 +149,7 @@ const createChat = async (admin, memberId) => {
   }
   const firstgroup = await findFirstGroup(admin.id, memberId);
   const firstgroupTwo = await findFirstGroup(memberId, admin.id);
-
+  console.log(firstgroup, firstgroupTwo);
   if (firstgroup) {
     return firstgroup.groupId;
   }
@@ -145,28 +157,30 @@ const createChat = async (admin, memberId) => {
     return firstgroupTwo.groupId;
   }
 
-  const chat = await Group.create({
-    subName: await changeName(memberN.fullname),
-    groupName: memberN.fullname,
-    admin: admin.id,
-    groupType: 'personal',
-  });
+  if (firstgroup === 0 && firstgroupTwo === 0) {
+    const chat = await Group.create({
+      subName: await changeName(memberN.fullname),
+      groupName: memberN.fullname,
+      admin: admin.id,
+      groupType: 'personal',
+    });
 
-  await codeService.generateVerifyCodeGroup(chat.id);
+    await codeService.generateVerifyCodeGroup(chat.id);
 
-  await UserGroup.create({
-    groupId: chat.id,
-    member: memberId,
-    admin: admin.id,
-  });
+    await UserGroup.create({
+      groupId: chat.id,
+      member: memberId,
+      admin: admin.id,
+    });
 
-  await UserGroup.create({
-    groupId: chat.id,
-    member: admin.id,
-    admin: admin.id,
-  });
+    await UserGroup.create({
+      groupId: chat.id,
+      member: admin.id,
+      admin: admin.id,
+    });
 
-  return chat;
+    return chat;
+  }
 };
 
 const deleteNameGroup = async (user, groupR) => {
