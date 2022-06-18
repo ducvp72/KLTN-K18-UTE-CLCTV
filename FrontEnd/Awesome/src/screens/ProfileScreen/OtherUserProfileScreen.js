@@ -18,6 +18,7 @@ import overlay from '../../utils/overlay';
 import { useTranslation } from 'react-i18next';
 import { baseUrl } from '../../utils/Configuration';
 import { PreferencesContext } from '../../context/PreferencesContext';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export function OtherUserProfileScreen(props) {
   const theme = useTheme()
@@ -28,8 +29,10 @@ export function OtherUserProfileScreen(props) {
   const [isFriend, setIsFriend] = useState(props.route.params.isFriend)
   const { otherUserFullname, otherUserEmail, otherUserAvatar, otherUserId} = props.route.params;
   const { toggleLoad } = React.useContext(PreferencesContext);
+  const [loading, setLoading] = useState(false);
 
   const addFriend = () => {
+    setLoading(true)
     axios({
       method: 'post',
       url: `${baseUrl}/friend/add-friend`,
@@ -44,14 +47,17 @@ export function OtherUserProfileScreen(props) {
         setIsFriend(2);
         toggleLoad()
         ToastAndroid.show(t('common:complete'), 3);
+        setLoading(false)
       }
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   }
 
   const acceptFriendReq = () => {
+    setLoading(true)
     axios({
       method: 'post',
       url: `${baseUrl}/friend/accept-friend`,
@@ -66,14 +72,17 @@ export function OtherUserProfileScreen(props) {
         toggleLoad()
         setIsFriend(1);
         ToastAndroid.show(t('common:complete'), 3);
+        setLoading(false)
       }
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   }
 
   const deleteFriendReq = () => {
+    setLoading(true)
     axios({
       method: 'delete',
       url: `${baseUrl}/friend/delete-invtiation`,
@@ -88,14 +97,17 @@ export function OtherUserProfileScreen(props) {
         toggleLoad()
         setIsFriend(0);
         ToastAndroid.show(t('common:complete'), 3);
+        setLoading(false)
       }
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   }
 
   const deleteFriend = () => {
+    setLoading(true)
     axios({
       method: 'post',
       url: `${baseUrl}/friend/unfriend`,
@@ -110,14 +122,17 @@ export function OtherUserProfileScreen(props) {
         toggleLoad()
         setIsFriend(0);
         ToastAndroid.show(t('common:complete'), 3);
+        setLoading(false)
       }
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   }
 
   const createMessage = () => {
+    setLoading(true)
     axios({
       method: 'post',
       url: `${baseUrl}/group/createChat`,
@@ -142,6 +157,7 @@ export function OtherUserProfileScreen(props) {
         //     },
         //   })
         // );
+        setLoading(false)
         props.navigation.replace('Chat', { 
           groupName: otherUserFullname,
           groupId: response.data.id,
@@ -153,12 +169,23 @@ export function OtherUserProfileScreen(props) {
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   }
 
   return (
     <KeyboardAwareScrollView>
         <ScrollView style={[styles.container, {backgroundColor: backgroundColor}]}>
+            {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
           <View style={[styles.header, {backgroundColor: theme.colors.primary }]}></View>
           <Image style={styles.avatar} source={{uri: otherUserAvatar ?? '../../../assets/images/none_avatar.png'}}/>
           <View style={[styles.body, {backgroundColor: backgroundColor}]}>

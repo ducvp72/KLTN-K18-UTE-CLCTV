@@ -50,6 +50,7 @@ export default {
   complete: "Complete!",
   under10MB: "File too large (>10MB)!",
   errorOccured: "Error occured!",
+  mediaMessage: "Media message",
 
   sysLeave: " left the group.",
   sysCreate: " create the group.",

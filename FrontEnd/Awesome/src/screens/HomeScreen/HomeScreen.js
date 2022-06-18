@@ -194,6 +194,7 @@ function HomeScreen(props) {
       createGroupName.length == 0
     )
       return;
+    setLoading(true)
     toggeDialog();
     await axios({
       method: "post",
@@ -211,9 +212,11 @@ function HomeScreen(props) {
         } else {
           ToastAndroid.show(t("common:invalid"), 3);
         }
+        setLoading(false)
       })
       .catch((err) => {
         ToastAndroid.show(t("common:errorOccured"), 3);
+        setLoading(false)
       });
   };
 
@@ -271,8 +274,7 @@ function HomeScreen(props) {
 
   const MessagesItemView = ({ item }) => {
     // console.log('MESS ITEM ' + props.user.fullname + ' ' + JSON.stringify(item))
-    let member;
-    let groupName;
+    let member,groupName,lastMsg;
     if (item.groupType === "personal") {
       member =
         item.member[0].id == auth.user.id ? item.member[1] : item.member[0];
@@ -285,6 +287,36 @@ function HomeScreen(props) {
       groupName = item.groupName;
     }
     // console.log('ITEM: ' + item.member[0].id)
+    if(item.lastMessage.text != "null") {
+      lastMsg = CryptoJS.AES.decrypt(item.lastMessage.text,item._id).toString(CryptoJS.enc.Utf8)
+      if(item.lastMessage.typeId != -1 && item.lastMessage.typeId != "-1") {
+        switch (item.lastMessage.typeId) {
+          case "0": //tao
+            lastMsg = lastMsg + t("common:sysCreate");
+            break;
+          case 0: //tao
+            lastMsg = lastMsg + t("common:sysCreate");
+            break;
+          case "1": //vao
+            lastMsg = lastMsg + t("common:sysJoin");
+            break;
+          case 1: //vao
+            lastMsg = lastMsg + t("common:sysJoin");
+            break;
+          case "2": //xoa tv
+            lastMsg = t("common:sysDel") + lastMsg;
+            break;
+          case 2: //xoa tv
+            lastMsg = t("common:sysDel") + lastMsg;
+            break;
+          default: //roi
+            lastMsg = lastMsg + t("common:sysLeave");
+            break;
+        }
+      }
+    } else {
+      lastMsg = t('common:mediaMessage')
+    }
 
     const updatedAt =
       (new Date().getTime() - new Date(item.lastMessage.updatedAt).getTime()) /
@@ -330,13 +362,13 @@ function HomeScreen(props) {
               >
                 {item.lastMessage.user._id == auth.user.id
                   ? `${t("common:you")}: `
-                  : ""}
-                {item.lastMessage.text != "null"
+                  : ""}{lastMsg}
+                {/* {item.lastMessage.text != "null"
                   ? CryptoJS.AES.decrypt(
                       item.lastMessage.text,
                       item._id
                     ).toString(CryptoJS.enc.Utf8)
-                  : "Media message"}
+                  : "Media message"} */}
               </Text>
               <Text
                 style={[styles.userMessageTime, { color: theme.colors.text }]}
