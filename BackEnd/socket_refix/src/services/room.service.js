@@ -21,11 +21,6 @@ module.exports = (io, socket, userInfo) => {
     const checkIn = socket.rooms.has(roomId);
     console.log("CheckInGroup", checkIn);
 
-    // console.log("\n");
-    // console.log("ROOM ID" + " " + roomId);
-    // console.log("\n");
-    // console.log("MESSAGE" + " " + { message });
-
     if (!checkIn) return;
 
     // const a = await io.in(roomId).fetchSockets();
@@ -56,7 +51,6 @@ module.exports = (io, socket, userInfo) => {
   };
 
   const getRoomInfo = async (roomId) => {
-    console.log("ON-SERVER - room:info", roomId);
     await io.in(roomId).emit("room:info", {
       room: roomId,
       users: getMemberInRoom(roomId),
@@ -211,6 +205,21 @@ module.exports = (io, socket, userInfo) => {
     console.log("Server ON EVENT - room:kickByAdmin", roomId);
   };
 
+  const signalUser = async ({ userId, message }) => {
+    const checkOnline = await getInfoById(userId);
+    console.log("message:", { userId, message });
+    if (!checkOnline) {
+      console.log("Not found user to signal !");
+      console.log("From socketId", socket.id);
+      console.log("From userId", socket.handshake.auth.userId, "to", userId);
+      return;
+    }
+    console.log("userId target:", userId, "\n", "info:", checkOnline);
+    console.log("message:", message);
+
+    io.to(checkOnline.soketId).emit("room:load", message);
+  };
+
   // const inviteRoom = async ({ userId, roomId }) => {
   //   const checkIn = await checkInGroupDB(userId, roomId);
   //   if (checkIn) {
@@ -236,5 +245,6 @@ module.exports = (io, socket, userInfo) => {
     chatToGroup,
     kickUser,
     kickByAdmin,
+    signalUser,
   };
 };

@@ -6,6 +6,7 @@ module.exports = (io, socket, userInfo) => {
     chatToGroup,
     kickUser,
     kickByAdmin,
+    signalUser,
   } = require("../services/room.service")(io, socket, userInfo);
 
   socket.on("room:join", joinRoom);
@@ -14,6 +15,7 @@ module.exports = (io, socket, userInfo) => {
   socket.on("room:info", getRoomInfo);
   socket.on("room:kick", kickUser);
   socket.on("room:kickByAdmin", kickByAdmin);
+  socket.on("room:signal", signalUser);
   // socket.on("room:invite", inviteRoom);
 
   // io.of("/").adapter.on("join-room", eventJoinRoom);

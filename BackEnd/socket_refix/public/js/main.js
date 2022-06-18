@@ -29,7 +29,8 @@ const changeUser = async () => {
   // });
   // http://localhost:8000
   //https://socket-ute-v2.herokuapp.com
-  // http://nodejsapi.eastasia.cloudapp.azure.com:8000
+
+  // http://chatapp-api.eastasia.cloudapp.azure.com:8000
 
   //sua duong link o day
   socket = await io("http://chatapp-api.eastasia.cloudapp.azure.com:8000", {
@@ -81,6 +82,10 @@ const changeUser = async () => {
       alert(memo);
     });
 
+    socket.on("room:load", (message) => {
+      console.log(message);
+    });
+
     //notificatition invite
     // socket.on("room:invite", ({ status, message }) => {
     //   inviteSpecialRoom(status, message);
@@ -97,6 +102,25 @@ const changeRoom = () => {
   const roomId = document.getElementById("roomId").value;
   socket.emit("room:join", roomId);
   console.log("roomId", roomId);
+};
+
+const signalUser = () => {
+  const userId = document.getElementById("privateId").value;
+  //Fake response
+  const message = {
+    text: "Lam bui ron chuyen wa",
+    createdAt: `${new Date()}`,
+    updatedAt: `${new Date()}`,
+    _id: new Date(),
+    typeId: new Date().getTime(),
+    user: {
+      avatar:
+        "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
+      name: "User A",
+      _id: new Date().getTime(),
+    },
+  };
+  socket.emit("room:signal", { userId, message });
 };
 
 const adminKickRoom = (roomId) => {
