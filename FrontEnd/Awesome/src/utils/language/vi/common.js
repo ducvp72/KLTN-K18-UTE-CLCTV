@@ -50,6 +50,7 @@ export default {
   complete: "Thành công!",
   under10MB: "Tệp tin quá lớn (hơn 10MB)!",
   errorOccured: "Có lỗi xảy ra!",
+  mediaMessage: "Tin nhắn đa phương tiện",
 
   sysLeave: " rời nhóm.",
   sysCreate: " đã tạo nhóm.",

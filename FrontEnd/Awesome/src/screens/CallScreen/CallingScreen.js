@@ -233,17 +233,20 @@ const CallingScreen = (props) => {
       <Pressable onPress={goBack} style={styles.backButton}>
         <Ionicons name="chevron-back" color="black" size={25} />
       </Pressable>
-
+    {
+      (videoCall) ? 
       <Voximplant.VideoView
         videoStreamId={remoteVideoStreamId}
         style={styles.remoteVideo}
-      />
-
+      /> : <></>
+    }
+    {
+      (videoCall == true && sendVideo == true) ? 
       <Voximplant.VideoView
         videoStreamId={localVideoStreamId}
         style={styles.localVideo}
-      />
-
+      /> : <></>
+    }
       <View style={styles.cameraPreview}>
         <Text style={styles.name}>{groupName}</Text>
         <Text style={styles.phoneNumber}>{callStatus}</Text>

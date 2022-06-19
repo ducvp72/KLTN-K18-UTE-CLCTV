@@ -59,7 +59,7 @@ export function Chat(props) {
     Keyboard.dismiss();
   });
 
-  const { toggleLoad, socketContext } = React.useContext(PreferencesContext);
+  const { toggleLoad, socketContext, load } = React.useContext(PreferencesContext);
 
   const getPermissions = async () => {
     const granted = await PermissionsAndroid.requestMultiple(permissions);
@@ -119,17 +119,23 @@ export function Chat(props) {
     } else {
       setPermissionGranted(true);
     }
+    loadMessages()
+    // axios({
+    //   method: "put",
+    //   url: `${baseUrl}/group`,
+    //   headers: { Authorization: `Bearer ${auth.tokens.access.token}` },
+    //   data: {
+    //     groupId: groupId,
+    //     seen: true,
+    //   },
+    // });
+  }, []);
 
-    axios({
-      method: "put",
-      url: `${baseUrl}/group`,
-      headers: { Authorization: `Bearer ${auth.tokens.access.token}` },
-      data: {
-        groupId: groupId,
-        seen: true,
-      },
-    });
+  // useEffect(() => {
+  //   loadMessages()
+  // }, [load])
 
+  const loadMessages = () => {
     axios({
       method: "get",
       url: `${baseUrl}/message/${groupId}?sortBy=createdAt:desc&limit=30`,
@@ -150,7 +156,7 @@ export function Chat(props) {
         const { message } = error;
         ToastAndroid.show(t("common:errorOccured") + " " + message, 3);
       });
-  }, []);
+  }
 
   useEffect(() => {
     // console.log('SOCKET CHANGE - GIFTEDCHAT')
@@ -323,13 +329,6 @@ export function Chat(props) {
   };
 
   const onSendTest = useCallback((messages = []) => {
-    // if(messages) {
-    //   if(messages[0]._id) {
-    //     console.log('CALL BUZZ >> ',messages)
-    //   }
-    //   return
-    // }
-    // console.log('DA BAM GUI, ' + messages[0].text)
     if (messages[0]._id) {
       axios({
         method: "post",
