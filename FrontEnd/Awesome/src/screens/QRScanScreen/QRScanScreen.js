@@ -17,6 +17,7 @@ import { baseUrl } from '../../utils/Configuration';
 import { useTranslation } from 'react-i18next';
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { PreferencesContext } from '../../context/PreferencesContext';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default QRScanScreen = (props) => {
     const auth = useSelector((state) => state.auth);
@@ -25,6 +26,7 @@ export default QRScanScreen = (props) => {
     const theme = useTheme()
     const {t} = useTranslation()
     const { toggleLoad } =  React.useContext(PreferencesContext);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
       (async () => {
@@ -37,6 +39,7 @@ export default QRScanScreen = (props) => {
     }, [hasPermission]);
 
     const handleBarCodeScanned = ({ type, data }) => {
+      setLoading(true)
       setScanned(true);
       // console.log('SCAN TYPE >>>> ',type)
       // console.log('SCAN DATA >>>> ',data)
@@ -55,6 +58,7 @@ export default QRScanScreen = (props) => {
           data: {}
         })
         .then((response) => {
+          setLoading(false)
           if(response.data){
             props.navigation.navigate('OtherUserProfile', { 
               otherUserFullname: qrData.fullname,
@@ -74,8 +78,9 @@ export default QRScanScreen = (props) => {
           }
         })
         .catch(function (error) {
-            const { message } = error;
-            console.log("QR USER >> " + message);
+            // const { message } = error;
+            setLoading(false)
+            ToastAndroid.show(t('common:errorOccured'), 3)
         });
       } else {
         if(qrData.code && qrData.idGroup) {
@@ -91,8 +96,10 @@ export default QRScanScreen = (props) => {
           .then((response) => {
             toggleLoad()
             Alert.alert('QR Code',t('common:complete'))
+            setLoading(false)
           })
           .catch((response) => {
+            setLoading(false)
             Alert.alert('QR Code', data, [{
               text: t('common:copy'), 
               onPress: () => Clipboard.setString(data), 
@@ -105,6 +112,7 @@ export default QRScanScreen = (props) => {
             {cancelable: true});
           });
         } else {
+          setLoading(false)
           Alert.alert('QR Code', data, [{
             text: t('common:copy'), 
             onPress: () => Clipboard.setString(data), 
@@ -117,6 +125,7 @@ export default QRScanScreen = (props) => {
           {cancelable: true});
         }
       }
+      // setLoading(false)
     };
     
     const goBack = () => {
@@ -148,9 +157,19 @@ export default QRScanScreen = (props) => {
 
     return (
       <View style={styles.container}>
+          {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
         <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          style={StyleSheet.absoluteFillObject}
+          style={[StyleSheet.absoluteFillObject]}
         />
         <View style={styles.childContainer}>
           <Icon 

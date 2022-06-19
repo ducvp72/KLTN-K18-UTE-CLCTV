@@ -13,11 +13,13 @@ import { baseUrl } from '../../utils/Configuration';
 import { Button, useTheme } from 'react-native-paper';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function ForgotPasswordScreen({navigation}) {
   const [email, setEmail] = useState('');
   const { t } = useTranslation() 
   const theme = useTheme()
+  const [loading, setLoading] = useState(false)
 
   Keyboard.addListener('keyboardDidHide', () => {
     Keyboard.dismiss();
@@ -33,7 +35,7 @@ function ForgotPasswordScreen({navigation}) {
       ToastAndroid.show(t('common:email') + ' ' + t('common:invalid'), 2);
       return
     } 
-
+    setLoading(true)
     await axios({
       method: 'post',
       url: `${baseUrl}/auth/send-to-forgot-password`,
@@ -42,16 +44,28 @@ function ForgotPasswordScreen({navigation}) {
       }
     })
     .then(function (response) {
+      setLoading(false)
       navigation.navigate('ChangePassword', { email: email });
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
     
   };
 
   return (
     <View style={styles.container}>
+          {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
       <Text style={[styles.title, styles.leftTitle]}>{t('common:forgotPasswordHeader')}</Text>
       <View style={styles.InputContainer}>
         <TextInput

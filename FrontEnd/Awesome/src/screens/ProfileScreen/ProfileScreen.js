@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import {launchImageLibrary} from 'react-native-image-picker';
 import FormData from 'form-data'
 import { baseUrl } from '../../utils/Configuration';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function ProfileScreen(props) {
   // var CryptoJS = require("crypto-js");
@@ -28,6 +29,7 @@ function ProfileScreen(props) {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState({ uri: undefined})
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const handleSelectFile = () => {
     const options = {
@@ -58,6 +60,7 @@ function ProfileScreen(props) {
   };
 
   const sendMedia = file => {
+    setLoading(true)
     const formData = new FormData();
 
     formData.append("user-avatar", {
@@ -79,13 +82,16 @@ function ProfileScreen(props) {
     .then(response => {
       if(response.data){
         ToastAndroid.show(t('common:complete'), 3);
-        dispatch(login(response.data.user));
+        dispatch(login(response.data.user, auth.tokens, auth.qr));
+        setLoading(false)
       } else {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
       }
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   }
 
@@ -99,6 +105,16 @@ function ProfileScreen(props) {
 
   return (
     <KeyboardAwareScrollView>
+          {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
         <ScrollView style={[styles.container, {backgroundColor: backgroundColor}]}>
             <TouchableRipple onPress={handleSelectFile}>
               <View style={styles.subContainer}>

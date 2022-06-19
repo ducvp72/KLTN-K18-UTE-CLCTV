@@ -27,7 +27,8 @@ function GroupInfoScreen(props) {
   const { t } = useTranslation()
   const [group, setGroup] = useState();
   const [joinStatus, setJoinStatus] = useState();
-  const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(true);
+  const [loading, setLoading] = useState(false);
   const groupId = props.route.params.groupId
   const [createGroupName, setCreateGroupName] = useState('')
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -55,17 +56,21 @@ function GroupInfoScreen(props) {
         if(response.data) {
           setGroup(response.data)
           setJoinStatus(response.data.status)
+          setLoading1(false)
           setLoading(false)
         } else {
           ToastAndroid.show(t('common:empty'), 3);
+          setLoading(false)
         }
       })
       .catch(function (error) {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
     });
   }
 
   const groupMemberList = () => {
+    setLoading(true)
     axios({
         method: 'get',
         url: `${baseUrl}/group/searchMember?key&groupId=` + groupId,
@@ -74,17 +79,21 @@ function GroupInfoScreen(props) {
     })
       .then((response) => {
         if(response.data) {
+          setLoading(false)
           props.navigation.navigate('GroupMemberList', { memberList: response.data.results, groupId: group._id, isAdmin: (group.admin.username == auth.user.username)});
         } else {
           ToastAndroid.show(t('common:empty'), 3);
+          setLoading(false)
         }
       })
       .catch(function (error) {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
     });
   }
 
   const groupQR = () => {
+    setLoading(true)
     axios({
         method: 'get',
         url: `${baseUrl}/group/qrGroup/` + groupId,
@@ -93,17 +102,21 @@ function GroupInfoScreen(props) {
     })
       .then((response) => {
         if(response.data) {
+          setLoading(false)
             props.navigation.navigate('QRProfileScreen', { groupQR: response.data.qr, groupName: group.groupName});
         } else {
           ToastAndroid.show(t('common:empty'), 3);
+          setLoading(false)
         }
       })
       .catch(function (error) {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
     });
   }
 
   const changeJoinStatus = async() => {
+    setLoading(true)
     await axios({
         method: 'put',
         url: `${baseUrl}/group/setStatusJoin`,
@@ -120,13 +133,16 @@ function GroupInfoScreen(props) {
       .then(function(response) {
         if(response.data) {
           ToastAndroid.show(t('common:complete'), 3);
-            setJoinStatus(response.data.status)
+          setJoinStatus(response.data.status)
+          setLoading(false)
         } else {
           ToastAndroid.show(t('common:empty'), 3);
+          setLoading(false)
         }
       })
       .catch(function (error) {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
     });
   }
 
@@ -135,6 +151,7 @@ function GroupInfoScreen(props) {
       return
     if((!createGroupName)||(createGroupName=='')||(createGroupName.length==0))
       return
+    setLoading(true)
     toggeDialog()
     await axios({
       method: 'post',
@@ -152,10 +169,12 @@ function GroupInfoScreen(props) {
         getGroupProfile()
       } else {
         ToastAndroid.show(t('common:empty'), 3);
+        setLoading(false)
       }
     })
     .catch(err => {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     })
   }
 
@@ -174,6 +193,7 @@ function GroupInfoScreen(props) {
   };
 
   const deleteGroup = async() => {
+    setLoading(true)
     toggeConfirmDialog()
     await axios({
       method: 'delete',
@@ -186,16 +206,19 @@ function GroupInfoScreen(props) {
     .then(response => {
       toggleLoad()
       ToastAndroid.show(t('common:complete'), 3);
+      setLoading(false)
       props.navigation.reset({
         routes: [{ name: 'Messages', params: auth.user.id}],
       });
     })
     .catch(err => {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     })
   }
 
   const leaveGroup = async() => {
+    setLoading(true)
     toggeLeaveDialog()
     await axios({
       method: 'delete',
@@ -208,26 +231,38 @@ function GroupInfoScreen(props) {
     .then(response => {
       toggleLoad()
       ToastAndroid.show(t('common:complete'), 3);
+      setLoading(false)
       props.navigation.reset({
         routes: [{ name: 'Messages', params: auth.user.id}],
       });
     })
     .catch(err => {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     })
   }
 
   return (
     <KeyboardAwareScrollView>
       {
-        (loading)?
+        (loading1)?
         <Spinner
           cancelable={true}
           color={theme.colors.primary}
-          visible={loading}
+          visible={loading1}
         />     
         :
         <ScrollView style={[styles.container, {backgroundColor: backgroundColor}]}>
+          {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
             <Portal>
               <InputDialog 
               visible={dialogVisible} toggleDialog={toggeDialog} 
