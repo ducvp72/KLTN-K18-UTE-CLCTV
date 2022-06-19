@@ -57,13 +57,13 @@ const onConnection = async (socket) => {
   let userInfo;
   console.log("userSocket id", socket.handshake.auth.userId);
 
-  const checkIn = storeService.findUserById(socket.handshake.auth.userId);
+  // const checkIn = storeService.findUserById(socket.handshake.auth.userId);
 
-  if (checkIn) {
-    console.log("IN THIS ROOM", checkIn);
-    socket.emit("room:inRoom", `You in this room`);
-    return;
-  }
+  // if (checkIn) {
+  //   console.log("IN THIS ROOM", checkIn);
+  //   socket.emit("room:inRoom", `You in this room`);
+  //   return;
+  // }
 
   try {
     userInfo = await userService.getUserById(socket.handshake.auth.userId);
