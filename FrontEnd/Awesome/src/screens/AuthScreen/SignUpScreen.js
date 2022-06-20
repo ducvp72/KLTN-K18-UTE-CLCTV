@@ -10,7 +10,7 @@ import {
     ToastAndroid
   } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
+import Spinner from 'react-native-loading-spinner-overlay';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -31,7 +31,8 @@ function SignUpScreen({navigation}) {
   const [username, setUsername] = useState('')
   const { t } = useTranslation() 
   const theme = useTheme()
-
+  const [loading, setLoading] = useState(false);
+  const voximplantUrl = "https://api.voximplant.com/platform_api/AddUser/?account_id=4549220&api_key=c5c71250-d5e3-4fb0-b873-a255c127d5e2&application_id=10455612"
   Keyboard.addListener('keyboardDidHide', () => {
     Keyboard.dismiss();
   });
@@ -55,7 +56,7 @@ function SignUpScreen({navigation}) {
       ToastAndroid.show(t('common:email') + ' ' + t('common:invalid'), 2);
       return
     } 
-
+    setLoading(true)
     axios({
         method: 'post',
         url: `${baseUrl}/auth/register`,
@@ -71,15 +72,31 @@ function SignUpScreen({navigation}) {
       })
       .then(function (response) {
         if(response.data.user){
+          axios({
+            method: 'post',
+            url: `${voximplantUrl}&user_name=` + response.data.user.id + "&user_display_name=" 
+            + response.data.user.fullname + "&user_password=123456@User",
+            headers: {}, 
+            data: {}
+          })
+          .then((res) => {
+            setLoading(false)
+            navigation.navigate('VerifyCode', { accessToken: response.data.tokens.access.token });
+          })
+          .catch((err) => {
+            ToastAndroid.show(t('common:errorOccured'), 3);
+            setLoading(false)
+          })
           // console.log('id: ', response.data.user.id);
           // dispatch(login(response.data.user));
-          navigation.navigate('VerifyCode', { accessToken: response.data.tokens.access.token });
         } else {
           ToastAndroid.show(t('common:errorOccured'), 3);
+          setLoading(false)
         }
       })
       .catch(function (error) {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
       });
 
   };
@@ -105,6 +122,16 @@ function SignUpScreen({navigation}) {
     <KeyboardAwareScrollView
     >
         {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
+        {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
             <ScrollView >
                 <Text style={[styles.title, styles.leftTitle]}>{t('common:signUp')}</Text>
                 <View style={styles.InputContainer}>

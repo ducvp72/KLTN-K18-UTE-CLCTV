@@ -21,13 +21,14 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { login } from '../../reducers';
 import { useTranslation } from 'react-i18next';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function ProfileSetting(props) {
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const theme = useTheme();
   const {t} = useTranslation()
-
+  const [loading, setLoading] = useState(false);
   const [fullname, setFullname] = useState(auth.user?.fullname ?? '');
   const [birth, setBirth] = useState(auth.user?.birth ?? '');
   const [gender, setGender] = useState(auth.user?.gender ?? 'Male');
@@ -46,7 +47,7 @@ function ProfileSetting(props) {
       ToastAndroid.show(t('common:fullname') + ' ' + t('common:invalid'), 2);
       return
     } 
-
+    setLoading(true)
     axios({
       method: 'put',
       url: `${baseUrl}/profile/change-profile`,
@@ -61,12 +62,15 @@ function ProfileSetting(props) {
       if(response.data.user){
         // console.log('id: ', response.data.user.id);
         dispatch(login(response.data.user, auth.tokens, auth.qr));
+        setLoading(false)
         ToastAndroid.show(t('common:complete'), 3)
       } else {
+        setLoading(false)
         ToastAndroid.show(t('common:invalid'), 3)
       }
     })
     .catch((error) => {
+      setLoading(false)
       ToastAndroid.show(t('common:errorOccured'), 3)
     });
   };
@@ -91,6 +95,16 @@ function ProfileSetting(props) {
   return (
     <KeyboardAwareScrollView style={{paddingTop: 50}}>
         {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
+        {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
             <ScrollView >
                 <View style={styles.InputContainer}>
                     <Text style={[styles.or, {color: theme.colors.text}]}>

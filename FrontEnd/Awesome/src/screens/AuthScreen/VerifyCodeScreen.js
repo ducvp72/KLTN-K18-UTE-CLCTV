@@ -12,12 +12,13 @@ import { AppStyles } from '../../utils/AppStyles';
 import { baseUrl } from '../../utils/Configuration';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function VerifyCodeScreen({route, navigation}) {
   const [code, setCode] = useState('');
   const { accessToken } = route.params;
   const { t } = useTranslation()
-
+  const [loading, setLoading] = useState(false)
   const [time, setTime] = useState(60);
   const timerRef = useRef(time);
 
@@ -42,6 +43,7 @@ function VerifyCodeScreen({route, navigation}) {
   }
 
   const sendCode = async() => {
+    setLoading(true)
     initTimer()
     await axios({
       method: 'post',
@@ -51,9 +53,11 @@ function VerifyCodeScreen({route, navigation}) {
     })
     .then(function (response) {
       ToastAndroid.show(t('common:complete'), 3);
+      setLoading(false)
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   }
 
@@ -62,7 +66,7 @@ function VerifyCodeScreen({route, navigation}) {
       ToastAndroid.show(t('common:fillRequiredField'), 3);
       return;
     }
-
+    setLoading(true)
     await axios({
       method: 'post',
       url: `${baseUrl}/auth/verify-email/${code}`,
@@ -71,15 +75,27 @@ function VerifyCodeScreen({route, navigation}) {
     })
     .then(function (response) {
       ToastAndroid.show(t('common:complete'), 3);
-      navigation.navigate('SignInStack')
+      setLoading(false)
+      navigation.navigate('SignIn')
     })
     .catch(function (error) {
       ToastAndroid.show(t('common:errorOccured'), 3);
+      setLoading(false)
     });
   };
 
   return (
     <View style={styles.container}>
+          {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
       <Text style={[styles.title, styles.leftTitle]}>{t('common:verifyAccountHeader')}</Text>
       <View style={styles.InputContainer}>
         <TextInput

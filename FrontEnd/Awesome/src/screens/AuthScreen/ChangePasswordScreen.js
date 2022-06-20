@@ -9,19 +9,21 @@ import {
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { AppStyles } from '../../utils/AppStyles';
-
+import Spinner from 'react-native-loading-spinner-overlay';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { baseUrl } from '../../utils/Configuration';
+import { useTheme } from 'react-native-paper';
 
 function ChangePasswordScreen({route, navigation}) {
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
-
+  const [loading, setLoading] = useState(false)
   const {t} = useTranslation()
   const auth = useSelector((state) => state.auth);
   const { email } = route.params;
+  const theme = useTheme()
 
   Keyboard.addListener('keyboardDidHide', () => {
     Keyboard.dismiss();
@@ -32,7 +34,7 @@ function ChangePasswordScreen({route, navigation}) {
       ToastAndroid.show(t('common:fillRequiredField'), 3);
       return;
     }
-
+    setLoading(true)
     if(auth.user) {
       axios({
         method: 'put',
@@ -45,9 +47,11 @@ function ChangePasswordScreen({route, navigation}) {
       })
       .then(function (response) {
         ToastAndroid.show(t('common:complete'), 3);
+        setLoading(false)
       })
       .catch(function (error) {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
       });
     } else {
       axios({
@@ -62,15 +66,27 @@ function ChangePasswordScreen({route, navigation}) {
       })
       .then(function (response) {
         ToastAndroid.show(t('common:complete'), 3);
+        setLoading(false)
       })
       .catch(function (error) {
         ToastAndroid.show(t('common:errorOccured'), 3);
+        setLoading(false)
       });
     }
   };
 
   return (
     <View style={styles.container}>
+          {loading ? (
+            <Spinner
+              cancelable={false}
+              color={theme.colors.primary}
+              visible={loading}
+              overlayColor="rgba(0, 0, 0, 0.25)"
+            />
+          ) : (
+            <></>
+          )}
       {!auth.user? <Text style={[styles.title, styles.leftTitle]}>{t('common:changePasswordHeader')}</Text> : <></>}
       <View style={styles.InputContainer}>
         <TextInput
