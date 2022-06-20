@@ -35,6 +35,9 @@ export default {
   send: "发送",
   friendRequest: "好友请求",
 
+  relation: "Relation",
+  acceptFriendReq: "accept your friend request",
+
   groupInfo: "群组信息",
   qrCode: "二维码(QR)",
   info: "信息",

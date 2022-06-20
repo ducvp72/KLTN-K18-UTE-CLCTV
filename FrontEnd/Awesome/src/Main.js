@@ -29,6 +29,7 @@ export const Main = () => {
   const [theme, setTheme] = useState(colorScheme === "dark" ? "dark" : "light");
   const [rtl] = useState(I18nManager.isRTL);
   const [load, setLoad] = useState(true);
+  const [loadRelation, setLoadRelation] = useState(true);
   const [socketContext, setSocketContext] = useState(undefined);
 
   const removeSocketContext = async () => {
@@ -65,6 +66,10 @@ export const Main = () => {
     setLoad(!load);
   };
 
+  const toggleLoadRelation = () => {
+    setLoadRelation(!loadRelation);
+  };
+
   const toggleTheme = () => {
     setTheme((theme) => (theme === "light" ? "dark" : "light"));
   };
@@ -77,6 +82,8 @@ export const Main = () => {
     () => ({
       load,
       toggleLoad,
+      loadRelation,
+      toggleLoadRelation,
       toggleTheme,
       toggleRTL,
       theme,
@@ -92,6 +99,8 @@ export const Main = () => {
       toggleTheme,
       load,
       toggleLoad,
+      loadRelation,
+      toggleLoadRelation,
       socketContext,
       removeSocketContext,
       createSocketContext,

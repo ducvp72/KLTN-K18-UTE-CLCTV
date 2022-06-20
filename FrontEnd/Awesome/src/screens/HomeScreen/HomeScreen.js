@@ -42,8 +42,13 @@ function HomeScreen(props) {
     Keyboard.dismiss();
   });
 
-  const { load, toggleLoad, socketContext, createSocketContext } =
-    React.useContext(PreferencesContext);
+  const {
+    load,
+    toggleLoad,
+    socketContext,
+    createSocketContext,
+    toggleLoadRelation,
+  } = React.useContext(PreferencesContext);
 
   const theme = useTheme();
   const backgroundColor = overlay(2, theme.colors.surface);
@@ -147,6 +152,30 @@ function HomeScreen(props) {
         }, 1000);
       }
     });
+
+    socketContext.on("room:load", (message) => {
+      toggleLoadRelation();
+      if (message.typeId == "kb") {
+        onDisplayNotification(
+          message.user._id,
+          t("common:relation"),
+          message.user.name + " " + t("common:sentFriendReq").toLowerCase()
+        );
+        toggleLoadRelation();
+      }
+      if (message.typeId == "ac") {
+        onDisplayNotification(
+          message.user._id,
+          t("common:relation"),
+          message.user.name + " " + t("common:acceptFriendReq")
+        );
+        toggleLoadRelation();
+      }
+      toggleLoadRelation();
+      setTimeout(() => {
+        toggleLoadRelation();
+      }, 5000);
+    });
   }, [socketContext]);
 
   useEffect(() => {
@@ -194,7 +223,7 @@ function HomeScreen(props) {
       createGroupName.length == 0
     )
       return;
-    setLoading(true)
+    setLoading(true);
     toggeDialog();
     await axios({
       method: "post",
@@ -212,11 +241,11 @@ function HomeScreen(props) {
         } else {
           ToastAndroid.show(t("common:invalid"), 3);
         }
-        setLoading(false)
+        setLoading(false);
       })
       .catch((err) => {
         ToastAndroid.show(t("common:errorOccured"), 3);
-        setLoading(false)
+        setLoading(false);
       });
   };
 
@@ -274,7 +303,7 @@ function HomeScreen(props) {
 
   const MessagesItemView = ({ item }) => {
     // console.log('MESS ITEM ' + props.user.fullname + ' ' + JSON.stringify(item))
-    let member,groupName,lastMsg;
+    let member, groupName, lastMsg;
     if (item.groupType === "personal") {
       member =
         item.member[0].id == auth.user.id ? item.member[1] : item.member[0];
@@ -287,9 +316,11 @@ function HomeScreen(props) {
       groupName = item.groupName;
     }
     // console.log('ITEM: ' + item.member[0].id)
-    if(item.lastMessage.text != "null") {
-      lastMsg = CryptoJS.AES.decrypt(item.lastMessage.text,item._id).toString(CryptoJS.enc.Utf8)
-      if(item.lastMessage.typeId != -1 && item.lastMessage.typeId != "-1") {
+    if (item.lastMessage.text != "null") {
+      lastMsg = CryptoJS.AES.decrypt(item.lastMessage.text, item._id).toString(
+        CryptoJS.enc.Utf8
+      );
+      if (item.lastMessage.typeId != -1 && item.lastMessage.typeId != "-1") {
         switch (item.lastMessage.typeId) {
           case "0": //tao
             lastMsg = lastMsg + t("common:sysCreate");
@@ -315,7 +346,7 @@ function HomeScreen(props) {
         }
       }
     } else {
-      lastMsg = t('common:mediaMessage')
+      lastMsg = t("common:mediaMessage");
     }
 
     const updatedAt =
@@ -362,7 +393,8 @@ function HomeScreen(props) {
               >
                 {item.lastMessage.user._id == auth.user.id
                   ? `${t("common:you")}: `
-                  : ""}{lastMsg}
+                  : ""}
+                {lastMsg}
                 {/* {item.lastMessage.text != "null"
                   ? CryptoJS.AES.decrypt(
                       item.lastMessage.text,

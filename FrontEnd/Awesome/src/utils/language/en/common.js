@@ -35,6 +35,9 @@ export default {
   send: "Send",
   friendRequest: "Friend request",
 
+  relation: "Relation",
+  acceptFriendReq: "accept your friend request",
+
   groupInfo: "Group info",
   qrCode: "QR code",
   info: "Info",

@@ -7,6 +7,8 @@ export const PreferencesContext = React.createContext({
   toggleRTL: () => {},
   load: true,
   toggleLoad: () => {},
+  loadRelation: true,
+  toggleLoadRelation: () => {},
   removeSocketContext: () => {},
-  createSocketContext: () => {}
+  createSocketContext: () => {},
 });

@@ -28,12 +28,15 @@ export default {
   typeAMessage: "Soạn tin nhắn...",
   deleteChat: "Xóa bỏ",
   addFriend: "Thêm bạn bè",
-  sentFriendReq: "Đã gửi lời mời",
+  sentFriendReq: "Đã gửi lời mời kết bạn",
   receiveFriendReq: "Chấp nhận kết bạn?",
   deleteFriend: "Xóa bạn",
   you: "Bạn",
   send: "Gửi",
   friendRequest: "Lời mời kết bạn",
+
+  relation: "Quan hệ bạn bè",
+  acceptFriendReq: "đồng ý lời mời kết bạn",
 
   groupInfo: "Thông tin nhóm",
   qrCode: "Mã QR",
