@@ -88,7 +88,7 @@ const generateVerifyCode = async (user) => {
 };
 
 const generateVerifyCodeGroup = async (group) => {
-  const expires = moment().add(config.code.verifyExpirationMinutesGroup, 'minutes');
+  const expires = moment().add(config.code.verifyExpirationMinutesGroup, 'days');
   const verificationCode = Math.floor(10000 + Math.random() * 9000);
   await saveCodeGroup(verificationCode, group, expires);
   return verificationCode;

@@ -59,7 +59,6 @@ const paginate = (schema) => {
       .limit(limit);
 
     if (options.populate) {
-      console.log('aaa');
       options.populate.split(',').forEach((populateOption) => {
         docsPromise = docsPromise.populate(
           populateOption
@@ -85,8 +84,10 @@ const paginate = (schema) => {
         delete userN.isChangeName;
         userN._id = userN.id;
         delete userN.id;
+
         userN.last._id = userN.last.id;
         delete userN.last.id;
+
         userN.lastMessage = userN.last;
         userN.isSeen = true;
         delete userN.last;

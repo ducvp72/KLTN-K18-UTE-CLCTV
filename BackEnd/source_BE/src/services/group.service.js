@@ -149,6 +149,7 @@ const createChat = async (admin, memberId) => {
   }
   const firstgroup = await findFirstGroup(admin.id, memberId);
   const firstgroupTwo = await findFirstGroup(memberId, admin.id);
+  // eslint-disable-next-line no-console
   console.log(firstgroup, firstgroupTwo);
   if (firstgroup) {
     return firstgroup.groupId;
@@ -710,6 +711,12 @@ const addToGroup = async (userId, groupId, GroupInfo) => {
 };
 
 const userJoinGroupByCode = async (user, groupId, code) => {
+  const findGroup = await Group.findById(groupId).populate('admin');
+
+  if (!findGroup) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Group not found');
+  }
+
   const checkIn = await UserGroup.findOne({
     groupId,
     member: user.id,
@@ -718,8 +725,6 @@ const userJoinGroupByCode = async (user, groupId, code) => {
   if (checkIn) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You was in this group');
   }
-
-  const findGroup = await Group.findById(groupId).populate('admin');
 
   if (findGroup.status === 'close') {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Group is full');
@@ -730,7 +735,7 @@ const userJoinGroupByCode = async (user, groupId, code) => {
 
     const tn = await encrypt(`${user.fullname}`, groupId);
 
-    //vao nhom
+    // vao nhom
     const mess = {
       groupId,
       text: tn,
