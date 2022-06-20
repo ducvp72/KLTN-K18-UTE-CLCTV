@@ -57,12 +57,12 @@ const onConnection = async (socket) => {
   let userInfo;
   console.log("userSocket id", socket.handshake.auth.userId);
 
-  // const checkIn = storeService.findUserById(socket.handshake.auth.userId);
-
-  // if (checkIn) {
+  // Check if user Online
+  // const checkOnline = await storeService.findUserById(socket.handshake.auth.userId);
+  // if (checkOnline) {
   //   console.log("IN THIS ROOM", checkIn);
   //   socket.emit("room:inRoom", `You in this room`);
-  //   return;
+  // return;
   // }
 
   try {
@@ -78,15 +78,23 @@ const onConnection = async (socket) => {
 
   registerRoomHanlers(io, socket, userInfo);
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     //Check if user in room
-    // const user = storeService.findUserById(socket.handshake.auth.userId);
     const user = storeService.getInfoById(socket.handshake.auth.userId);
-
-    storeService.deleteUserById(socket.handshake.auth.userId);
+    console.log("user", user);
 
     if (!user) return;
-    console.log("user", user);
+
+    if (user.soketId.length < 2) {
+      await storeService.deleteUserById(socket.handshake.auth.userId);
+    } else {
+      await storeService.deleteSocketOfUser(
+        socket.handshake.auth.userId,
+        socket.id
+      );
+    }
+
+    await storeService.removeSocketArr(socket.id);
   });
 };
 

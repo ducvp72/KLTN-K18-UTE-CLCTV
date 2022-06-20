@@ -18,10 +18,6 @@ module.exports = (io, socket, userInfo) => {
     //   groupId: roomId,
     //   member: userInfo.id,
     // });
-    const checkIn = socket.rooms.has(roomId);
-    console.log("CheckInGroup", checkIn);
-
-    if (!checkIn) return;
 
     // const a = await io.in(roomId).fetchSockets();
     // const clientsInRoom = io
@@ -35,19 +31,49 @@ module.exports = (io, socket, userInfo) => {
     // console.log("idclient", checkSocketId);
     // const sockets = Array.from(io.sockets.sockets).map((socket) => socket[0]);
     // console.log(sockets);
+    console.info(
+      "-----------------------------Start----------------------------------"
+    );
+    //Check if has in roomId
+    const checkIn = socket.rooms.has(roomId);
+    console.log("CheckInGroup", checkIn);
+    if (!checkIn) return;
 
+    console.log("userInfo: ", userInfo.id);
+
+    //get all socket inroom
     const socketArr = await io.in(roomId).fetchSockets();
     const arrUser = [];
     await socketArr.forEach((element) => {
-      console.log(element.id);
+      // console.log(element.id);
       arrUser.push(element.id);
     });
-    console.log("arr", arrUser);
+    console.log("arrUser in room", arrUser);
 
-    //all socket
-    // io.emit("room:chat", formatMessage(message));
+    //Check exist
+    // const checkMultiOnline = await getInfoById(userInfo.id);
+    // if (checkMultiOnline.soketId.length >= 2) {
+    //   // console.log("If has multi", checkMultiOnline);
+    //   console.log("List", checkMultiOnline.soketId);
+
+    //   const filterMulti = arrUser.filter((socketid) => {
+    //     return !checkMultiOnline.soketId.includes(socketid);
+    //   });
+
+    //   console.log("filterMulti", filterMulti);
+    //   filterMulti.forEach((socketid, index) => {
+    //     io.to(socketid).emit("room:chat", formatMessage(message));
+    //   });
+    //   return;
+    // }
 
     socket.broadcast.to(roomId).emit("room:chat", formatMessage(message));
+    console.info(
+      "-------------------------------End--------------------------------",
+      "\n"
+    );
+    //all socket
+    // io.emit("room:chat", formatMessage(message));
   };
 
   const getRoomInfo = async (roomId) => {
@@ -58,7 +84,7 @@ module.exports = (io, socket, userInfo) => {
   };
 
   const joinRoom = async (roomId) => {
-    const check = findUserById(userInfo.id);
+    const check = await findUserById(userInfo.id);
     if (check) {
       const mark = checkInRoomById(userInfo.id, roomId);
       if (mark) {
@@ -108,22 +134,6 @@ module.exports = (io, socket, userInfo) => {
   const leaveRoom = async (roomId) => {
     const user = checkInRoomById(userInfo.id, roomId);
 
-    const leaveTemp = {
-      text: `${userInfo.fullname}  has left this room : ${roomId}`,
-      image: null,
-      video: null,
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      typeId: new Date().getTime(),
-      id: "96969696969696",
-      user: {
-        avatar:
-          "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
-        name: `${userInfo.fullname}`,
-        _id: "6969696969696969",
-      },
-    };
-
     //Xoa khoi db
     // await UserGroup.findOneAndDelete({
     //   groupId: roomId,
@@ -148,63 +158,6 @@ module.exports = (io, socket, userInfo) => {
     getRoomInfo(roomId);
   };
 
-  const kickOut = async (info, roomId) => {
-    io.to(info.soketId).emit("room:getout", { roomId });
-  };
-
-  const kickUser = async ({ userId, roomId }) => {
-    console.log("Server ON EVENT - room:kick");
-    console.log(userId);
-    console.log(roomId);
-
-    const user = checkInRoomById(userInfo.id, roomId);
-    if (!user) return;
-    const check = getInfoById(userId);
-    console.log("Kick", check);
-    kickOut(check, roomId);
-  };
-
-  const kickByAdmin = async (roomId) => {
-    const leaveTemp = {
-      text: `Admin has kick  ${userInfo.fullname} `,
-      image: null,
-      video: null,
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      typeId: new Date().getTime(),
-      id: "96969696969696",
-      user: {
-        avatar:
-          "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
-        name: `Admin`,
-        _id: "6969696969696969",
-      },
-    };
-
-    //Xoa khoi db
-    // await UserGroup.findOneAndDelete({
-    //   groupId: roomId,
-    //   member: userInfo.id,
-    // });
-
-    //reset lai phong
-
-    console.log("Check thanh vien hien tai", socket.rooms);
-
-    // const clientsInRoom = io.in(roomId).allSockets();
-    // console.log("CLIENT LEFT OF ROOM: ", roomId + " " + clientsInRoom);
-
-    await socket.leave(roomId);
-
-    await deleteRoomOfUser(userInfo.id, roomId);
-
-    // socket.to(roomId).emit("room:chat", formatMessage(leaveTemp));
-
-    getRoomInfo(roomId);
-
-    console.log("Server ON EVENT - room:kickByAdmin", roomId);
-  };
-
   const signalUser = async ({ userId, message }) => {
     const checkOnline = await getInfoById(userId);
     console.log("message:", { userId, message });
@@ -215,36 +168,26 @@ module.exports = (io, socket, userInfo) => {
       return;
     }
     console.log("userId target:", userId, "\n", "info:", checkOnline);
-    console.log("message:", message);
 
-    io.to(checkOnline.soketId).emit("room:load", message);
+    checkOnline.soketId.forEach((socketid) => {
+      //Cach cu //roomTemp
+      // io.sockets.sockets.get(socketid).join(userId);
+
+      io.to(socketid).emit("room:load", message);
+    });
+
+    //Cach cu //roomTemp
+    // io.to(userId).emit("room:load", message);
+
+    //Cach cu //leave temp room //roomTemp
+    // io.socketsLeave(userId);
   };
-
-  // const inviteRoom = async ({ userId, roomId }) => {
-  //   const checkIn = await checkInGroupDB(userId, roomId);
-  //   if (checkIn) {
-  //     console.log("Check before invite if", userStore);
-
-  //     io.to(socket.id).emit("room:invite", {
-  //       status: true,
-  //       message: `${userId} currently in this room ${roomId} `,
-  //     });
-  //   } else {
-  //     console.log("do something");
-  //     // io.to(socket.id).emit("room:invite", {
-  //     //   status: true,
-  //     //   message: `${userId} currently in this room ${roomId} `,
-  //     // });
-  //   }
-  // };
 
   return {
     getRoomInfo,
     joinRoom,
     leaveRoom,
     chatToGroup,
-    kickUser,
-    kickByAdmin,
     signalUser,
   };
 };

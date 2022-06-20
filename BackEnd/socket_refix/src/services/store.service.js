@@ -1,6 +1,23 @@
 const userMap = new Map();
+const socketArr = [];
 
-const findUserById = (userId) => {
+const addSocketArr = async (socketId) => {
+  socketArr.push(socketId);
+  // console.log("Socket Arr", socketArr);
+};
+
+const removeSocketArr = async (socketId) => {
+  console.log("Before remove", socketArr);
+  const index = socketArr.indexOf(socketId);
+  console.log(index);
+  if (index > -1) {
+    socketArr.splice(index, 1);
+  }
+  // console.log("After remove Arr socket", socketArr);
+};
+
+//Return true or false if find user
+const findUserById = async (userId) => {
   const check = userMap.has(userId);
   return check;
 };
@@ -24,23 +41,41 @@ const addUser = async (idU, idS, userN, idR) => {
   console.log("after add", userMap);
 };
 
-const deleteUserById = (idU) => {
+const deleteUserById = async (idU) => {
   userMap.delete(idU);
   console.log("after remove", userMap);
+};
+
+const addSocketForUser = async (idU, socketAdd) => {
+  const check = checkInRoomById(idU, socketAdd);
+  if (check) {
+    return;
+  }
+  userMap.get(idU).soketId.push(socketAdd);
+  console.log("after add SocketId", userMap);
+};
+
+const deleteSocketOfUser = async (idU, socketDel) => {
+  const check = await findUserById(idU);
+  if (!check) return;
+  userMap.get(idU).soketId.forEach((socket, index) => {
+    if (socket === socketDel) {
+      userMap.get(idU).soketId.splice(index, 1);
+    }
+  });
+  console.log("after delete SocketId", userMap);
 };
 
 const addRoomForUser = async (idU, roomAdd) => {
   const check = checkInRoomById(idU, roomAdd);
   if (check) {
-    console.log("co roi");
     return;
   }
-
   userMap.get(idU).roomId.push(roomAdd);
 };
 
 const deleteRoomOfUser = async (idU, roomDel) => {
-  const check = findUserById(idU);
+  const check = await findUserById(idU);
   if (!check) return;
   userMap.get(idU).roomId.forEach((room, index) => {
     if (room === roomDel) {
@@ -89,6 +124,7 @@ const getMemberInRoom = (idR) => {
 
 module.exports = {
   userMap,
+  socketArr,
   findUserById,
   addUser,
   deleteUserById,
@@ -97,4 +133,9 @@ module.exports = {
   getMemberInRoom,
   checkInRoomById,
   getInfoById,
+  addSocketForUser,
+  deleteSocketOfUser,
+
+  addSocketArr,
+  removeSocketArr,
 };

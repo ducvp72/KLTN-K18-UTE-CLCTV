@@ -21,42 +21,36 @@ module.exports = async (io, socket, userInfo) => {
   //   console.log("Khong co");
   // }
 
-  //map User Object
-  await storeService.addUser(
-    socket.handshake.auth.userId,
-    socket.id,
-    userInfo?.fullname,
-    arrGroup
+  const checkOnline = await storeService.findUserById(
+    socket.handshake.auth.userId
   );
+
+  if (checkOnline) {
+    console.log("Online: true");
+    //Only add new socketId in arr Socket ID of exist user
+    await storeService.addSocketForUser(
+      socket.handshake.auth.userId,
+      socket.id
+    );
+  } else {
+    //add new map User Object
+    console.log("Online: false");
+    const arrSocketId = [socket.id];
+    await storeService.addUser(
+      socket.handshake.auth.userId,
+      arrSocketId,
+      userInfo?.fullname,
+      arrGroup
+    );
+  }
+
+  //add in arr socket
+  await storeService.addSocketArr(socket.id);
 
   for (let i = 0; i < userGroups.length; i++) {
     //Join User in all chat if user is a Member of it
     await socket.join(userGroups[i].groupId.toString());
-
-    const temp = {
-      text: `${userInfo.fullname}  has joined this  room ${userGroups[
-        i
-      ].groupId.toString()} `,
-      image: null,
-      video: null,
-      typeId: new Date().getTime(),
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: "96969696969696",
-      user: {
-        avatar:
-          "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
-        name: "Admin Group",
-        _id: "6969696969696969",
-      },
-    };
-
     // console.log(userGroups[i].groupId.toString());
-
-    // Broadcast when a user connects
-    // await socket.broadcast
-    //   .to(userGroups[i].groupId.toString())
-    //   .emit("room:chat", formatMessage(temp));
   }
 
   socket.emit("user:getUserInfo", { userInfo, socketId: socket.id });
