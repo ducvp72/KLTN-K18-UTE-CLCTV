@@ -33,7 +33,7 @@ const changeUser = async () => {
   // http://chatapp-api.eastasia.cloudapp.azure.com:8000
 
   //sua duong link o day
-  socket = await io("http://chatapp-api.eastasia.cloudapp.azure.com:8000", {
+  socket = await io("http://localhost:8000", {
     transports: ["polling"],
     reconnectionDelayMax: 10000,
     auth: { userId: token },
@@ -86,6 +86,10 @@ const changeUser = async () => {
       console.log(message);
     });
 
+    socket.on("room:specRoom", (message) => {
+      console.log("SpecRoom", message);
+    });
+
     //notificatition invite
     // socket.on("room:invite", ({ status, message }) => {
     //   inviteSpecialRoom(status, message);
@@ -102,6 +106,11 @@ const changeRoom = () => {
   const roomId = document.getElementById("roomId").value;
   socket.emit("room:join", roomId);
   console.log("roomId", roomId);
+};
+
+const signalRoom = () => {
+  const roomId = document.getElementById("roomId").value;
+  socket.emit("room:all", roomId);
 };
 
 const signalUser = () => {

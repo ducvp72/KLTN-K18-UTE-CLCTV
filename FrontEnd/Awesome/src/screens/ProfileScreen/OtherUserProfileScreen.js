@@ -29,7 +29,7 @@ export function OtherUserProfileScreen(props) {
   const [isFriend, setIsFriend] = useState(props.route.params.isFriend);
   const { otherUserFullname, otherUserEmail, otherUserAvatar, otherUserId } =
     props.route.params;
-  const { toggleLoad, socketContext, loadRelation } =
+  const { toggleLoad, socketContext, loadRelation, createSocketContext } =
     React.useContext(PreferencesContext);
   const [loading, setLoading] = useState(false);
 
@@ -51,6 +51,14 @@ export function OtherUserProfileScreen(props) {
 
   const signalMsgX = {
     typeId: "x",
+    user: {
+      name: auth.user.fullname,
+      _id: auth.user.id,
+    },
+  };
+
+  const signalNewMsg = {
+    typeId: "new",
     user: {
       name: auth.user.fullname,
       _id: auth.user.id,
@@ -207,6 +215,11 @@ export function OtherUserProfileScreen(props) {
           //     },
           //   })
           // );
+          createSocketContext(auth.user.id);
+          socketContext.emit("room:signal", {
+            userId: otherUserId,
+            message: signalNewMsg,
+          });
           setLoading(false);
           props.navigation.replace("Chat", {
             groupName: otherUserFullname,

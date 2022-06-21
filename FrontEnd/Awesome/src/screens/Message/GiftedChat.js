@@ -59,7 +59,8 @@ export function Chat(props) {
     Keyboard.dismiss();
   });
 
-  const { toggleLoad, socketContext, load } = React.useContext(PreferencesContext);
+  const { toggleLoad, socketContext, load } =
+    React.useContext(PreferencesContext);
 
   const getPermissions = async () => {
     const granted = await PermissionsAndroid.requestMultiple(permissions);
@@ -119,7 +120,7 @@ export function Chat(props) {
     } else {
       setPermissionGranted(true);
     }
-    loadMessages()
+    loadMessages();
     // axios({
     //   method: "put",
     //   url: `${baseUrl}/group`,
@@ -156,7 +157,7 @@ export function Chat(props) {
         const { message } = error;
         ToastAndroid.show(t("common:errorOccured") + " " + message, 3);
       });
-  }
+  };
 
   useEffect(() => {
     // console.log('SOCKET CHANGE - GIFTEDCHAT')
@@ -185,7 +186,7 @@ export function Chat(props) {
 
   const transformSingleMessage = (message) => {
     if (isValidMessage(message)) {
-      // console.log('OUTPUT TRANS TYPEID: ' + message.typeId)
+      // console.log("OUTPUT TRANS TYPEID: ", message);
       let transformedMessage = {
         typeId: message.typeId,
         _id: message._id,
@@ -203,7 +204,8 @@ export function Chat(props) {
           message.text,
           groupId
         ).toString(CryptoJS.enc.Utf8);
-        if (message.typeId != -1 && message.typeId != "-1") {
+        if (message?.typeId != "-1") {
+          console.log("Type << ", typeof message?.typeId);
           transformedMessage.system = true;
           switch (message.typeId) {
             case "0": //tao
@@ -230,9 +232,16 @@ export function Chat(props) {
               transformedMessage.text =
                 t("common:sysDel") + transformedMessage.text;
               break;
-            default: //roi
+            case "3": //roi
               transformedMessage.text =
                 transformedMessage.text + t("common:sysLeave");
+              break;
+            case 3: //roi
+              transformedMessage.text =
+                transformedMessage.text + t("common:sysLeave");
+              break;
+            default:
+              transformedMessage.system = false;
               break;
           }
         }

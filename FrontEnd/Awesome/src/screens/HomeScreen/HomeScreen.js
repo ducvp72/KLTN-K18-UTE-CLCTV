@@ -141,11 +141,13 @@ function HomeScreen(props) {
           (message.groupType === "personal" ? "" : `${message.user.name}: `) +
           `${nofiText}`;
         // console.log('nofiText >>> ' + nofiText)
-        onDisplayNotification(
-          message.groupId ?? message.user._id,
-          nofiGroup,
-          nofiMessage
-        );
+        if (auth.user.id != message.user._id) {
+          onDisplayNotification(
+            message.groupId ?? message.user._id,
+            nofiGroup,
+            nofiMessage
+          );
+        }
 
         setTimeout(() => {
           loadLastMess();
@@ -156,19 +158,32 @@ function HomeScreen(props) {
     socketContext.on("room:load", (message) => {
       toggleLoadRelation();
       if (message.typeId == "kb") {
-        onDisplayNotification(
-          message.user._id,
-          t("common:relation"),
-          message.user.name + " " + t("common:sentFriendReq").toLowerCase()
-        );
-        toggleLoadRelation();
+        setTimeout(() => {
+          onDisplayNotification(
+            message.user._id,
+            t("common:relation"),
+            message.user.name + " " + t("common:sentFriendReq").toLowerCase()
+          );
+          toggleLoadRelation();
+        }, 2000);
       }
       if (message.typeId == "ac") {
-        onDisplayNotification(
-          message.user._id,
-          t("common:relation"),
-          message.user.name + " " + t("common:acceptFriendReq")
-        );
+        setTimeout(() => {
+          onDisplayNotification(
+            message.user._id,
+            t("common:relation"),
+            message.user.name + " " + t("common:acceptFriendReq")
+          );
+          toggleLoadRelation();
+        }, 2000);
+      }
+      if (message.typeId == "new") {
+        createSocketContext(auth.user.id);
+        setTimeout(() => {
+          toggleLoad();
+          toggleLoadRelation();
+        }, 2000);
+        toggleLoad();
         toggleLoadRelation();
       }
       toggleLoadRelation();

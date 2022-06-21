@@ -51,6 +51,7 @@ export const Main = () => {
   };
 
   const createSocketContext = async (userId) => {
+    removeSocketContext();
     // console.log('createSocketContext >> userId >> ' + userId)
     setSocketContext(
       io(socketUrl, {
