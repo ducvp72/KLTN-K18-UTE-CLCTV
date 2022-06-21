@@ -183,20 +183,7 @@ module.exports = (io, socket, userInfo) => {
     // io.socketsLeave(userId);
   };
 
-  const signalRoom = async (roomId) => {
-    const message = {
-      text: "Lam bui ron chuyen wa",
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      _id: new Date(),
-      typeId: new Date().getTime(),
-      user: {
-        avatar:
-          "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
-        name: "User A",
-        _id: new Date().getTime(),
-      },
-    };
+  const signalRoom = async ({ roomId, message }) => {
     socket.broadcast.to(roomId).emit("room:specRoom", message);
   };
 

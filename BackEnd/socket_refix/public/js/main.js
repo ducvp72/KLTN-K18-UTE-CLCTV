@@ -33,7 +33,7 @@ const changeUser = async () => {
   // http://chatapp-api.eastasia.cloudapp.azure.com:8000
 
   //sua duong link o day
-  socket = await io("http://localhost:8000", {
+  socket = await io("http://chatapp-api.eastasia.cloudapp.azure.com:8000", {
     transports: ["polling"],
     reconnectionDelayMax: 10000,
     auth: { userId: token },
@@ -110,7 +110,20 @@ const changeRoom = () => {
 
 const signalRoom = () => {
   const roomId = document.getElementById("roomId").value;
-  socket.emit("room:all", roomId);
+  const message = {
+    text: "Lam bui ron chuyen wa",
+    createdAt: `${new Date()}`,
+    updatedAt: `${new Date()}`,
+    _id: new Date(),
+    typeId: new Date().getTime(),
+    user: {
+      avatar:
+        "https://res.cloudinary.com/kltn-k18-dl/image/upload/v1650966158/myGallary/azusjmrzhfmyzku9idpc.jpg",
+      name: "User A",
+      _id: new Date().getTime(),
+    },
+  };
+  socket.emit("room:all", { roomId, message });
 };
 
 const signalUser = () => {
