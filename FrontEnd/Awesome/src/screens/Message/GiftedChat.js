@@ -205,7 +205,6 @@ export function Chat(props) {
           groupId
         ).toString(CryptoJS.enc.Utf8);
         if (message?.typeId != "-1") {
-          console.log("Type << ", typeof message?.typeId);
           transformedMessage.system = true;
           switch (message.typeId) {
             case "0": //tao

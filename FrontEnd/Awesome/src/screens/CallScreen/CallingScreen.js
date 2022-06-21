@@ -36,7 +36,14 @@ const CallingScreen = (props) => {
     call: incomingCall,
     isIncomingCall,
   } = props.route.params;
-  console.log("Friend ID Call Screen => " + friendId + " " + groupName);
+  console.log(
+    "Friend ID Call Screen => " +
+      friendId +
+      " " +
+      groupName +
+      " isVideo " +
+      videoCall
+  );
   const voximplant = Voximplant.getInstance();
 
   const call = useRef(incomingCall);
@@ -95,21 +102,29 @@ const CallingScreen = (props) => {
     };
 
     const answerCall = async () => {
-      subscribeToCallEvents();
-      endpoint.current = call.current.getEndpoints()[0];
-      // ((endpoint) => {
-      //   const mediaRenderer = endpoint.mediaRenderer;
-      //   mediaRenderer.enabled();
-      //   mediaRenderer.requestVideoSize(640, 480);
-      //   console.log('Video size: ' + mediaRenderer.videoSize)
-      // })
-      subscribeToEndpointEvent();
-      call.current.answer({
-        video: {
-          sendVideo: videoCall,
-          receiveVideo: videoCall,
-        },
-      });
+      try {
+        subscribeToCallEvents();
+        endpoint.current = call.current.getEndpoints()[0];
+        // ((endpoint) => {
+        //   const mediaRenderer = endpoint.mediaRenderer;
+        //   mediaRenderer.enabled();
+        //   mediaRenderer.requestVideoSize(640, 480);
+        //   console.log('Video size: ' + mediaRenderer.videoSize)
+        // })
+        subscribeToEndpointEvent();
+        call.current.answer({
+          video: {
+            sendVideo: videoCall,
+            receiveVideo: videoCall,
+          },
+        });
+      } catch {
+        call.current.getEndpoints().forEach((endpoint) => {
+          setupEndpointListeners(endpoint, false);
+        });
+        call.current.hangup();
+        props.navigation.navigate("Messages");
+      }
     };
 
     const subscribeToCallEvents = () => {
@@ -187,9 +202,9 @@ const CallingScreen = (props) => {
       call.current.hangup();
       props.navigation.navigate("Messages");
     } catch {
-      call.current.getEndpoints().forEach((endpoint) => {
-        setupEndpointListeners(endpoint, false);
-      });
+      // call.current.getEndpoints().forEach((endpoint) => {
+      //   setupEndpointListeners(endpoint, false);
+      // });
       call.current.hangup();
       props.navigation.navigate("Messages");
     }
@@ -233,20 +248,22 @@ const CallingScreen = (props) => {
       <Pressable onPress={goBack} style={styles.backButton}>
         <Ionicons name="chevron-back" color="black" size={25} />
       </Pressable>
-    {
-      (videoCall) ? 
-      <Voximplant.VideoView
-        videoStreamId={remoteVideoStreamId}
-        style={styles.remoteVideo}
-      /> : <></>
-    }
-    {
-      (videoCall == true && sendVideo == true) ? 
-      <Voximplant.VideoView
-        videoStreamId={localVideoStreamId}
-        style={styles.localVideo}
-      /> : <></>
-    }
+      {videoCall ? (
+        <Voximplant.VideoView
+          videoStreamId={remoteVideoStreamId}
+          style={styles.remoteVideo}
+        />
+      ) : (
+        <></>
+      )}
+      {videoCall == true && sendVideo == true ? (
+        <Voximplant.VideoView
+          videoStreamId={localVideoStreamId}
+          style={styles.localVideo}
+        />
+      ) : (
+        <></>
+      )}
       <View style={styles.cameraPreview}>
         <Text style={styles.name}>{groupName}</Text>
         <Text style={styles.phoneNumber}>{callStatus}</Text>

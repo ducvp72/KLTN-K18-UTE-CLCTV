@@ -34,7 +34,8 @@ function GroupInfoScreen(props) {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [leaveVisible, setLeaveVisible] = useState(false);
-  const { load, toggleLoad } = React.useContext(PreferencesContext);
+  const { load, toggleLoad, socketContext, createSocketContext } =
+    React.useContext(PreferencesContext);
 
   useEffect(() => {
     getGroupProfile();
@@ -44,6 +45,14 @@ function GroupInfoScreen(props) {
     //   // setJoinStatus()
     // };
   }, [load]);
+
+  const signalDel = {
+    typeId: "del",
+    user: {
+      name: auth.user.fullname,
+      _id: auth.user.id,
+    },
+  };
 
   const getGroupProfile = () => {
     axios({
@@ -239,6 +248,16 @@ function GroupInfoScreen(props) {
       },
     })
       .then((response) => {
+        setTimeout(() => {
+          socketContext.emit("room:all", {
+            roomId: groupId,
+            message: signalDel,
+          });
+        });
+        socketContext.emit("room:all", {
+          roomId: groupId,
+          message: signalDel,
+        });
         toggleLoad();
         ToastAndroid.show(t("common:complete"), 3);
         setLoading(false);

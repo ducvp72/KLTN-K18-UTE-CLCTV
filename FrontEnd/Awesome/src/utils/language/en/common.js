@@ -52,7 +52,7 @@ export default {
   empty: "Empty...",
   complete: "Complete!",
   under10MB: "File too large (>10MB)!",
-  errorOccured: "Error occured!",
+  errorOccured: "Connection error! Please try again...",
   mediaMessage: "Media message",
 
   sysLeave: " left the group.",
@@ -61,7 +61,7 @@ export default {
   sysJoin: " join the group.",
 
   fillRequiredField: "Please fill out the required fields",
-  invalid: "Invalid...",
+  invalid: "Invalid data...",
   permissionError: "Permissions not granted!",
   startRecording: "Start recording...",
   stopRecording: "Stop recording!",

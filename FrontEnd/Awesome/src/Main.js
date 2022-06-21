@@ -38,20 +38,28 @@ export const Main = () => {
     await socketContext.off("disconnect");
     await socketContext.off("connect_error");
     await socketContext.off("room:chat");
+    await socketContext.off("room:signal");
+    await socketContext.off("room:load");
+    await socketContext.off("room:all");
+    await socketContext.off("room:specRoom");
     await socketContext.removeAllListeners(
       "connect",
       "disconnect",
       "connect_error",
-      "room:chat"
+      "room:chat",
+      "room:load",
+      "room:signal",
+      "room:all",
+      "room:specRoom"
     );
     await socketContext.removeAllListeners();
     await socketContext.disconnect();
-    await socketContext.emit("disconnect");
-    setSocketContext(undefined);
+    // await socketContext.emit("disconnect");
+    // setSocketContext(undefined);
   };
 
   const createSocketContext = async (userId) => {
-    removeSocketContext();
+    if (socketContext !== undefined) removeSocketContext();
     // console.log('createSocketContext >> userId >> ' + userId)
     setSocketContext(
       io(socketUrl, {

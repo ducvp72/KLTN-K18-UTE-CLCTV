@@ -31,10 +31,11 @@ export function GroupMemberList(props) {
   const groupId = props.route.params.groupId;
   const [searchQuery, setSearchQuery] = useState("");
   const [visible, setVisible] = useState("");
-  const { toggleLoad, socketContext } = React.useContext(PreferencesContext);
+  const { toggleLoad, socketContext, createSocketContext } =
+    React.useContext(PreferencesContext);
 
-  const signalNewMsg = {
-    typeId: "new",
+  const signalDel = {
+    typeId: "del",
     user: {
       name: auth.user.fullname,
       _id: auth.user.id,
@@ -65,8 +66,8 @@ export function GroupMemberList(props) {
   };
 
   const removeMember = async (memberId) => {
-    console.log("removeMember 1");
-    console.log("removeMember memberList > ", memberList);
+    // console.log("removeMember 1");
+    // console.log("removeMember memberList > ", memberList);
     let filteredArray = await memberList.filter((item) => {
       item.userId != memberId;
     });
@@ -89,10 +90,25 @@ export function GroupMemberList(props) {
       },
     })
       .then((response) => {
+        createSocketContext(auth.user.id);
         if (response) {
+          setTimeout(() => {
+            socketContext.emit("room:all", {
+              roomId: groupId,
+              message: signalDel,
+            });
+            socketContext.emit("room:signal", {
+              userId: memberId,
+              message: signalDel,
+            });
+          });
+          socketContext.emit("room:all", {
+            roomId: groupId,
+            message: signalDel,
+          });
           socketContext.emit("room:signal", {
             userId: memberId,
-            message: signalNewMsg,
+            message: signalDel,
           });
           removeMember(memberId);
           toggleLoad();

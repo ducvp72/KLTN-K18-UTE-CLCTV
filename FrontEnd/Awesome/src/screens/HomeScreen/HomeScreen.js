@@ -107,12 +107,12 @@ function HomeScreen(props) {
     });
     socketContext.on("disconnect", () => {
       console.log("socketContext ON disconnect - HOME");
-      socketContext.socket.connect();
+      // socketContext.socket.connect();
       // createSocketContext(auth.user.id)
     });
     socketContext.on("connect_error", () => {
       console.log("socketContext ON connect_error - HOME");
-      socketContext.socket.connect();
+      // socketContext.socket.connect();
       // createSocketContext(auth.user.id)
     });
   }, [socketContext]);
@@ -181,15 +181,38 @@ function HomeScreen(props) {
         createSocketContext(auth.user.id);
         setTimeout(() => {
           toggleLoad();
+          loadLastMess();
           toggleLoadRelation();
         }, 2000);
         toggleLoad();
+        loadLastMess();
         toggleLoadRelation();
+      }
+      if (message.typeId == "del") {
+        createSocketContext(auth.user.id);
+        setTimeout(() => {
+          loadLastMess();
+        }, 2000);
+        loadLastMess();
       }
       toggleLoadRelation();
       setTimeout(() => {
         toggleLoadRelation();
       }, 5000);
+    });
+
+    socketContext.on("room:specRoom", (message) => {
+      createSocketContext(auth.user.id);
+      setTimeout(() => {
+        toggleLoad();
+        loadLastMess();
+      }, 2000);
+      toggleLoad();
+      loadLastMess();
+      // setTimeout(() => {
+      //   loadLastMess();
+      // }, 5000);
+      // console.log("specRoom >> ", message);
     });
   }, [socketContext]);
 

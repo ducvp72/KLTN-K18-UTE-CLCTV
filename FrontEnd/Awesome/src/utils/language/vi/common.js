@@ -52,7 +52,7 @@ export default {
   empty: "Trống rỗng...",
   complete: "Thành công!",
   under10MB: "Tệp tin quá lớn (hơn 10MB)!",
-  errorOccured: "Có lỗi xảy ra!",
+  errorOccured: "Lỗi mạng! Hãy thử lại sau...",
   mediaMessage: "Tin nhắn đa phương tiện",
 
   sysLeave: " rời nhóm.",
@@ -61,7 +61,7 @@ export default {
   sysJoin: " tham gia nhóm.",
 
   fillRequiredField: "Hãy điền đầy đủ thông tin",
-  invalid: "Không hợp lệ...",
+  invalid: "Dữ liệu không hợp lệ...",
   permissionError: "Chưa được cấp quyền!",
   startRecording: "Bắt đầu ghi...",
   stopRecording: "Đã dừng ghi!",

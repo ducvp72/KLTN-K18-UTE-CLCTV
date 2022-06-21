@@ -33,8 +33,8 @@ export default QRScanScreen = (props) => {
     })();
   }, [hasPermission]);
 
-  const signalNewMsg = {
-    typeId: "new",
+  const signalJoin = {
+    typeId: "join",
     user: {
       name: auth.user.fullname,
       _id: auth.user.id,
@@ -98,9 +98,15 @@ export default QRScanScreen = (props) => {
         })
           .then((response) => {
             createSocketContext(auth.user.id);
-            socketContext.emit("room:signal", {
-              userId: response.data.admin.id,
-              message: signalNewMsg,
+            setTimeout(() => {
+              socketContext.emit("room:all", {
+                roomId: qrData.idGroup,
+                message: signalJoin,
+              });
+            }, 2000);
+            socketContext.emit("room:all", {
+              roomId: qrData.idGroup,
+              message: signalJoin,
             });
             toggleLoad();
             Alert.alert("QR Code", t("common:complete"));

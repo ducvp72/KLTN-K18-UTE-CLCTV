@@ -47,7 +47,8 @@ function SignInScreen({ props, navigation }) {
     dispatch(logout());
     requestPermission();
     (async () => {
-      await voximplant.connect();
+      const result = await voximplant.connect();
+      console.log("Vox connect > ", result);
     })();
 
     // voximplantConnect();
@@ -150,6 +151,7 @@ function SignInScreen({ props, navigation }) {
 
   const voximplantSignIn = async (userId) => {
     const status = await voximplant.getClientState();
+    console.log("Vox status > ", status);
     if (status === Voximplant.ClientState.DISCONNECTED) {
       await voximplant.connect();
     }
