@@ -162,12 +162,13 @@ export function Chat(props) {
   useEffect(() => {
     // console.log('SOCKET CHANGE - GIFTEDCHAT')
     socketContext.on("room:chat", (message) => {
+      console.log("Tin nhan Screen Message >> ", message);
       // console.log('LISTEN ON SOCKET - GIFTEDCHAT')
-      if (message.groupId == groupId || message.groupId === groupId)
-        // console.log('Tin nhan Screen Message')
+      if (message.groupId == groupId || message.groupId === groupId) {
         setMessages((previousMessages) =>
           GiftedChat.append(previousMessages, [transformSingleMessage(message)])
         );
+      }
     });
   }, [socketContext]);
 
@@ -269,6 +270,43 @@ export function Chat(props) {
           message.file,
           groupId
         ).toString(CryptoJS.enc.Utf8);
+      } else if (message.location != "null" && message.location != undefined) {
+        // console.log("Location >>>> ", message.location);
+        transformedMessage.location = message.location;
+      }
+      return transformedMessage;
+    }
+    return message;
+  };
+
+  const transformFileMessage = (message) => {
+    if (isValidMessage(message)) {
+      // console.log("OUTPUT TRANS TYPEID: ", message);
+      let transformedMessage = {
+        typeId: message.typeId,
+        _id: message._id,
+        createdAt: new Date(message.createdAt),
+        user: {
+          _id: message.user._id,
+          name: message.user.name,
+          avatar: message.user.avatar,
+        },
+        groupId: groupId,
+        // sent: message.sent,
+        // pending: message.pending
+      };
+      if (message.video != "null" && message.video != undefined) {
+        // console.log("Video");
+        transformedMessage.video = message.video;
+      } else if (message.image != "null" && message.image != undefined) {
+        // console.log("Image");
+        transformedMessage.image = message.image;
+      } else if (message.voice != "null" && message.voice != undefined) {
+        // console.log("Voice");
+        transformedMessage.voice = message.voice;
+      } else if (message.file != "null" && message.file != undefined) {
+        // console.log("File");
+        transformedMessage.file = message.file;
       } else if (message.location != "null" && message.location != undefined) {
         // console.log("Location >>>> ", message.location);
         transformedMessage.location = message.location;
@@ -560,7 +598,7 @@ export function Chat(props) {
           if (response.data) {
             socketContext.emit("room:chat", {
               roomId: groupId,
-              message: response.data,
+              message: transformFileMessage(response.data),
             });
             toggleLoad();
             setMessages((previousMessages) =>
