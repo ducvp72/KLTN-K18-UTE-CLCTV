@@ -47,10 +47,12 @@ function SignInScreen({ props, navigation }) {
     dispatch(logout());
     requestPermission();
     (async () => {
-      const result = await voximplant.connect();
-      console.log("Vox connect > ", result);
+      const result = await voximplant.connect().then((result) => {
+        console.log("Vox connect > ", result);
+        // setLoading(false);
+      });
     })();
-
+    // voximplant.disconnect();
     // voximplantConnect();
   }, []);
 
@@ -84,7 +86,7 @@ function SignInScreen({ props, navigation }) {
         password: password,
       },
     })
-      .then((response) => {
+      .then(async (response) => {
         if (response.data.user) {
           if (response.data.user.isBanned == true) {
             ToastAndroid.show(t("common:isBanned"), 3);
@@ -101,8 +103,37 @@ function SignInScreen({ props, navigation }) {
             return;
           }
 
+          try {
+            const status = await voximplant.getClientState();
+            console.log("Vox status > ", status);
+            if (status === Voximplant.ClientState.DISCONNECTED) {
+              const connectResult = await voximplant
+                .connect()
+                .then((result) => {
+                  console.log("connectResult >> ", result);
+                });
+            }
+            if (
+              status === Voximplant.ClientState.CONNECTING ||
+              status === Voximplant.ClientState.LOGGING_IN
+            ) {
+              ToastAndroid.show("Login is in process...", 2);
+              return;
+            }
+            const user = `${response.data.user.id}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
+            const authResult = await voximplant
+              .login(user, password)
+              .then((result) => {
+                console.log("authResult >> ", result);
+              });
+          } catch (e) {
+            ToastAndroid.show(`${t("common:errorOccured")}: ${e.code}`, 2);
+            return;
+            // const authResult = await voximplant.login(user, password);
+          }
+
           getFCMToken();
-          voximplantSignIn(response.data.user.id);
+          // voximplantSignIn();
           createSocketContext(response.data.user.id);
 
           AsyncStorage.setItem("@loggedInUserID:id", response.data.user.id);
@@ -150,24 +181,26 @@ function SignInScreen({ props, navigation }) {
   };
 
   const voximplantSignIn = async (userId) => {
-    const status = await voximplant.getClientState();
-    console.log("Vox status > ", status);
-    if (status === Voximplant.ClientState.DISCONNECTED) {
-      await voximplant.connect();
-    }
-    if (
-      status === Voximplant.ClientState.CONNECTING ||
-      status === Voximplant.ClientState.LOGGING_IN
-    ) {
-      ToastAndroid.show("Login is in process...", 2);
-      return;
-    }
-    const user = `${userId}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
     try {
+      const status = await voximplant.getClientState();
+      console.log("Vox status > ", status);
+      if (status === Voximplant.ClientState.DISCONNECTED) {
+        await voximplant.connect();
+      }
+      if (
+        status === Voximplant.ClientState.CONNECTING ||
+        status === Voximplant.ClientState.LOGGING_IN
+      ) {
+        ToastAndroid.show("Login is in process...", 2);
+        return;
+      }
+      const user = `${userId}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
+
       const authResult = await voximplant.login(user, password);
     } catch (e) {
-      // console.log(e);
-      const authResult = await voximplant.login(user, password);
+      console.log(e);
+      return;
+      // const authResult = await voximplant.login(user, password);
       ToastAndroid.show(`${t("common:errorOccured")}: ${e.code}`, 2);
     }
   };

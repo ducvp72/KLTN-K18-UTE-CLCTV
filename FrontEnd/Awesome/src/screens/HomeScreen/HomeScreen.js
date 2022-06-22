@@ -23,7 +23,7 @@ import axios from "axios";
 import overlay from "../../utils/overlay";
 import { useTranslation } from "react-i18next";
 import { PreferencesContext } from "../../context/PreferencesContext";
-import { baseUrl } from "../../utils/Configuration";
+import { baseUrl, APP_NAME, ACC_NAME } from "../../utils/Configuration";
 import {
   onDisplayNotification,
   sendSingleDeviceNotification,
@@ -88,6 +88,16 @@ function HomeScreen(props) {
       loadLastMess();
     }
 
+    // voximplant.on(Voximplant.ClientEvents.ConnectionClosed, async () => {
+    //   // await voximplant.connect();
+    //   const user = `${auth.user.id}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
+    //   const authResult = await voximplant
+    //     .login(user, "123456@User")
+    //     .then((result) => {
+    //       console.log("authResult Home >> ", result);
+    //     });
+    // });
+
     voximplant.on(Voximplant.ClientEvents.IncomingCall, (incomingCallEvent) => {
       props.navigation.navigate("IncomingCallScreen", {
         call: incomingCallEvent.call,
@@ -122,17 +132,15 @@ function HomeScreen(props) {
       toggleLoad();
       if (message) {
         // console.log(
-        //   "ON ROOM:CHAT " +
-        //     auth.user.fullname +
-        //     " RECEIVE " +
-        //     JSON.stringify(message)
+        //   "ON ROOM:CHAT " + auth.user.fullname + " RECEIVE ",
+        //   message
         // );
         const nofiText =
-          message.text != "null"
+          message.text && message.text != "null"
             ? CryptoJS.AES.decrypt(message.text, message.groupId).toString(
                 CryptoJS.enc.Utf8
               )
-            : "Media message";
+            : t("common:mediaMessage");
         const nofiGroup =
           message.groupType != "personal"
             ? message.groupName
@@ -159,21 +167,25 @@ function HomeScreen(props) {
       toggleLoadRelation();
       if (message.typeId == "kb") {
         setTimeout(() => {
-          onDisplayNotification(
-            message.user._id,
-            t("common:relation"),
-            message.user.name + " " + t("common:sentFriendReq").toLowerCase()
-          );
+          if (auth.user.id != message.user._id) {
+            onDisplayNotification(
+              message.user._id,
+              t("common:relation"),
+              message.user.name + " " + t("common:sentFriendReq").toLowerCase()
+            );
+          }
           toggleLoadRelation();
         }, 2000);
       }
       if (message.typeId == "ac") {
         setTimeout(() => {
-          onDisplayNotification(
-            message.user._id,
-            t("common:relation"),
-            message.user.name + " " + t("common:acceptFriendReq")
-          );
+          if (auth.user.id != message.user._id) {
+            onDisplayNotification(
+              message.user._id,
+              t("common:relation"),
+              message.user.name + " " + t("common:acceptFriendReq")
+            );
+          }
           toggleLoadRelation();
         }, 2000);
       }

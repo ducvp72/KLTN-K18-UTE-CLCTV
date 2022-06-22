@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { StyleSheet, View, Image } from "react-native";
@@ -14,11 +14,11 @@ import {
 } from "react-native-paper";
 import Animated from "react-native-reanimated";
 import { PreferencesContext } from "../context/PreferencesContext";
-import { Picker } from '@react-native-picker/picker';
-
-import {logout} from '../reducers';
-import {useSelector, useDispatch} from 'react-redux';
-import { useTranslation } from 'react-i18next';
+import { Picker } from "@react-native-picker/picker";
+import { Voximplant } from "react-native-voximplant";
+import { logout } from "../reducers";
+import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 export function DrawerContainer(props) {
   const dispatch = useDispatch();
@@ -27,9 +27,9 @@ export function DrawerContainer(props) {
 
   const { t, i18n } = useTranslation();
   const selectedLanguageCode = i18n.language;
-
-  const setSelectedLanguage = code => {
-    console.log('code: ' + code)
+  const voximplant = Voximplant.getInstance();
+  const setSelectedLanguage = (code) => {
+    console.log("code: " + code);
     return i18n.changeLanguage(code);
   };
 
@@ -39,7 +39,6 @@ export function DrawerContainer(props) {
   //   inputRange: [0, 0.5, 0.7, 0.8, 1],
   //   outputRange: [-100, -85, -70, -45, 0],
   // });
-
 
   return (
     <DrawerContentScrollView {...props}>
@@ -54,17 +53,45 @@ export function DrawerContainer(props) {
         ]}
       >
         <View style={styles.userInfoSection}>
-          <TouchableRipple onPress={() => {props.navigation.toggleDrawer();}}>
-            <View style={{width: 50, height: 50, marginTop: 30,justifyContent: 'center',alignItems: 'center',flex:1}}>
+          <TouchableRipple
+            onPress={() => {
+              props.navigation.toggleDrawer();
+            }}
+          >
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                marginTop: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                flex: 1,
+              }}
+            >
               <Image
-                style={{alignSelf: 'center', borderRadius: 10, borderWidth: 1, borderColor: 'gray',width: 50, height: 50, backgroundColor: 'white'}}
-                source={{uri: auth.user?.avatar ?? '../../assets/images/none_avatar.png'}}
-              />              
+                style={{
+                  alignSelf: "center",
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: "gray",
+                  width: 50,
+                  height: 50,
+                  backgroundColor: "white",
+                }}
+                source={{
+                  uri:
+                    auth.user?.avatar ?? "../../assets/images/none_avatar.png",
+                }}
+              />
             </View>
           </TouchableRipple>
-          <Title style={styles.title}>{auth.user?.fullname ?? 'Fullname'}</Title>
-          <Caption style={styles.caption}>{'@' + auth.user?.username ?? ''}</Caption>
-          <Caption style={styles.caption}>{auth.user?.email ?? ''}</Caption>
+          <Title style={styles.title}>
+            {auth.user?.fullname ?? "Fullname"}
+          </Title>
+          <Caption style={styles.caption}>
+            {"@" + auth.user?.username ?? ""}
+          </Caption>
+          <Caption style={styles.caption}>{auth.user?.email ?? ""}</Caption>
           {/* <View style={styles.row}>
             <View style={styles.section}>
               <Paragraph style={[styles.paragraph, styles.caption]}>
@@ -89,10 +116,10 @@ export function DrawerContainer(props) {
                 size={size}
               />
             )}
-            label={t('common:profile')}
+            label={t("common:profile")}
             onPress={() => {
               props.navigation.closeDrawer();
-              props.navigation.navigate('Profile')
+              props.navigation.navigate("Profile");
             }}
           />
           {/* <DrawerItem
@@ -104,27 +131,25 @@ export function DrawerContainer(props) {
           /> */}
           <DrawerItem
             icon={({ color, size }) => (
-              <MaterialCommunityIcons
-                name="logout"
-                color={color}
-                size={size}
-              />
+              <MaterialCommunityIcons name="logout" color={color} size={size} />
             )}
-            label={t('common:signOut')}
-            onPress={() => {
-              removeSocketContext()
-              dispatch(logout());
-              props.navigation.closeDrawer();
-              props.navigation.reset({
-                routes: [{ name: 'SignInStack' }]
+            label={t("common:signOut")}
+            onPress={async () => {
+              const result = await voximplant.disconnect().then((result) => {
+                removeSocketContext();
+                dispatch(logout());
+                props.navigation.closeDrawer();
+                props.navigation.reset({
+                  routes: [{ name: "SignInStack" }],
+                });
               });
             }}
           />
         </Drawer.Section>
-        <Drawer.Section title={t('common:preferences')}>
+        <Drawer.Section title={t("common:preferences")}>
           <TouchableRipple onPress={toggleTheme}>
             <View style={styles.preference}>
-              <Text>{t('common:darkTheme')}</Text>
+              <Text>{t("common:darkTheme")}</Text>
               <View pointerEvents="none">
                 <Switch value={theme === "dark"} />
               </View>
@@ -139,18 +164,21 @@ export function DrawerContainer(props) {
             </View>
           </TouchableRipple> */}
           <View style={styles.preference}>
-              <Text>{t('common:languages')}</Text>
-              <Picker
-                    selectedValue={selectedLanguageCode}
-                    style={[styles.languageSelect, {color: paperTheme.colors.text}]}
-                    dropdownIconColor={paperTheme.colors.text}
-                    placeholder={selectedLanguageCode}
-                    // itemStyle={{fontSize: 10}}
-                    onValueChange={(itemValue, itemIndex) => setSelectedLanguage(itemValue)} >
-                    <Picker.Item label="English" value="en" />
-                    <Picker.Item label="Tiếng Việt" value="vn" />
-                    <Picker.Item label="中国人" value="zh" />
-                    </Picker>
+            <Text>{t("common:languages")}</Text>
+            <Picker
+              selectedValue={selectedLanguageCode}
+              style={[styles.languageSelect, { color: paperTheme.colors.text }]}
+              dropdownIconColor={paperTheme.colors.text}
+              placeholder={selectedLanguageCode}
+              // itemStyle={{fontSize: 10}}
+              onValueChange={(itemValue, itemIndex) =>
+                setSelectedLanguage(itemValue)
+              }
+            >
+              <Picker.Item label="English" value="en" />
+              <Picker.Item label="Tiếng Việt" value="vn" />
+              <Picker.Item label="中国人" value="zh" />
+            </Picker>
           </View>
         </Drawer.Section>
       </Animated.View>
@@ -196,14 +224,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    alignItems: 'center'
+    alignItems: "center",
   },
   languageSelect: {
     flex: 1, // This flex is optional, but probably desired
-    alignItems: 'center',
-    flexDirection: 'row',
+    alignItems: "center",
+    flexDirection: "row",
     fontSize: 10,
     margin: 0,
-    padding: 0
-  }
+    padding: 0,
+  },
 });

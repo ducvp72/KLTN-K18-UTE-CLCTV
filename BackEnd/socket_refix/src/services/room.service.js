@@ -84,9 +84,9 @@ module.exports = (io, socket, userInfo) => {
   };
 
   const joinRoom = async (roomId) => {
-    const check = await findUserById(userInfo.id);
+    const check = await findUserById(socket.handshake.auth.userId);
     if (check) {
-      const mark = checkInRoomById(userInfo.id, roomId);
+      const mark = checkInRoomById(socket.handshake.auth.userId, roomId);
       if (mark) {
         const tempCurrent = {
           text: `You have joinned this room ${roomId} `,
@@ -104,7 +104,7 @@ module.exports = (io, socket, userInfo) => {
           },
         };
         console.log();
-        socket.emit("room:chat", formatMessage(tempCurrent)); //sending to sender-client only
+        socket.emit("room:load", formatMessage(tempCurrent)); //sending to sender-client only
       } else {
         await socket.join(roomId);
         const temp = {
@@ -123,7 +123,7 @@ module.exports = (io, socket, userInfo) => {
           },
         };
         // Broadcast when a user connects
-        // socket.broadcast.to(roomId).emit("room:chat", formatMessage(temp));
+        socket.broadcast.to(roomId).emit("room:specRoom", formatMessage(temp));
         await addRoomForUser(userInfo.id, roomId);
         getRoomInfo(roomId);
         console.log("RoomHandler", socket.rooms);
@@ -131,8 +131,8 @@ module.exports = (io, socket, userInfo) => {
     }
   };
 
-  const leaveRoom = async (roomId) => {
-    const user = checkInRoomById(userInfo.id, roomId);
+  const leaveRoom = async ({ roomId, userId }) => {
+    const user = checkInRoomById(socket.handshake.auth.userId, roomId);
 
     //Xoa khoi db
     // await UserGroup.findOneAndDelete({
@@ -145,16 +145,34 @@ module.exports = (io, socket, userInfo) => {
     console.log("Check thanh vien hien tai", socket.rooms);
 
     if (!user) return;
-
     const clientsInRoom = io.in(roomId).allSockets();
+
     console.log("CLIENT LEFT OF ROOM: ", roomId + " " + clientsInRoom);
 
-    await socket.leave(roomId);
+    //Ng Muon roi nhom
+    //Member: userId && socket.handshake.auth.userId
+    if (userId === socket.handshake.auth.userId) {
+      await socket.leave(roomId);
+      socket
+        .to(roomId)
+        .emit("room:specRoom", `${userInfo} leave the ${roomId}`);
+    }
+    // const sockets = await io.in("room1").fetchSockets();
+    // const socketUsercanxoa = io.sockets.connected[socketIdUserCanxoa]
+    // socketUsercanxoa.leave(roomId)
 
-    await deleteRoomOfUser(userInfo.id, roomId);
-
-    // socket.to(roomId).emit("room:chat", formatMessage(leaveTemp));
-
+    //Admin xoa Thanh vien
+    //Admin : socket.handshake.auth.userId
+    //Member: userId
+    if (userId !== socket.handshake.auth.userId) {
+      socket
+        .to(roomId)
+        .emit(
+          "room:specRoom",
+          `${userId} was kick by admin from the ${roomId}`
+        );
+    }
+    await deleteRoomOfUser(userId, roomId);
     getRoomInfo(roomId);
   };
 

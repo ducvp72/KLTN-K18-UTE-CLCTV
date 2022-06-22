@@ -33,7 +33,7 @@ const changeUser = async () => {
   // http://chatapp-api.eastasia.cloudapp.azure.com:8000
 
   //sua duong link o day
-  socket = await io("http://chatapp-api.eastasia.cloudapp.azure.com:8000", {
+  socket = await io("http://localhost:8000", {
     transports: ["polling"],
     reconnectionDelayMax: 10000,
     auth: { userId: token },
@@ -155,9 +155,10 @@ const adminKickRoom = (roomId) => {
 
 const leaveSpecialRoom = () => {
   const roomId = document.getElementById("roomId").value;
+  const userId = document.getElementById("userId").value;
   const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
   if (leaveRoom) {
-    socket.emit("room:out", roomId);
+    socket.emit("room:out", { roomId, userId });
     document.getElementById("roomId").value = "";
     console.log("You out this room: ", roomId);
   } else {

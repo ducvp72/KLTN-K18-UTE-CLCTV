@@ -258,6 +258,7 @@ function GroupInfoScreen(props) {
           roomId: groupId,
           message: signalDel,
         });
+        createSocketContext(auth.user.id);
         toggleLoad();
         ToastAndroid.show(t("common:complete"), 3);
         setLoading(false);

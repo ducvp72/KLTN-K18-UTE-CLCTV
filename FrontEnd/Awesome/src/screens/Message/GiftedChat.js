@@ -163,7 +163,7 @@ export function Chat(props) {
     // console.log('SOCKET CHANGE - GIFTEDCHAT')
     socketContext.on("room:chat", (message) => {
       // console.log('LISTEN ON SOCKET - GIFTEDCHAT')
-      if (message)
+      if (message.groupId == groupId || message.groupId === groupId)
         // console.log('Tin nhan Screen Message')
         setMessages((previousMessages) =>
           GiftedChat.append(previousMessages, [transformSingleMessage(message)])
@@ -200,11 +200,12 @@ export function Chat(props) {
         // pending: message.pending
       };
       if (message.text != "null" && message.text != undefined) {
+        // console.log("Text");
         transformedMessage.text = CryptoJS.AES.decrypt(
           message.text,
           groupId
         ).toString(CryptoJS.enc.Utf8);
-        if (message?.typeId != "-1") {
+        if (message.typeId != "-1") {
           transformedMessage.system = true;
           switch (message.typeId) {
             case "0": //tao
@@ -245,26 +246,31 @@ export function Chat(props) {
           }
         }
       } else if (message.video != "null" && message.video != undefined) {
+        // console.log("Video");
         transformedMessage.video = CryptoJS.AES.decrypt(
           message.video,
           groupId
         ).toString(CryptoJS.enc.Utf8);
       } else if (message.image != "null" && message.image != undefined) {
+        // console.log("Image");
         transformedMessage.image = CryptoJS.AES.decrypt(
           message.image,
           groupId
         ).toString(CryptoJS.enc.Utf8);
       } else if (message.voice != "null" && message.voice != undefined) {
+        // console.log("Voice");
         transformedMessage.voice = CryptoJS.AES.decrypt(
           message.voice,
           groupId
         ).toString(CryptoJS.enc.Utf8);
       } else if (message.file != "null" && message.file != undefined) {
+        // console.log("File");
         transformedMessage.file = CryptoJS.AES.decrypt(
           message.file,
           groupId
         ).toString(CryptoJS.enc.Utf8);
       } else if (message.location != "null" && message.location != undefined) {
+        // console.log("Location >>>> ", message.location);
         transformedMessage.location = message.location;
       }
       return transformedMessage;
@@ -274,7 +280,7 @@ export function Chat(props) {
 
   const transformSingleSentMessage = (message) => {
     if (isValidMessage(message)) {
-      // console.log('OUTPUT SENT MESSAGE: ' + JSON.stringify(message))
+      // console.log("OUTPUT SENT MESSAGE: ", message);
       let transformedMessage = {
         groupId: groupId,
         groupName: groupName,
@@ -296,8 +302,10 @@ export function Chat(props) {
         ).toString();
       } else if (message.video != "null") {
         transformedMessage.video = message.video;
-      } else {
+      } else if (message.image != "null") {
         transformedMessage.image = message.image;
+      } else {
+        transformedMessage.location = message.location;
       }
       return transformedMessage;
     }
@@ -319,20 +327,19 @@ export function Chat(props) {
     return [];
   };
 
-  const buzzMessage = [
-    {
-      _id: new Date().getTime(),
-      text: "📞 BUZZ!!!!",
-      createdAt: new Date(),
-      user: {
-        _id: 1,
-        name: auth.user.fullname,
-        avatar: auth.user.avatar,
-      },
-    },
-  ];
-
   const callBuzz = () => {
+    const buzzMessage = [
+      {
+        _id: new Date().getTime(),
+        text: "📞 BUZZ!!!!",
+        createdAt: new Date(),
+        user: {
+          _id: 1,
+          name: auth.user.fullname,
+          avatar: auth.user.avatar,
+        },
+      },
+    ];
     onSendTest(buzzMessage);
   };
 

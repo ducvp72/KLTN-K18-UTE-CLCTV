@@ -66,6 +66,19 @@ export function OtherUserProfileScreen(props) {
   };
 
   useEffect(() => {
+    socketContext.on("room:load", (message) => {
+      setTimeout(() => {
+        reloadRelation();
+      }, 2000);
+      reloadRelation();
+    });
+  }, [socketContext]);
+
+  useEffect(() => {
+    reloadRelation();
+  }, [loadRelation]);
+
+  const reloadRelation = () => {
     axios({
       method: "get",
       url: `${baseUrl}/friend/check-isFriend/` + otherUserId,
@@ -76,7 +89,7 @@ export function OtherUserProfileScreen(props) {
         setIsFriend(res.data);
       })
       .catch((err) => {});
-  }, [loadRelation]);
+  };
 
   const addFriend = () => {
     setLoading(true);
@@ -93,6 +106,10 @@ export function OtherUserProfileScreen(props) {
           socketContext.emit("room:signal", {
             userId: otherUserId,
             message: signalMsg,
+          });
+          socketContext.emit("room:signal", {
+            userId: auth.user.id,
+            message: signalMsgX,
           });
           setIsFriend(2);
           toggleLoad();
@@ -122,6 +139,10 @@ export function OtherUserProfileScreen(props) {
             userId: otherUserId,
             message: signalMsgAc,
           });
+          socketContext.emit("room:signal", {
+            userId: auth.user.id,
+            message: signalMsgX,
+          });
           toggleLoad();
           setIsFriend(1);
           ToastAndroid.show(t("common:complete"), 3);
@@ -150,6 +171,10 @@ export function OtherUserProfileScreen(props) {
             userId: otherUserId,
             message: signalMsgX,
           });
+          socketContext.emit("room:signal", {
+            userId: auth.user.id,
+            message: signalMsgX,
+          });
           toggleLoad();
           setIsFriend(0);
           ToastAndroid.show(t("common:complete"), 3);
@@ -176,6 +201,10 @@ export function OtherUserProfileScreen(props) {
         if (response) {
           socketContext.emit("room:signal", {
             userId: otherUserId,
+            message: signalMsgX,
+          });
+          socketContext.emit("room:signal", {
+            userId: auth.user.id,
             message: signalMsgX,
           });
           toggleLoad();

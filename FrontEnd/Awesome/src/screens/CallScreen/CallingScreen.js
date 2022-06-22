@@ -183,7 +183,7 @@ const CallingScreen = (props) => {
       call.current.off(Voximplant.CallEvents.Connected);
       call.current.off(Voximplant.CallEvents.Disconnected);
     };
-  }, [permissionGranted]);
+  }, [permissionGranted, videoCall]);
 
   const setupEndpointListeners = (endpoint, on) => {
     Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
@@ -202,11 +202,15 @@ const CallingScreen = (props) => {
       call.current.hangup();
       props.navigation.navigate("Messages");
     } catch {
-      // call.current.getEndpoints().forEach((endpoint) => {
-      //   setupEndpointListeners(endpoint, false);
-      // });
-      call.current.hangup();
-      props.navigation.navigate("Messages");
+      try {
+        call.current.getEndpoints().forEach((endpoint) => {
+          setupEndpointListeners(endpoint, false);
+        });
+        call.current.hangup();
+        props.navigation.navigate("Messages");
+      } catch {
+        props.navigation.navigate("Messages");
+      }
     }
   };
 
@@ -223,22 +227,26 @@ const CallingScreen = (props) => {
   const toggleVideo = () => {
     if (!videoCall) return;
     if (sendVideo == true) {
-      setSendVideo(false);
-      // calling.sendVideo(false)
+      setSendVideo(!sendVideo);
       call.current.sendVideo(false);
     } else {
-      setSendVideo(true);
-      // calling.sendVideo(true)
+      setSendVideo(!sendVideo);
       call.current.sendVideo(true);
+      call.current.on(
+        Voximplant.CallEvents.LocalVideoStreamAdded,
+        (callEvent) => {
+          setLocalVideoStreamId(callEvent.videoStream.id);
+        }
+      );
     }
   };
 
   const toggleMicrophone = () => {
     if (microphone == true) {
-      setMicrophone(false);
+      setMicrophone(!microphone);
       call.current.sendAudio(false);
     } else {
-      setMicrophone(true);
+      setMicrophone(!microphone);
       call.current.sendAudio(true);
     }
   };
@@ -256,14 +264,18 @@ const CallingScreen = (props) => {
       ) : (
         <></>
       )}
-      {videoCall == true && sendVideo == true ? (
-        <Voximplant.VideoView
-          videoStreamId={localVideoStreamId}
-          style={styles.localVideo}
-        />
+      {/* {videoCall ? (
+        sendVideo ? (
+          <Voximplant.VideoView
+            videoStreamId={localVideoStreamId}
+            style={styles.localVideo}
+          />
+        ) : (
+          <></>
+        )
       ) : (
         <></>
-      )}
+      )} */}
       <View style={styles.cameraPreview}>
         <Text style={styles.name}>{groupName}</Text>
         <Text style={styles.phoneNumber}>{callStatus}</Text>
@@ -282,7 +294,7 @@ const CallingScreen = (props) => {
 const styles = StyleSheet.create({
   page: {
     height: "100%",
-    backgroundColor: "transparent",
+    backgroundColor: "black",
   },
   cameraPreview: {
     flex: 1,
@@ -293,11 +305,12 @@ const styles = StyleSheet.create({
   localVideo: {
     width: 100,
     height: 150,
-    backgroundColor: "transparent",
+    backgroundColor: "red",
     borderRadius: 10,
     position: "absolute",
     right: 10,
     top: 10,
+    zIndex: 100,
   },
   remoteVideo: {
     backgroundColor: "transparent",
@@ -307,6 +320,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 100,
+    zIndex: 50,
   },
   name: {
     fontSize: 30,
