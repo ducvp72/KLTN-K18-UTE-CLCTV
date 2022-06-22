@@ -33,7 +33,7 @@ const changeUser = async () => {
   // http://chatapp-api.eastasia.cloudapp.azure.com:8000
 
   //sua duong link o day
-  socket = await io("http://localhost:8000", {
+  socket = await io("http://chatapp-api.eastasia.cloudapp.azure.com:8000", {
     transports: ["polling"],
     reconnectionDelayMax: 10000,
     auth: { userId: token },
