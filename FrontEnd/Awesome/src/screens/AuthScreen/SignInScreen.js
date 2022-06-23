@@ -118,6 +118,7 @@ function SignInScreen({ props, navigation }) {
               status === Voximplant.ClientState.LOGGING_IN
             ) {
               ToastAndroid.show("Login is in process...", 2);
+              setLoading(false);
               return;
             }
             const user = `${response.data.user.id}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
