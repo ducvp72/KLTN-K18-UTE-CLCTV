@@ -139,7 +139,7 @@ export function Chat(props) {
   const loadMessages = () => {
     axios({
       method: "get",
-      url: `${baseUrl}/message/${groupId}?sortBy=createdAt:desc&limit=30`,
+      url: `${baseUrl}/message/${groupId}?sortBy=createdAt:desc&limit=100`,
       headers: { Authorization: `Bearer ${auth.tokens.access.token}` },
       data: {},
     })
@@ -162,7 +162,7 @@ export function Chat(props) {
   useEffect(() => {
     // console.log('SOCKET CHANGE - GIFTEDCHAT')
     socketContext.on("room:chat", (message) => {
-      console.log("Tin nhan Screen Message >> ", message);
+      // console.log("Tin nhan Screen Message >> ", message);
       // console.log('LISTEN ON SOCKET - GIFTEDCHAT')
       if (message.groupId == groupId || message.groupId === groupId) {
         setMessages((previousMessages) =>
@@ -403,7 +403,7 @@ export function Chat(props) {
             GiftedChat.append(previousMessages, messages)
           );
           // setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-          ToastAndroid.show(t("common:complete"), 1);
+          // ToastAndroid.show(t("common:complete"), 1);
         })
         .catch(function (err) {
           const { message } = error;
@@ -478,7 +478,7 @@ export function Chat(props) {
     }).then((response) => {
       if (response.type == "success") {
         let { size, uri } = response;
-        if (size >= 10240) {
+        if (size >= 5024000) {
           ToastAndroid.show(t("common:under10MB"), 3);
           return;
         }

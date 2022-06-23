@@ -57,8 +57,8 @@ function SignInScreen({ props, navigation }) {
   }, []);
 
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("builam66@gmail.com");
-  const [password, setPassword] = useState("123456@User");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [hidePass, setHidePass] = useState(false);
   const icon = !hidePass ? "eye-slash" : "eye";
@@ -123,14 +123,14 @@ function SignInScreen({ props, navigation }) {
             }
             const user = `${response.data.user.id}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
             const authResult = await voximplant
-              .login(user, password)
+              .login(user, "123456@User")
               .then((result) => {
                 console.log("authResult >> ", result);
               });
           } catch (e) {
             ToastAndroid.show(`${t("common:errorOccured")}: ${e.code}`, 2);
             return;
-            // const authResult = await voximplant.login(user, password);
+            // const authResult = await voximplant.login(user, "123456@User");
           }
 
           getFCMToken();
@@ -197,11 +197,11 @@ function SignInScreen({ props, navigation }) {
       }
       const user = `${userId}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
 
-      const authResult = await voximplant.login(user, password);
+      const authResult = await voximplant.login(user, "123456@User");
     } catch (e) {
       console.log(e);
       return;
-      // const authResult = await voximplant.login(user, password);
+      // const authResult = await voximplant.login(user, "123456@User");
       ToastAndroid.show(`${t("common:errorOccured")}: ${e.code}`, 2);
     }
   };

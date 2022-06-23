@@ -12,6 +12,7 @@ import CallActions from "../../components/CallActions";
 import Ionicons from "react-native-vector-icons/Ionicons";
 // import {useNavigation, useRoute} from '@react-navigation/core';
 import { Voximplant } from "react-native-voximplant";
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./../../utils/AppStyles";
 
 const permissions = [
   PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
@@ -26,13 +27,13 @@ const CallingScreen = (props) => {
   const [sendVideo, setSendVideo] = useState(true);
   const [microphone, setMicrophone] = useState(true);
   const [frontCamera, setFrontCamera] = useState(true);
-  // const navigation = useNavigation();
-  // const route = useRoute();
+  const [localVideo, setLocalVideo] = useState(props.route.params.videoCall);
+  const [videoCall, setVideoCall] = useState(props.route.params.videoCall);
 
   const {
     friendId,
     groupName,
-    videoCall,
+    // videoCall,
     call: incomingCall,
     isIncomingCall,
   } = props.route.params;
@@ -143,7 +144,17 @@ const CallingScreen = (props) => {
       call.current.on(
         Voximplant.CallEvents.LocalVideoStreamAdded,
         (callEvent) => {
+          // console.log("LOCALVIDEO ADD >>>>>>>>>> ", callEvent.videoStream);
           setLocalVideoStreamId(callEvent.videoStream.id);
+          setLocalVideo(true);
+        }
+      );
+      call.current.on(
+        Voximplant.CallEvents.LocalVideoStreamRemoved,
+        (callEvent) => {
+          // console.log("LOCALVIDEO REMOVE >>>>>>>>>> ", callEvent.videoStream);
+          setLocalVideoStreamId(callEvent.videoStream.id);
+          setLocalVideo(false);
         }
       );
       call.current.on(Voximplant.CallEvents.EndpointAdded, (callEvent) => {
@@ -156,7 +167,16 @@ const CallingScreen = (props) => {
       endpoint.current.on(
         Voximplant.EndpointEvents.RemoteVideoStreamAdded,
         (endpointEvent) => {
+          // console.log("remote video add << ", endpointEvent.videoStream);
           setRemoteVideoStreamId(endpointEvent.videoStream.id);
+          setVideoCall(true);
+        }
+      );
+      endpoint.current.on(
+        Voximplant.EndpointEvents.RemoteVideoStreamRemoved,
+        (endpointEvent) => {
+          // console.log("remote video remove << ", endpointEvent.videoStream);
+          setVideoCall(false);
         }
       );
     };
@@ -183,7 +203,7 @@ const CallingScreen = (props) => {
       call.current.off(Voximplant.CallEvents.Connected);
       call.current.off(Voximplant.CallEvents.Disconnected);
     };
-  }, [permissionGranted, videoCall]);
+  }, [permissionGranted]);
 
   const setupEndpointListeners = (endpoint, on) => {
     Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
@@ -194,19 +214,19 @@ const CallingScreen = (props) => {
     });
   };
 
-  const onHangupPress = () => {
+  const onHangupPress = async () => {
     try {
-      call.current.getEndpoints().forEach((endpoint) => {
+      await call.current.getEndpoints().forEach((endpoint) => {
         setupEndpointListeners(endpoint, false);
       });
-      call.current.hangup();
+      await call.current.hangup();
       props.navigation.navigate("Messages");
     } catch {
       try {
-        call.current.getEndpoints().forEach((endpoint) => {
+        await call.current.getEndpoints().forEach((endpoint) => {
           setupEndpointListeners(endpoint, false);
         });
-        call.current.hangup();
+        await call.current.hangup();
         props.navigation.navigate("Messages");
       } catch {
         props.navigation.navigate("Messages");
@@ -214,40 +234,35 @@ const CallingScreen = (props) => {
     }
   };
 
-  const onChangeCamera = () => {
+  const onChangeCamera = async () => {
+    if (!videoCall) return;
     if (frontCamera == true) {
+      await camera.switchCamera(Voximplant.Hardware.CameraType.BACK);
       setFrontCamera(false);
-      camera.switchCamera(Voximplant.Hardware.CameraType.BACK);
     } else {
+      await camera.switchCamera(Voximplant.Hardware.CameraType.FRONT);
       setFrontCamera(true);
-      camera.switchCamera(Voximplant.Hardware.CameraType.FRONT);
     }
   };
 
-  const toggleVideo = () => {
+  const toggleVideo = async () => {
     if (!videoCall) return;
     if (sendVideo == true) {
+      await call.current.sendVideo(false);
       setSendVideo(!sendVideo);
-      call.current.sendVideo(false);
     } else {
+      await call.current.sendVideo(true);
       setSendVideo(!sendVideo);
-      call.current.sendVideo(true);
-      call.current.on(
-        Voximplant.CallEvents.LocalVideoStreamAdded,
-        (callEvent) => {
-          setLocalVideoStreamId(callEvent.videoStream.id);
-        }
-      );
     }
   };
 
-  const toggleMicrophone = () => {
+  const toggleMicrophone = async () => {
     if (microphone == true) {
+      await call.current.sendAudio(false);
       setMicrophone(!microphone);
-      call.current.sendAudio(false);
     } else {
+      await call.current.sendAudio(true);
       setMicrophone(!microphone);
-      call.current.sendAudio(true);
     }
   };
 
@@ -257,13 +272,29 @@ const CallingScreen = (props) => {
         <Ionicons name="chevron-back" color="black" size={25} />
       </Pressable>
       {videoCall ? (
-        <Voximplant.VideoView
-          videoStreamId={remoteVideoStreamId}
-          style={styles.remoteVideo}
-        />
-      ) : (
         <></>
+      ) : (
+        <View style={styles.hideRemoteVideo}>
+          <View style={styles.cameraPreview}>
+            <Text style={styles.name}>{groupName}</Text>
+            <Text style={styles.phoneNumber}>{callStatus}</Text>
+          </View>
+        </View>
       )}
+      {localVideo ? (
+        <Voximplant.VideoView
+          videoStreamId={localVideoStreamId}
+          style={styles.localVideo}
+          scaleType={Voximplant.RenderScaleType.SCALE_FIT}
+          showOnTop={true}
+        />
+      ) : null}
+      <Voximplant.VideoView
+        videoStreamId={remoteVideoStreamId}
+        style={styles.remoteVideo}
+        scaleType={Voximplant.RenderScaleType.SCALE_FIT}
+      />
+
       {/* {videoCall ? (
         sendVideo ? (
           <Voximplant.VideoView
@@ -276,10 +307,6 @@ const CallingScreen = (props) => {
       ) : (
         <></>
       )} */}
-      <View style={styles.cameraPreview}>
-        <Text style={styles.name}>{groupName}</Text>
-        <Text style={styles.phoneNumber}>{callStatus}</Text>
-      </View>
 
       <CallActions
         onHangupPress={onHangupPress}
@@ -294,23 +321,24 @@ const CallingScreen = (props) => {
 const styles = StyleSheet.create({
   page: {
     height: "100%",
-    backgroundColor: "black",
+    backgroundColor: "gray",
   },
   cameraPreview: {
     flex: 1,
     alignItems: "center",
     paddingTop: 10,
     paddingHorizontal: 10,
+    zIndex: 60,
   },
   localVideo: {
     width: 100,
     height: 150,
-    backgroundColor: "red",
+    backgroundColor: "transparent",
     borderRadius: 10,
     position: "absolute",
     right: 10,
     top: 10,
-    zIndex: 100,
+    zIndex: 55,
   },
   remoteVideo: {
     backgroundColor: "transparent",
@@ -337,7 +365,25 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     left: 10,
-    zIndex: 10,
+    zIndex: 60,
+  },
+  hideRemoteVideo: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+    backgroundColor: "gray",
+    position: "absolute",
+    right: 0,
+    top: 0,
+    zIndex: 51,
+  },
+  hideLocalVideo: {
+    backgroundColor: "transparent",
+    position: "absolute",
+    width: 100,
+    height: 150,
+    right: 10,
+    top: 10,
+    zIndex: 56,
   },
 });
 

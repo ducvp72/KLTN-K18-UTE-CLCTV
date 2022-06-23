@@ -44,10 +44,10 @@ function ProfileSetting(props) {
       return;
     }
 
-    if (validFullname.test(fullname) === false) {
-      ToastAndroid.show(t("common:fullname") + " " + t("common:invalid"), 2);
-      return;
-    }
+    // if (validFullname.test(fullname) === false) {
+    //   ToastAndroid.show(t("common:fullname") + " " + t("common:invalid"), 2);
+    //   return;
+    // }
     setLoading(true);
     axios({
       method: "put",
