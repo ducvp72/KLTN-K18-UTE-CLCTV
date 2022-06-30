@@ -1,6 +1,8 @@
 const httpStatus = require('http-status');
+const random = require('random-name');
 const Verifier = require('email-verifier');
 const catchAsync = require('../utils/catchAsync');
+const changeName = require('../utils/sort');
 const { authService, userService, tokenService, emailService, codeService } = require('../services');
 
 const checkValidEmail = catchAsync(async (req, res) => {
@@ -78,16 +80,21 @@ const randomDate = (start, end) => {
 };
 
 const cloneUser = catchAsync(async (req, res) => {
+  // eslint-disable-next-line no-plusplus
   const genderArr = ['male', 'female', 'other'];
-  const randome = Math.floor(Math.random() * 1000);
+  // const randome = Math.floor(Math.random() * 1000);
+  const fakename = random();
+  const temp = await changeName(fakename);
+  const element = temp.split(' ');
   const userClone = {
-    fullname: `fullname${randome}`,
+    // fullname: `fullname${randome}`,
+    fullname: `${fakename}`,
     birth: randomDate(new Date(2022, 0, 1), new Date()),
     isActivated: true,
     // eslint-disable-next-line no-bitwise
     gender: genderArr[(Math.random() * genderArr.length) | 0],
-    username: `username${randome}`,
-    email: `user${randome}@gmail.com`,
+    username: `${element[1]}.${element[0]}`,
+    email: `${element[1]}${element[0]}@gmail.com`,
     password: '123456@User',
   };
   const user = await userService.createUser(userClone);

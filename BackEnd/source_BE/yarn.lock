@@ -6037,6 +6037,11 @@
   "resolved" "https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz"
   "version" "1.2.3"
 
+"random-name@^0.1.2":
+  "integrity" "sha512-3UHvhW50ZMbm6R11J3G1WeKvvys3GWE0uw5IxPzJjIxG+c0QoIbMlWfRKBlji9boEXPBx4CiSL3XWIkO9T/OVA=="
+  "resolved" "https://registry.npmjs.org/random-name/-/random-name-0.1.2.tgz"
+  "version" "0.1.2"
+
 "range-parser@^1.2.0", "range-parser@~1.2.1":
   "integrity" "sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg=="
   "resolved" "https://registry.npmjs.org/range-parser/-/range-parser-1.2.1.tgz"
